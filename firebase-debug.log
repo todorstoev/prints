@@ -1,0 +1,52 @@
+[debug] [2019-12-10T18:38:47.272Z] ----------------------------------------------------------------------
+[debug] [2019-12-10T18:38:47.274Z] Command:       C:\Program Files\nodejs\node.exe E:\Work\prints\node_modules\firebase-tools\lib\bin\firebase.js serve
+[debug] [2019-12-10T18:38:47.274Z] CLI Version:   7.9.0
+[debug] [2019-12-10T18:38:47.274Z] Platform:      win32
+[debug] [2019-12-10T18:38:47.274Z] Node Version:  v10.13.0
+[debug] [2019-12-10T18:38:47.275Z] Time:          Tue Dec 10 2019 20:38:47 GMT+0200 (GMT+02:00)
+[debug] [2019-12-10T18:38:47.275Z] ----------------------------------------------------------------------
+[debug] [2019-12-10T18:38:47.275Z] 
+[debug] [2019-12-10T18:38:47.283Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2019-12-10T18:38:47.283Z] > authorizing via signed-in user
+[debug] [2019-12-10T18:38:47.284Z] [iam] checking project prints-9537b for permissions ["firebase.projects.get"]
+[debug] [2019-12-10T18:38:47.285Z] >>> HTTP REQUEST POST https://cloudresourcemanager.googleapis.com/v1/projects/prints-9537b:testIamPermissions  
+
+[debug] [2019-12-10T18:38:48.299Z] <<< HTTP RESPONSE 200
+[debug] [2019-12-10T18:38:48.300Z] >>> HTTP REQUEST GET https://firebase.googleapis.com/v1beta1/projects/prints-9537b  
+ 
+[debug] [2019-12-10T18:38:48.616Z] <<< HTTP RESPONSE 200
+[info] 
+[info] === Serving from 'E:\Work\prints'...
+[info] 
+[debug] [2019-12-10T18:38:48.619Z] >>> HTTP REQUEST GET https://firebase.googleapis.com/v1beta1/projects/prints-9537b/webApps/-/config  
+ 
+[debug] [2019-12-10T18:38:49.248Z] <<< HTTP RESPONSE 200
+[info] i  hosting: Serving hosting files from: build
+[info] +  hosting: Local server: http://localhost:5000
+[info] Shutting down...
+[debug] [2019-12-10T18:40:46.575Z] ----------------------------------------------------------------------
+[debug] [2019-12-10T18:40:46.576Z] Command:       C:\Program Files\nodejs\node.exe E:\Work\prints\node_modules\firebase-tools\lib\bin\firebase.js serve
+[debug] [2019-12-10T18:40:46.577Z] CLI Version:   7.9.0
+[debug] [2019-12-10T18:40:46.577Z] Platform:      win32
+[debug] [2019-12-10T18:40:46.577Z] Node Version:  v10.13.0
+[debug] [2019-12-10T18:40:46.578Z] Time:          Tue Dec 10 2019 20:40:46 GMT+0200 (GMT+02:00)
+[debug] [2019-12-10T18:40:46.578Z] ----------------------------------------------------------------------
+[debug] [2019-12-10T18:40:46.578Z] 
+[debug] [2019-12-10T18:40:46.585Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2019-12-10T18:40:46.585Z] > authorizing via signed-in user
+[debug] [2019-12-10T18:40:46.586Z] [iam] checking project prints-9537b for permissions ["firebase.projects.get"]
+[debug] [2019-12-10T18:40:46.587Z] >>> HTTP REQUEST POST https://cloudresourcemanager.googleapis.com/v1/projects/prints-9537b:testIamPermissions  
+
+[debug] [2019-12-10T18:40:47.538Z] <<< HTTP RESPONSE 200
+[debug] [2019-12-10T18:40:47.539Z] >>> HTTP REQUEST GET https://firebase.googleapis.com/v1beta1/projects/prints-9537b  
+ 
+[debug] [2019-12-10T18:40:47.796Z] <<< HTTP RESPONSE 200
+[info] 
+[info] === Serving from 'E:\Work\prints'...
+[info] 
+[debug] [2019-12-10T18:40:47.799Z] >>> HTTP REQUEST GET https://firebase.googleapis.com/v1beta1/projects/prints-9537b/webApps/-/config  
+ 
+[debug] [2019-12-10T18:40:48.435Z] <<< HTTP RESPONSE 200
+[info] i  hosting: Serving hosting files from: build
+[info] +  hosting: Local server: http://localhost:5000
+[info] Shutting down...
