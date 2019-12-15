@@ -1,18 +1,39 @@
-import React from 'react';
+import React from 'react'
+import { Route, Switch } from 'react-router-dom'
+import { connect, ConnectedProps } from 'react-redux'
 
-const App: React.FC = () => {
-	return (
-		<div className="App">
-			<header className="App-header">
-				<p>
-					Edit <code>src/App.tsx</code> and save to reload.
-				</p>
-				<a className="App-link" href="https://reactjs.org" target="_blank" rel="noopener noreferrer">
-					Learn React
-				</a>
-			</header>
-		</div>
-	);
-};
+import ProtectedRoute from './components/ProtectedRoute'
+import Home from './components/Home'
+import Login from './components/Login'
 
-export default App;
+import { RootState } from './types'
+
+const mapState = (state: RootState) => {
+    return {
+        isAuthenticated: state.auth.isAuthenticated,
+        isVerifying: state.auth.isVerifying,
+    }
+}
+
+const connector = connect(mapState)
+
+type PropsFromRedux = ConnectedProps<typeof connector>
+
+const App: React.FC<PropsFromRedux> = ({ isAuthenticated, isVerifying }) => {
+    return (
+        <div className="App">
+            <Switch>
+                <ProtectedRoute
+                    exact
+                    path="/"
+                    component={Home}
+                    isAuthenticated={isAuthenticated}
+                    isVerifying={isVerifying}
+                />
+                <Route path="/login" component={Login} />
+            </Switch>
+        </div>
+    )
+}
+
+export default connector(App)
