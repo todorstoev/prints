@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 
-const SignUp: React.FC<any> = ({ registerUser, loginError }) => {
+const SignUp: React.FC<any> = ({ registerUser, error }) => {
     const [email, setEmail] = useState<string>('')
     const [password, setPassword] = useState<string>('')
 
@@ -30,7 +30,7 @@ const SignUp: React.FC<any> = ({ registerUser, loginError }) => {
             <button type={'button'} onClick={handleSubmit}>
                 Register
             </button>
-            {loginError && <div>{loginError}</div>}
+            {error && <div>{error}</div>}
         </div>
     )
 }

@@ -6,7 +6,7 @@ import { RootState } from '../types'
 const mapState = (state: RootState) => {
     return {
         isLoggingOut: state.auth.isLoggingOut,
-        logoutError: state.auth.logoutError,
+        error: state.auth.error,
     }
 }
 
@@ -20,7 +20,7 @@ type PropsFromRedux = ConnectedProps<typeof connector>
 
 const Home: React.FC<PropsFromRedux> = ({
     isLoggingOut,
-    logoutError,
+    error,
     logoutUser,
 }) => {
     const handleLogout = () => logoutUser()
@@ -30,7 +30,7 @@ const Home: React.FC<PropsFromRedux> = ({
             <p>Any routes here will also be protected</p>
             <button onClick={handleLogout}>Logout</button>
             {isLoggingOut && <p>Logging Out....</p>}
-            {logoutError && <p>Error logging out</p>}
+            {error && <p>{error}</p>}
         </div>
     )
 }

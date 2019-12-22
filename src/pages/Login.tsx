@@ -8,7 +8,7 @@ import SignUp from '../components/Signup'
 const mapState = (state: RootState) => {
     return {
         isLoggingIn: state.auth.isLoggingIn,
-        loginError: state.auth.loginError,
+        error: state.auth.error,
         isAuthenticated: state.auth.isAuthenticated,
     }
 }
@@ -22,7 +22,7 @@ const connector = connect(mapState, mapDispatch)
 
 type PropsFromRedux = ConnectedProps<typeof connector>
 
-const LoginForm: React.FC<any> = ({ loginError, loginUser }) => {
+const LoginForm: React.FC<any> = ({ error, loginUser }) => {
     const [email, setEmail] = useState<string>('')
     const [password, setPassword] = useState<string>('')
 
@@ -53,14 +53,14 @@ const LoginForm: React.FC<any> = ({ loginError, loginUser }) => {
             <button type={'button'} onClick={handleSubmit}>
                 Sign In
             </button>
-            {loginError && <div>Incorrect email or password.</div>}
+            {error && <div>{error}</div>}
         </div>
     )
 }
 
 const Login: React.FC<PropsFromRedux> = ({
     isAuthenticated,
-    loginError,
+    error,
     loginUser,
     registerUser,
 }) => {
@@ -69,9 +69,9 @@ const Login: React.FC<PropsFromRedux> = ({
     return (
         <div>
             {isLogin ? (
-                <LoginForm {...{ loginError, loginUser }} />
+                <LoginForm {...{ error, loginUser }} />
             ) : (
-                <SignUp {...{ registerUser, loginError }} />
+                <SignUp {...{ error, registerUser }} />
             )}
             {isLogin ? (
                 <button onClick={() => setIsLogin(false)}>Sign Up</button>

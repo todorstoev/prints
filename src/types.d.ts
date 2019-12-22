@@ -2,8 +2,7 @@ export interface AuthState {
     isLoggingIn: boolean
     isLoggingOut: boolean
     isVerifying: boolean
-    loginError: boolean
-    logoutError: boolean
+    error: string | null
     isAuthenticated: boolean
     user: User
 }

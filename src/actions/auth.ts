@@ -1,15 +1,18 @@
 import { myFirebase } from '../firebase/firebase'
 import { Dispatch } from 'redux'
+import { FirebaseError } from 'firebase'
 
 export const LOGIN_REQUEST = 'LOGIN_REQUEST'
 export const LOGIN_SUCCESS = 'LOGIN_SUCCESS'
-export const LOGIN_FAILURE = 'LOGIN_FAILURE'
+
 export const REGISTER_REQUEST = 'REGISTER_REQUEST'
 export const REGISTER_SUCCESS = 'REGISTER_SUCCESS'
-export const REGISTER_FAILURE = 'REGISTER_FAILURE'
+
 export const LOGOUT_REQUEST = 'LOGOUT_REQUEST'
 export const LOGOUT_SUCCESS = 'LOGOUT_SUCCESS'
-export const LOGOUT_FAILURE = 'LOGOUT_FAILURE'
+
+export const ERROR = 'ERROR'
+
 export const VERIFY_REQUEST = 'VERIFY_REQUEST'
 export const VERIFY_SUCCESS = 'VERIFY_SUCCESS'
 
@@ -26,12 +29,6 @@ const receiveLogin = (user: any) => {
     }
 }
 
-const loginError = () => {
-    return {
-        type: LOGIN_FAILURE,
-    }
-}
-
 const requestRegister = () => {
     return {
         type: REGISTER_REQUEST,
@@ -45,12 +42,6 @@ const recieveRegister = (user: any) => {
     }
 }
 
-const registerError = () => {
-    return {
-        type: REGISTER_FAILURE,
-    }
-}
-
 const requestLogout = () => {
     return {
         type: LOGOUT_REQUEST,
@@ -60,12 +51,6 @@ const requestLogout = () => {
 const receiveLogout = () => {
     return {
         type: LOGOUT_SUCCESS,
-    }
-}
-
-const logoutError = () => {
-    return {
-        type: LOGOUT_FAILURE,
     }
 }
 
@@ -107,7 +92,7 @@ export const loginUser = (email: string, password: string) => (
         .then(user => {
             dispatch(receiveLogin(user))
         })
-        .catch(error => {
+        .catch((error: FirebaseError) => {
             //Do something with the error if you want!
             dispatch(loginError())
         })
