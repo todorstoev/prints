@@ -1,8 +1,9 @@
 import React, { useState } from 'react'
 import { connect, ConnectedProps } from 'react-redux'
 import { Redirect } from 'react-router-dom'
-import { loginUser } from '../actions'
+import { loginUser, registerUser } from '../actions'
 import { RootState } from '../types'
+import SignUp from '../components/Signup'
 
 const mapState = (state: RootState) => {
     return {
@@ -14,21 +15,16 @@ const mapState = (state: RootState) => {
 
 const mapDispatch = {
     loginUser,
+    registerUser,
 }
 
 const connector = connect(mapState, mapDispatch)
 
 type PropsFromRedux = ConnectedProps<typeof connector>
 
-const Login: React.FC<PropsFromRedux> = ({
-    isAuthenticated,
-    loginError,
-    loginUser,
-}: PropsFromRedux) => {
-    const [email, setEmail] = useState('')
-    const [password, setPassword] = useState('')
-
-    if (isAuthenticated) return <Redirect to="/" />
+const LoginForm: React.FC<any> = ({ loginError, loginUser }) => {
+    const [email, setEmail] = useState<string>('')
+    const [password, setPassword] = useState<string>('')
 
     const handleEmailChange = ({
         currentTarget,
@@ -42,7 +38,7 @@ const Login: React.FC<PropsFromRedux> = ({
 
     return (
         <div className={'login-form'}>
-            <div>Login</div>
+            <h1>Log In</h1>
             <input
                 name={'email'}
                 className={'email'}
@@ -51,12 +47,37 @@ const Login: React.FC<PropsFromRedux> = ({
             <input
                 name={'password'}
                 className={'password'}
+                type={'password'}
                 onChange={handlePasswordChange}
             />
             <button type={'button'} onClick={handleSubmit}>
                 Sign In
             </button>
             {loginError && <div>Incorrect email or password.</div>}
+        </div>
+    )
+}
+
+const Login: React.FC<PropsFromRedux> = ({
+    isAuthenticated,
+    loginError,
+    loginUser,
+    registerUser,
+}) => {
+    const [isLogin, setIsLogin] = useState<boolean>(true)
+    if (isAuthenticated) return <Redirect to="/" />
+    return (
+        <div>
+            {isLogin ? (
+                <LoginForm {...{ loginError, loginUser }} />
+            ) : (
+                <SignUp {...{ registerUser, loginError }} />
+            )}
+            {isLogin ? (
+                <button onClick={() => setIsLogin(false)}>Sign Up</button>
+            ) : (
+                <button onClick={() => setIsLogin(true)}>Log In</button>
+            )}
         </div>
     )
 }

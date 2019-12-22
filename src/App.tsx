@@ -3,8 +3,8 @@ import { Route, Switch } from 'react-router-dom'
 import { connect, ConnectedProps } from 'react-redux'
 
 import ProtectedRoute from './components/ProtectedRoute'
-import Home from './components/Home'
-import Login from './components/Login'
+import Home from './pages/Home'
+import Login from './pages/Login'
 
 import { RootState } from './types'
 

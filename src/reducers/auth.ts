@@ -2,6 +2,9 @@ import {
     LOGIN_REQUEST,
     LOGIN_SUCCESS,
     LOGIN_FAILURE,
+    REGISTER_SUCCESS,
+    REGISTER_REQUEST,
+    REGISTER_FAILURE,
     LOGOUT_REQUEST,
     LOGOUT_SUCCESS,
     LOGOUT_FAILURE,
@@ -38,6 +41,26 @@ export default (
                 user: action.user,
             }
         case LOGIN_FAILURE:
+            return {
+                ...state,
+                isLoggingIn: false,
+                isAuthenticated: false,
+                loginError: true,
+            }
+        case REGISTER_REQUEST:
+            return {
+                ...state,
+                isLoggingIn: true,
+                loginError: false,
+            }
+        case REGISTER_SUCCESS:
+            return {
+                ...state,
+                isLoggingIn: false,
+                isAuthenticated: true,
+                user: action.user,
+            }
+        case REGISTER_FAILURE:
             return {
                 ...state,
                 isLoggingIn: false,
