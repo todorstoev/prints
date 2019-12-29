@@ -1,15 +1,13 @@
 import {
     LOGIN_REQUEST,
     LOGIN_SUCCESS,
-    LOGIN_FAILURE,
     REGISTER_SUCCESS,
     REGISTER_REQUEST,
-    REGISTER_FAILURE,
     LOGOUT_REQUEST,
     LOGOUT_SUCCESS,
-    LOGOUT_FAILURE,
     VERIFY_REQUEST,
     VERIFY_SUCCESS,
+    ERROR,
 } from '../actions/'
 
 import { AuthState } from '../types'
@@ -39,12 +37,13 @@ export default (
                 isAuthenticated: true,
                 user: action.user,
             }
-        case LOGIN_FAILURE:
+        case ERROR:
             return {
                 ...state,
                 isLoggingIn: false,
                 isAuthenticated: false,
                 loginError: true,
+                error: action.error.message,
             }
         case REGISTER_REQUEST:
             return {
@@ -59,13 +58,6 @@ export default (
                 isAuthenticated: true,
                 user: action.user,
             }
-        case REGISTER_FAILURE:
-            return {
-                ...state,
-                isLoggingIn: false,
-                isAuthenticated: false,
-                loginError: true,
-            }
         case LOGOUT_REQUEST:
             return {
                 ...state,
@@ -78,12 +70,6 @@ export default (
                 isLoggingOut: false,
                 isAuthenticated: false,
                 user: {},
-            }
-        case LOGOUT_FAILURE:
-            return {
-                ...state,
-                isLoggingOut: false,
-                logoutError: true,
             }
         case VERIFY_REQUEST:
             return {

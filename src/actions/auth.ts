@@ -66,6 +66,13 @@ const verifySuccess = () => {
     }
 }
 
+const recieveError = (error: FirebaseError) => {
+    return {
+        type: ERROR,
+        error,
+    }
+}
+
 export const registerUser = (emal: string, password: string) => async (
     dispatch: Dispatch
 ): Promise<void> => {
@@ -78,7 +85,7 @@ export const registerUser = (emal: string, password: string) => async (
 
         dispatch(recieveRegister(user))
     } catch (e) {
-        dispatch(registerError())
+        dispatch(recieveError(e))
     }
 }
 
@@ -92,9 +99,9 @@ export const loginUser = (email: string, password: string) => (
         .then(user => {
             dispatch(receiveLogin(user))
         })
-        .catch((error: FirebaseError) => {
+        .catch((e: FirebaseError) => {
             //Do something with the error if you want!
-            dispatch(loginError())
+            dispatch(recieveError(e))
         })
 }
 
@@ -106,9 +113,9 @@ export const logoutUser = () => (dispatch: Dispatch) => {
         .then(() => {
             dispatch(receiveLogout())
         })
-        .catch(error => {
+        .catch(e => {
             //Do something with the error if you want!
-            dispatch(logoutError())
+            dispatch(recieveError(e))
         })
 }
 
