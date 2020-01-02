@@ -1,4 +1,6 @@
 import React, { useState } from 'react'
+import { Heading, Box, Text, Button } from 'rebass'
+import { Input } from '@rebass/forms'
 
 const SignUp: React.FC<any> = ({ registerUser, error }) => {
     const [email, setEmail] = useState<string>('')
@@ -14,24 +16,31 @@ const SignUp: React.FC<any> = ({ registerUser, error }) => {
 
     const handleSubmit = () => registerUser(email, password)
     return (
-        <div>
-            <h1>Sign Up</h1>
-            <input
+        <Box sx={{ margin: 'auto', width: '30%' }}>
+            <Heading fontSize={[5, 6, 7]}>Sign Up</Heading>
+
+            <Input
                 name={'email'}
                 className={'email'}
                 onChange={handleEmailChange}
             />
-            <input
+            <Input
                 name={'password'}
                 type={'password'}
                 className={'password'}
                 onChange={handlePasswordChange}
             />
-            <button type={'button'} onClick={handleSubmit}>
+            <Button
+                type={'button'}
+                onClick={handleSubmit}
+                variant="secondary"
+                mr={2}
+            >
                 Register
-            </button>
-            {error && <div>{error}</div>}
-        </div>
+            </Button>
+
+            {error && <Text>{error}</Text>}
+        </Box>
     )
 }
 

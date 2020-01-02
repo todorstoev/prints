@@ -4,6 +4,8 @@ import { Redirect } from 'react-router-dom'
 import { loginUser, registerUser } from '../actions'
 import { RootState } from '../types'
 import SignUp from '../components/Signup'
+import { Button, Box, Heading, Text } from 'rebass'
+import { Input } from '@rebass/forms'
 
 const mapState = (state: RootState) => {
     return {
@@ -37,24 +39,25 @@ const LoginForm: React.FC<any> = ({ error, loginUser }) => {
     const handleSubmit = () => loginUser(email, password)
 
     return (
-        <div className={'login-form'}>
-            <h1>Log In</h1>
-            <input
+        <Box className={'login-form'} sx={{ margin: 'auto', width: '30%' }}>
+            <Heading fontSize={[5, 6, 7]}>Log In</Heading>
+            <Input
                 name={'email'}
                 className={'email'}
                 onChange={handleEmailChange}
             />
-            <input
+            <Input
                 name={'password'}
                 className={'password'}
                 type={'password'}
                 onChange={handlePasswordChange}
             />
-            <button type={'button'} onClick={handleSubmit}>
+
+            <Button variant="primary" mr={2} onClick={handleSubmit}>
                 Sign In
-            </button>
-            {error && <div>{error}</div>}
-        </div>
+            </Button>
+            {error && <Text>{error}</Text>}
+        </Box>
     )
 }
 
@@ -67,18 +70,30 @@ const Login: React.FC<PropsFromRedux> = ({
     const [isLogin, setIsLogin] = useState<boolean>(true)
     if (isAuthenticated) return <Redirect to="/" />
     return (
-        <div>
+        <Box>
             {isLogin ? (
                 <LoginForm {...{ error, loginUser }} />
             ) : (
                 <SignUp {...{ error, registerUser }} />
             )}
             {isLogin ? (
-                <button onClick={() => setIsLogin(false)}>Sign Up</button>
+                <Button
+                    variant="outline"
+                    mr={2}
+                    onClick={() => setIsLogin(false)}
+                >
+                    Sign Up
+                </Button>
             ) : (
-                <button onClick={() => setIsLogin(true)}>Log In</button>
+                <Button
+                    variant="outline"
+                    mr={2}
+                    onClick={() => setIsLogin(true)}
+                >
+                    Log In
+                </Button>
             )}
-        </div>
+        </Box>
     )
 }
 
