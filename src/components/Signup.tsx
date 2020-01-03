@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { Heading, Box, Text, Button } from 'rebass'
 import { Input } from '@rebass/forms'
 
-const SignUp: React.FC<any> = ({ registerUser, error }) => {
+const SignUp: React.FC<any> = ({ registerUser, error, setIsLogin }) => {
     const [email, setEmail] = useState<string>('')
     const [password, setPassword] = useState<string>('')
 
@@ -22,24 +22,39 @@ const SignUp: React.FC<any> = ({ registerUser, error }) => {
             <Input
                 name={'email'}
                 className={'email'}
+                mt={2}
                 onChange={handleEmailChange}
             />
             <Input
                 name={'password'}
                 type={'password'}
                 className={'password'}
+                mt={2}
+                mb={2}
                 onChange={handlePasswordChange}
             />
             <Button
                 type={'button'}
                 onClick={handleSubmit}
-                variant="secondary"
+                variant="primary"
                 mr={2}
             >
                 Register
             </Button>
-
-            {error && <Text>{error}</Text>}
+            <Button
+                variant="secondary"
+                mr={2}
+                onClick={() => {
+                    setIsLogin(true)
+                }}
+            >
+                Sign In
+            </Button>
+            {error && (
+                <Text color="error" mt={2}>
+                    {error}
+                </Text>
+            )}
         </Box>
     )
 }

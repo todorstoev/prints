@@ -28,7 +28,7 @@ export default (
             return {
                 ...state,
                 isLoggingIn: true,
-                loginError: false,
+                error: null,
             }
         case LOGIN_SUCCESS:
             return {
@@ -36,20 +36,20 @@ export default (
                 isLoggingIn: false,
                 isAuthenticated: true,
                 user: action.user,
+                error: null,
             }
         case ERROR:
             return {
                 ...state,
                 isLoggingIn: false,
                 isAuthenticated: false,
-                loginError: true,
                 error: action.error.message,
             }
         case REGISTER_REQUEST:
             return {
                 ...state,
                 isLoggingIn: true,
-                loginError: false,
+                error: null,
             }
         case REGISTER_SUCCESS:
             return {
@@ -57,30 +57,33 @@ export default (
                 isLoggingIn: false,
                 isAuthenticated: true,
                 user: action.user,
+                error: null,
             }
         case LOGOUT_REQUEST:
             return {
                 ...state,
                 isLoggingOut: true,
-                logoutError: false,
+                error: null,
             }
         case LOGOUT_SUCCESS:
             return {
                 ...state,
                 isLoggingOut: false,
                 isAuthenticated: false,
+                error: null,
                 user: {},
             }
         case VERIFY_REQUEST:
             return {
                 ...state,
                 isVerifying: true,
-                verifyingError: false,
+                error: null,
             }
         case VERIFY_SUCCESS:
             return {
                 ...state,
                 isVerifying: false,
+                error: null,
             }
         default:
             return state

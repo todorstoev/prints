@@ -73,20 +73,19 @@ const recieveError = (error: FirebaseError) => {
     }
 }
 
-export const registerUser = (emal: string, password: string) => async (
+export const registerUser = (emal: string, password: string) => (
     dispatch: Dispatch
-): Promise<void> => {
-    try {
-        dispatch(requestRegister())
-
-        const user = await myFirebase
-            .auth()
-            .createUserWithEmailAndPassword(emal, password)
-
-        dispatch(recieveRegister(user))
-    } catch (e) {
-        dispatch(recieveError(e))
-    }
+): void => {
+    dispatch(requestRegister())
+    myFirebase
+        .auth()
+        .createUserWithEmailAndPassword(emal, password)
+        .then(user => {
+            dispatch(recieveRegister(user))
+        })
+        .catch((e: FirebaseError) => {
+            dispatch(recieveError(e))
+        })
 }
 
 export const loginUser = (email: string, password: string) => (
@@ -100,7 +99,6 @@ export const loginUser = (email: string, password: string) => (
             dispatch(receiveLogin(user))
         })
         .catch((e: FirebaseError) => {
-            //Do something with the error if you want!
             dispatch(recieveError(e))
         })
 }

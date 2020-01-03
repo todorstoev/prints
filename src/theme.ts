@@ -2,8 +2,9 @@ export const theme = {
     colors: {
         text: '#000',
         background: '#fff',
-        primary: '#07c',
-        secondary: '#30c',
+        primary: '#a0c',
+        secondary: '#30e',
+        error: '#d93b48',
         muted: '#f6f6f9',
         gray: '#dddddf',
         highlight: 'hsla(205, 100%, 40%, 0.125)',
@@ -104,5 +105,24 @@ export const theme = {
             fontWeight: 'body',
             lineHeight: 'body',
         },
+    },
+    forms: {
+        input: {
+            color: 'text',
+            ':focus': {
+                borderColor: 'secondary',
+                boxShadow: 'secondary',
+                outline: 'none',
+            },
+
+            borderColor: 'lightgray',
+        },
+        select: {
+            borderRadius: 9999,
+        },
+        textarea: {},
+        label: {},
+        radio: {},
+        checkbox: {},
     },
 }

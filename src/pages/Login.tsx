@@ -24,7 +24,7 @@ const connector = connect(mapState, mapDispatch)
 
 type PropsFromRedux = ConnectedProps<typeof connector>
 
-const LoginForm: React.FC<any> = ({ error, loginUser }) => {
+const LoginForm: React.FC<any> = ({ error, loginUser, setIsLogin }) => {
     const [email, setEmail] = useState<string>('')
     const [password, setPassword] = useState<string>('')
 
@@ -44,19 +44,35 @@ const LoginForm: React.FC<any> = ({ error, loginUser }) => {
             <Input
                 name={'email'}
                 className={'email'}
+                mt={2}
                 onChange={handleEmailChange}
             />
             <Input
                 name={'password'}
                 className={'password'}
                 type={'password'}
+                mt={2}
+                mb={2}
                 onChange={handlePasswordChange}
             />
 
             <Button variant="primary" mr={2} onClick={handleSubmit}>
                 Sign In
             </Button>
-            {error && <Text>{error}</Text>}
+            <Button
+                variant="secondary"
+                mr={2}
+                onClick={() => {
+                    setIsLogin(false)
+                }}
+            >
+                Sign Up
+            </Button>
+            {error && (
+                <Text color="error" mt={2}>
+                    {error}
+                </Text>
+            )}
         </Box>
     )
 }
@@ -72,26 +88,9 @@ const Login: React.FC<PropsFromRedux> = ({
     return (
         <Box>
             {isLogin ? (
-                <LoginForm {...{ error, loginUser }} />
+                <LoginForm {...{ error, loginUser, setIsLogin }} />
             ) : (
-                <SignUp {...{ error, registerUser }} />
-            )}
-            {isLogin ? (
-                <Button
-                    variant="outline"
-                    mr={2}
-                    onClick={() => setIsLogin(false)}
-                >
-                    Sign Up
-                </Button>
-            ) : (
-                <Button
-                    variant="outline"
-                    mr={2}
-                    onClick={() => setIsLogin(true)}
-                >
-                    Log In
-                </Button>
+                <SignUp {...{ error, registerUser, setIsLogin }} />
             )}
         </Box>
     )
