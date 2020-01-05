@@ -4,8 +4,10 @@ import { Redirect } from 'react-router-dom'
 import { loginUser, registerUser } from '../actions'
 import { RootState } from '../types'
 import SignUp from '../components/Signup'
-import { Button, Box, Heading, Text } from 'rebass'
-import { Input } from '@rebass/forms'
+import { Button, Box, Heading, Text, Flex } from 'rebass'
+import { Input, Label } from '@rebass/forms'
+
+import { useSpring, animated as a } from 'react-spring'
 
 const mapState = (state: RootState) => {
     return {
@@ -22,7 +24,7 @@ const mapDispatch = {
 
 const connector = connect(mapState, mapDispatch)
 
-type PropsFromRedux = ConnectedProps<typeof connector>
+export type PropsFromRedux = ConnectedProps<typeof connector>
 
 const LoginForm: React.FC<any> = ({ error, loginUser, setIsLogin }) => {
     const [email, setEmail] = useState<string>('')
@@ -39,41 +41,59 @@ const LoginForm: React.FC<any> = ({ error, loginUser, setIsLogin }) => {
     const handleSubmit = () => loginUser(email, password)
 
     return (
-        <Box className={'login-form'} sx={{ margin: 'auto', width: '30%' }}>
-            <Heading fontSize={[5, 6, 7]}>Log In</Heading>
-            <Input
-                name={'email'}
-                className={'email'}
-                mt={2}
-                onChange={handleEmailChange}
-            />
-            <Input
-                name={'password'}
-                className={'password'}
-                type={'password'}
-                mt={2}
-                mb={2}
-                onChange={handlePasswordChange}
-            />
-
-            <Button variant="primary" mr={2} onClick={handleSubmit}>
-                Sign In
-            </Button>
-            <Button
-                variant="secondary"
-                mr={2}
-                onClick={() => {
-                    setIsLogin(false)
-                }}
+        <Flex flexWrap="wrap" flex="1 0 auto" justifyContent={'space-evenly'}>
+            <Box
+                sx={{ borderRadius: 5 }}
+                width={[1 / 2, 1 / 2, 1 / 3, 1 / 5]}
+                className={'login-form'}
+                margin={'10% auto'}
+                as="form"
+                onSubmit={e => e.preventDefault()}
+                p={20}
+                backgroundColor={'#fff'}
             >
-                Sign Up
-            </Button>
-            {error && (
-                <Text color="error" mt={2}>
-                    {error}
-                </Text>
-            )}
-        </Box>
+                <Heading fontSize={[5, 6, 7]}>Log In</Heading>
+                <Label htmlFor="email">Email</Label>
+
+                <Input
+                    autoComplete={'on'}
+                    name={'email'}
+                    className={'email'}
+                    mt={2}
+                    onChange={handleEmailChange}
+                />
+                <Label htmlFor="password">Password</Label>
+                <Input
+                    autoComplete={'on'}
+                    name={'password'}
+                    className={'password'}
+                    type={'password'}
+                    mb={2}
+                    onChange={handlePasswordChange}
+                />
+                <Box height={25}>
+                    {error && (
+                        <Text color="error" mt={2}>
+                            {error}
+                        </Text>
+                    )}
+                </Box>
+                <Box mt={20}>
+                    <Button variant="primary" mr={2} onClick={handleSubmit}>
+                        Sign In
+                    </Button>
+                    <Button
+                        variant="secondary"
+                        mr={2}
+                        onClick={() => {
+                            setIsLogin(false)
+                        }}
+                    >
+                        Sign Up
+                    </Button>
+                </Box>
+            </Box>
+        </Flex>
     )
 }
 
@@ -84,13 +104,42 @@ const Login: React.FC<PropsFromRedux> = ({
     registerUser,
 }) => {
     const [isLogin, setIsLogin] = useState<boolean>(true)
+
+    const { transform, opacity } = useSpring({
+        opacity: !isLogin ? 1 : 0,
+        transform: `perspective(600px) rotateX(${!isLogin ? 180 : 0}deg)`,
+        config: { mass: 5, tension: 500, friction: 80 },
+    })
+
     if (isAuthenticated) return <Redirect to="/" />
     return (
-        <Box>
+        <Box
+            height={'100vh'}
+            sx={{
+                backgroundImage: 'linear-gradient(to left, #00f260, #0575e6);',
+                overflow: 'hidden',
+            }}
+        >
             {isLogin ? (
-                <LoginForm {...{ error, loginUser, setIsLogin }} />
+                <a.div
+                    style={{
+                        opacity: opacity.interpolate((o: any) => 1 - o),
+                        transform,
+                    }}
+                >
+                    <LoginForm {...{ error, loginUser, setIsLogin }} />
+                </a.div>
             ) : (
-                <SignUp {...{ error, registerUser, setIsLogin }} />
+                <a.div
+                    style={{
+                        opacity,
+                        transform: transform.interpolate(
+                            t => `${t} rotateX(180deg)`
+                        ),
+                    }}
+                >
+                    <SignUp {...{ error, registerUser, setIsLogin }} />
+                </a.div>
             )}
         </Box>
     )
