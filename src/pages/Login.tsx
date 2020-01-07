@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { connect, ConnectedProps } from 'react-redux'
 import { Redirect } from 'react-router-dom'
-import { loginUser, registerUser } from '../actions'
+import { loginUser, registerUser, loginGoogle } from '../actions'
 import { RootState } from '../types'
 import SignUp from '../components/Signup'
 import { Button, Box, Heading, Text, Flex } from 'rebass'
@@ -20,13 +20,19 @@ const mapState = (state: RootState) => {
 const mapDispatch = {
     loginUser,
     registerUser,
+    loginGoogle,
 }
 
 const connector = connect(mapState, mapDispatch)
 
 export type PropsFromRedux = ConnectedProps<typeof connector>
 
-const LoginForm: React.FC<any> = ({ error, loginUser, setIsLogin }) => {
+const LoginForm: React.FC<any> = ({
+    error,
+    loginUser,
+    setIsLogin,
+    loginGoogle,
+}) => {
     const [email, setEmail] = useState<string>('')
     const [password, setPassword] = useState<string>('')
 
@@ -91,6 +97,15 @@ const LoginForm: React.FC<any> = ({ error, loginUser, setIsLogin }) => {
                     >
                         Sign Up
                     </Button>
+                    <Button
+                        variant="secondary"
+                        mr={2}
+                        onClick={() => {
+                            loginGoogle()
+                        }}
+                    >
+                        Google
+                    </Button>
                 </Box>
             </Box>
         </Flex>
@@ -102,6 +117,7 @@ const Login: React.FC<PropsFromRedux> = ({
     error,
     loginUser,
     registerUser,
+    loginGoogle,
 }) => {
     const [isLogin, setIsLogin] = useState<boolean>(true)
 
@@ -127,7 +143,9 @@ const Login: React.FC<PropsFromRedux> = ({
                         transform,
                     }}
                 >
-                    <LoginForm {...{ error, loginUser, setIsLogin }} />
+                    <LoginForm
+                        {...{ error, loginUser, setIsLogin, loginGoogle }}
+                    />
                 </a.div>
             ) : (
                 <a.div

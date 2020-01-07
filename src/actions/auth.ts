@@ -1,4 +1,4 @@
-import { myFirebase } from '../firebase/firebase'
+import { myFirebase, googleProvider } from '../firebase/firebase'
 import { Dispatch } from 'redux'
 import { FirebaseError } from 'firebase'
 
@@ -88,6 +88,22 @@ export const registerUser = (emal: string, password: string) => (
         })
 }
 
+export const loginGoogle = () => (dispatch: Dispatch) => {
+    dispatch(requestLogin())
+    myFirebase
+        .auth()
+        .signInWithRedirect(googleProvider)
+        .then(user => {
+            debugger
+            dispatch(receiveLogin(user))
+            console.log(user)
+        })
+        .catch(e => {
+            console.log(e)
+            dispatch(recieveError(e))
+        })
+}
+
 export const loginUser = (email: string, password: string) => (
     dispatch: Dispatch
 ): void => {
@@ -118,6 +134,7 @@ export const logoutUser = () => (dispatch: Dispatch) => {
 }
 
 export const verifyAuth: any = () => (dispatch: Dispatch) => {
+    debugger
     dispatch(verifyRequest())
     myFirebase.auth().onAuthStateChanged(user => {
         if (user !== null) {
