@@ -5,8 +5,10 @@ import { connect, ConnectedProps } from 'react-redux'
 import ProtectedRoute from './components/ProtectedRoute'
 import Home from './pages/Home'
 import Login from './pages/Login'
+import NavBar from './components/NavBar'
 
 import { RootState } from './types'
+import { NoMatch } from './pages/404'
 
 const mapState = (state: RootState) => {
     return {
@@ -22,6 +24,7 @@ type PropsFromRedux = ConnectedProps<typeof connector>
 const App: React.FC<PropsFromRedux> = ({ isAuthenticated, isVerifying }) => {
     return (
         <div className="App">
+            <NavBar></NavBar>
             <Switch>
                 <ProtectedRoute
                     exact
@@ -31,6 +34,7 @@ const App: React.FC<PropsFromRedux> = ({ isAuthenticated, isVerifying }) => {
                     isVerifying={isVerifying}
                 />
                 <Route path="/login" component={Login} />
+                <Route component={NoMatch} />
             </Switch>
         </div>
     )

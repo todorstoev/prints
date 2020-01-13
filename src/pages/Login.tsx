@@ -49,7 +49,6 @@ const LoginForm: React.FC<any> = ({
     return (
         <Flex flexWrap="wrap" flex="1 0 auto" justifyContent={'space-evenly'}>
             <Box
-                sx={{ borderRadius: 5 }}
                 width={[1 / 2, 1 / 2, 1 / 3, 1 / 5]}
                 className={'login-form'}
                 margin={'10% auto'}
@@ -58,54 +57,73 @@ const LoginForm: React.FC<any> = ({
                 p={20}
                 backgroundColor={'#fff'}
             >
-                <Heading fontSize={[5, 6, 7]}>Log In</Heading>
-                <Label htmlFor="email">Email</Label>
+                <Box
+                    p={1}
+                    sx={{
+                        borderRadius: 6,
+                        backgroundImage:
+                            'linear-gradient(to left, #00f260, #0575e6);',
+                    }}
+                >
+                    <Box
+                        p={4}
+                        backgroundColor={'#fff'}
+                        sx={{ borderRadius: 6 }}
+                    >
+                        <Heading fontSize={[5, 6, 7]}>Log In</Heading>
+                        <Label htmlFor="email">Email</Label>
 
-                <Input
-                    autoComplete={'on'}
-                    name={'email'}
-                    className={'email'}
-                    mt={2}
-                    onChange={handleEmailChange}
-                />
-                <Label htmlFor="password">Password</Label>
-                <Input
-                    autoComplete={'on'}
-                    name={'password'}
-                    className={'password'}
-                    type={'password'}
-                    mb={2}
-                    onChange={handlePasswordChange}
-                />
-                <Box height={25}>
-                    {error && (
-                        <Text color="error" mt={2}>
-                            {error}
-                        </Text>
-                    )}
-                </Box>
-                <Box mt={20}>
-                    <Button variant="primary" mr={2} onClick={handleSubmit}>
-                        Sign In
-                    </Button>
-                    <Button
-                        variant="secondary"
-                        mr={2}
-                        onClick={() => {
-                            setIsLogin(false)
-                        }}
-                    >
-                        Sign Up
-                    </Button>
-                    <Button
-                        variant="secondary"
-                        mr={2}
-                        onClick={() => {
-                            loginGoogle()
-                        }}
-                    >
-                        Google
-                    </Button>
+                        <Input
+                            autoComplete={'on'}
+                            name={'email'}
+                            className={'email'}
+                            mt={2}
+                            onChange={handleEmailChange}
+                        />
+                        <Label htmlFor="password">Password</Label>
+                        <Input
+                            autoComplete={'on'}
+                            name={'password'}
+                            className={'password'}
+                            type={'password'}
+                            mb={2}
+                            onChange={handlePasswordChange}
+                        />
+                        <Box height={25}>
+                            {error && (
+                                <Text color="error" mt={2}>
+                                    {error}
+                                </Text>
+                            )}
+                        </Box>
+                        <Box mt={20}>
+                            <Button
+                                variant="primary"
+                                mr={2}
+                                onClick={handleSubmit}
+                            >
+                                Log In
+                            </Button>
+                            <Button
+                                variant="secondary"
+                                mr={2}
+                                onClick={() => {
+                                    setIsLogin(false)
+                                }}
+                            >
+                                Sign Up
+                            </Button>
+                            <Button
+                                variant="secondary"
+                                mr={2}
+                                onClick={() => {
+                                    loginGoogle()
+                                }}
+                            >
+                                Google
+                            </Button>
+                        </Box>
+                    </Box>
                 </Box>
             </Box>
         </Flex>
@@ -130,9 +148,9 @@ const Login: React.FC<PropsFromRedux> = ({
     if (isAuthenticated) return <Redirect to="/" />
     return (
         <Box
-            height={'100vh'}
+            height={'100%'}
             sx={{
-                backgroundImage: 'linear-gradient(to left, #00f260, #0575e6);',
+                // backgroundImage: 'linear-gradient(to left, #00f260, #0575e6);',
                 overflow: 'hidden',
             }}
         >

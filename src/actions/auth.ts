@@ -92,9 +92,8 @@ export const loginGoogle = () => (dispatch: Dispatch) => {
     dispatch(requestLogin())
     myFirebase
         .auth()
-        .signInWithRedirect(googleProvider)
+        .signInWithPopup(googleProvider)
         .then(user => {
-            debugger
             dispatch(receiveLogin(user))
             console.log(user)
         })
@@ -134,8 +133,8 @@ export const logoutUser = () => (dispatch: Dispatch) => {
 }
 
 export const verifyAuth: any = () => (dispatch: Dispatch) => {
-    debugger
     dispatch(verifyRequest())
+
     myFirebase.auth().onAuthStateChanged(user => {
         if (user !== null) {
             dispatch(receiveLogin(user))

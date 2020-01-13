@@ -11,7 +11,7 @@ const configureStore = (persistedState?: any) => {
         persistedState,
         applyMiddleware(thunkMiddleware, logger)
     )
-  
+
     store.dispatch(verifyAuth())
     return store
 }
