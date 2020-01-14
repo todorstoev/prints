@@ -1,23 +1,22 @@
 import React from 'react'
-import { connect } from 'react-redux'
+import { connect, ConnectedProps } from 'react-redux'
 import { RootState, AuthState } from '../types'
 import { Flex, Text, Link, Box } from 'rebass'
-
-export interface OwnProps {
-    propFromParent: number
-}
+import { logoutUser } from '../actions'
 
 const mapStateToProps = (state: RootState) => {
     return state.auth
 }
 
-interface StateProps {
-    propFromReduxStore: string
+const mapDispatch = {
+    logoutUser,
 }
 
-const connector = connect(mapStateToProps)
+const connector = connect(mapStateToProps, mapDispatch)
 
-const NavBar: React.FC<AuthState> = ({ isAuthenticated }) => {
+type PropsFromRedux = ConnectedProps<typeof connector>
+
+const NavBar: React.FC<PropsFromRedux> = ({ isAuthenticated, logoutUser }) => {
     return (
         <Flex px={2} color="white" bg="black" alignItems="center">
             <Text p={2} fontWeight="bold">
@@ -35,6 +34,11 @@ const NavBar: React.FC<AuthState> = ({ isAuthenticated }) => {
             {!isAuthenticated && (
                 <Link variant="nav" href="/login">
                     Log In
+                </Link>
+            )}
+            {isAuthenticated && (
+                <Link variant="nav" onClick={() => logoutUser()}>
+                    Log Out
                 </Link>
             )}
         </Flex>
