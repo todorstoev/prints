@@ -24,12 +24,19 @@ const NavBar: React.FC<AuthState> = ({ isAuthenticated }) => {
                 3DReact
             </Text>
             <Box mx="auto" />
+            {isAuthenticated && (
+                <Link variant="nav" href="/about">
+                    Device
+                </Link>
+            )}
             <Link variant="nav" href="/about">
                 About
             </Link>
-            <Link variant="nav" href="/login">
-                Log In
-            </Link>
+            {!isAuthenticated && (
+                <Link variant="nav" href="/login">
+                    Log In
+                </Link>
+            )}
         </Flex>
     )
 }

@@ -4,10 +4,11 @@ import { Redirect } from 'react-router-dom'
 import { loginUser, registerUser, loginGoogle } from '../actions'
 import { RootState } from '../types'
 import SignUp from '../components/Signup'
-import { Button, Box, Heading, Text, Flex } from 'rebass'
-import { Input, Label } from '@rebass/forms'
+import { Button, Box, Heading, Text, Flex, Link } from 'rebass'
+import { Input, Label, Checkbox } from '@rebass/forms'
 
 import { useSpring, animated as a } from 'react-spring'
+import { theme } from '../theme'
 
 const mapState = (state: RootState) => {
     return {
@@ -49,9 +50,9 @@ const LoginForm: React.FC<any> = ({
     return (
         <Flex flexWrap="wrap" flex="1 0 auto" justifyContent={'space-evenly'}>
             <Box
-                width={[1 / 2, 1 / 2, 1 / 3, 1 / 5]}
+                width={['25%']}
                 className={'login-form'}
-                margin={'10% auto'}
+                margin={'100px  auto'}
                 as="form"
                 onSubmit={e => e.preventDefault()}
                 p={20}
@@ -60,9 +61,9 @@ const LoginForm: React.FC<any> = ({
                 <Box
                     p={1}
                     sx={{
+                        textAlign: 'center',
                         borderRadius: 6,
-                        backgroundImage:
-                            'linear-gradient(to left, #00f260, #0575e6);',
+                        backgroundImage: `linear-gradient(to left, ${theme.colors.secondary}, ${theme.colors.primary});`,
                     }}
                 >
                     <Box
@@ -89,40 +90,62 @@ const LoginForm: React.FC<any> = ({
                             mb={2}
                             onChange={handlePasswordChange}
                         />
-                        <Box height={25}>
+                        <Box height={50}>
                             {error && (
                                 <Text color="error" mt={2}>
                                     {error}
                                 </Text>
                             )}
                         </Box>
-                        <Box mt={20}>
+                        <Flex>
+                            <Box width={1 / 2}>
+                                <Label>
+                                    <Checkbox id="remember" name="remember" />
+                                    Remember me
+                                </Label>
+                            </Box>
+                            <Box width={1 / 2}>
+                                <Link href="https://rebassjs.org">
+                                    Forget Your Password ?
+                                </Link>
+                            </Box>
+                        </Flex>
+                        <Box mt={20} width={[1 / 1]}>
                             <Button
-                                variant="primary"
-                                mr={2}
+                                variant="secondary"
                                 onClick={handleSubmit}
+                                width={[1 / 1]}
                             >
                                 Log In
                             </Button>
+                        </Box>
+                        <Box mt={15} width={[1 / 1]}>
                             <Button
-                                variant="secondary"
-                                mr={2}
-                                onClick={() => {
-                                    setIsLogin(false)
-                                }}
-                            >
-                                Sign Up
-                            </Button>
-                            <Button
-                                variant="secondary"
-                                mr={2}
+                                width={[1 / 1]}
+                                variant="primary"
                                 onClick={() => {
                                     loginGoogle()
                                 }}
                             >
-                                Google
+                                Login with Google
                             </Button>
                         </Box>
+                        <Flex flexWrap="wrap" mt={20} justifyContent={'start'}>
+                            <Text mr={3}>Dont have account ?</Text>
+
+                            <Link
+                                sx={{
+                                    ':hover': {
+                                        cursor: 'pointer',
+                                    },
+                                }}
+                                onClick={() => {
+                                    setIsLogin(false)
+                                }}
+                            >
+                                Register
+                            </Link>
+                        </Flex>
                     </Box>
                 </Box>
             </Box>

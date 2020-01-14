@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
-import { Heading, Box, Text, Button, Flex } from 'rebass'
+import { Heading, Box, Text, Button, Flex, Link } from 'rebass'
 import { Input, Label } from '@rebass/forms'
+import { theme } from '../theme'
 
 const SignUp: React.FC<any> = ({ registerUser, error, setIsLogin }) => {
     const [email, setEmail] = useState<string>('')
@@ -18,9 +19,9 @@ const SignUp: React.FC<any> = ({ registerUser, error, setIsLogin }) => {
     return (
         <Flex flexWrap="wrap" flex="1 0 auto" justifyContent={'space-evenly'}>
             <Box
-                width={[1 / 2, 1 / 2, 1 / 3, 1 / 5]}
+                width={['25%']}
                 className={'signup-form'}
-                margin={'10% auto'}
+                margin={'100px  auto'}
                 as="form"
                 onSubmit={e => e.preventDefault()}
                 p={20}
@@ -29,9 +30,9 @@ const SignUp: React.FC<any> = ({ registerUser, error, setIsLogin }) => {
                 <Box
                     p={1}
                     sx={{
+                        textAlign: 'center',
                         borderRadius: 6,
-                        backgroundImage:
-                            'linear-gradient(to left, #00f260, #0575e6);',
+                        backgroundImage: `linear-gradient(to left, ${theme.colors.secondary}, ${theme.colors.primary});`,
                     }}
                 >
                     <Box
@@ -62,24 +63,36 @@ const SignUp: React.FC<any> = ({ registerUser, error, setIsLogin }) => {
                                 </Text>
                             )}
                         </Box>
-                        <Box mt={20}>
+                        <Box mt={10} width={[1 / 1]}>
                             <Button
                                 type={'button'}
                                 onClick={handleSubmit}
                                 variant="primary"
-                                mr={2}
+                                width={[1 / 1]}
                             >
                                 Register
                             </Button>
-                            <Button
-                                variant="secondary"
-                                mr={2}
-                                onClick={() => {
-                                    setIsLogin(true)
-                                }}
+
+                            <Flex
+                                flexWrap="wrap"
+                                mt={20}
+                                justifyContent={'start'}
                             >
-                                Sign In
-                            </Button>
+                                <Text mr={3}>Allready have an account ?</Text>
+
+                                <Link
+                                    sx={{
+                                        ':hover': {
+                                            cursor: 'pointer',
+                                        },
+                                    }}
+                                    onClick={() => {
+                                        setIsLogin(true)
+                                    }}
+                                >
+                                    Log In
+                                </Link>
+                            </Flex>
                         </Box>
                     </Box>
                 </Box>

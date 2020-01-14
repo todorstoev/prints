@@ -24,15 +24,7 @@ const Home: React.FC<PropsFromRedux> = ({
     logoutUser,
 }) => {
     const handleLogout = () => logoutUser()
-    return (
-        <div>
-            <h1>This is your app's protected area.</h1>
-            <p>Any routes here will also be protected</p>
-            <button onClick={handleLogout}>Logout</button>
-            {isLoggingOut && <p>Logging Out....</p>}
-            {error && <p>{error}</p>}
-        </div>
-    )
+    return <div>This is wher map should be</div>
 }
 
 export default connector(Home)
