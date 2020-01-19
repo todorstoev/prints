@@ -120,7 +120,14 @@ export const theme = {
             borderColor: 'lightgray',
         },
         select: {
-            borderRadius: 9999,
+            color: 'text',
+            borderColor: 'lightgray',
+            borderRadius: 4,
+            ':focus': {
+                borderColor: 'primary',
+                boxShadow: 'mist',
+                outline: 'none',
+            },
         },
         textarea: {},
         label: {},

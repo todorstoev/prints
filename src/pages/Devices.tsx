@@ -1,9 +1,12 @@
-import React from 'react'
+import React, { useCallback } from 'react'
 import { connect, ConnectedProps } from 'react-redux'
 
 import { RootState, AuthState } from '../types'
 import { Flex, Box, Heading } from 'rebass'
 import { Label, Input, Select } from '@rebass/forms'
+
+import { map, MapOptions } from 'leaflet'
+import 'leaflet/dist/leaflet.css'
 
 const mapState = (state: RootState): AuthState => {
     return state.auth
@@ -13,7 +16,17 @@ const connector = connect(mapState)
 
 type PropsFromRedux = ConnectedProps<typeof connector>
 
-const Devices: React.FC<PropsFromRedux> = ({}) => {
+const Devices: React.FC<PropsFromRedux> = () => {
+    const mapEl = useCallback(node => {
+        if (node !== null) {
+            const options: MapOptions = {
+                zoom: 11,
+                center: [51.505, -0.09],
+            }
+            const pickupMap = map(node, options)
+        }
+    }, [])
+
     return (
         <Flex mx={2} mb={3}>
             <Box width={1 / 2}>
@@ -68,6 +81,7 @@ const Devices: React.FC<PropsFromRedux> = ({}) => {
                         <option>ATX</option>
                     </Select>
                 </Box>
+                <Box width={1 / 1} px={2} ref={mapEl} height={200}></Box>
             </Box>
         </Flex>
     )

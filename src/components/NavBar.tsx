@@ -1,6 +1,6 @@
 import React from 'react'
 import { connect, ConnectedProps } from 'react-redux'
-import { RootState, AuthState } from '../types'
+import { RootState } from '../types'
 import { Flex, Text, Link, Box } from 'rebass'
 import { logoutUser } from '../actions'
 
