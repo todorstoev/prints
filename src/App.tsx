@@ -3,8 +3,11 @@ import { Route, Switch } from 'react-router-dom'
 import { connect, ConnectedProps } from 'react-redux'
 
 import ProtectedRoute from './components/ProtectedRoute'
+
 import Home from './pages/Home'
 import Login from './pages/Login'
+import Devices from './pages/Devices'
+
 import NavBar from './components/NavBar'
 
 import { RootState } from './types'
@@ -34,6 +37,13 @@ const App: React.FC<PropsFromRedux> = ({ isAuthenticated, isVerifying }) => {
                     isVerifying={isVerifying}
                 />
                 <Route path="/login" component={Login} />
+                <ProtectedRoute
+                    exact
+                    path="/devices"
+                    component={Devices}
+                    isAuthenticated={isAuthenticated}
+                    isVerifying={isVerifying}
+                />
                 <Route component={NoMatch} />
             </Switch>
         </div>

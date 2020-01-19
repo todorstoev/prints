@@ -1,4 +1,9 @@
-import { myFirebase, googleProvider } from '../firebase/firebase'
+import {
+    myFirebase,
+    googleProvider,
+    localPersistance,
+    nonePersistance,
+} from '../firebase/firebase'
 import { Dispatch } from 'redux'
 import { FirebaseError } from 'firebase'
 
@@ -103,13 +108,18 @@ export const loginGoogle = () => (dispatch: Dispatch) => {
         })
 }
 
-export const loginUser = (email: string, password: string) => (
-    dispatch: Dispatch
-): void => {
+export const loginUser = (
+    email: string,
+    password: string,
+    remember: boolean
+) => (dispatch: Dispatch): void => {
     dispatch(requestLogin())
     myFirebase
         .auth()
-        .signInWithEmailAndPassword(email, password)
+        .setPersistence(remember ? localPersistance : nonePersistance)
+        .then(() =>
+            myFirebase.auth().signInWithEmailAndPassword(email, password)
+        )
         .then(user => {
             dispatch(receiveLogin(user))
         })

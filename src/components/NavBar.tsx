@@ -24,8 +24,8 @@ const NavBar: React.FC<PropsFromRedux> = ({ isAuthenticated, logoutUser }) => {
             </Text>
             <Box mx="auto" />
             {isAuthenticated && (
-                <Link variant="nav" href="/about">
-                    Device
+                <Link variant="nav" href="/devices">
+                    Devices
                 </Link>
             )}
             <Link variant="nav" href="/about">

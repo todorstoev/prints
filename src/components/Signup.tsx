@@ -32,7 +32,7 @@ const SignUp: React.FC<any> = ({ registerUser, error, setIsLogin }) => {
                     sx={{
                         textAlign: 'center',
                         borderRadius: 6,
-                        backgroundImage: `linear-gradient(to left, ${theme.colors.secondary}, ${theme.colors.primary});`,
+                        backgroundImage: `linear-gradient(to left, ${theme.colors.text}, ${theme.colors.primary});`,
                     }}
                 >
                     <Box

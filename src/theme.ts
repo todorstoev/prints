@@ -2,11 +2,13 @@ export const theme = {
     colors: {
         text: '#000',
         background: '#fff',
-        primary: '#1D4350',
-        secondary: '#A43931',
+        primary: '#030E9C',
+        secondary: '#1b2c6059',
         error: '#d93b48',
         muted: '#f6f6f9',
+        mist: '#eaf7f8',
         gray: '#dddddf',
+        orange: '#F74F04',
         highlight: 'hsla(205, 100%, 40%, 0.125)',
     },
     fonts: {
@@ -75,7 +77,7 @@ export const theme = {
             color: 'inherit',
             textDecoration: 'none',
             ':hover,:focus,.active': {
-                color: 'primary',
+                color: 'gray',
             },
         },
     },
@@ -96,7 +98,7 @@ export const theme = {
         secondary: {
             variant: 'buttons.primary',
             color: 'background',
-            bg: 'secondary',
+            bg: 'orange ',
         },
     },
     styles: {
@@ -110,8 +112,8 @@ export const theme = {
         input: {
             color: 'text',
             ':focus': {
-                borderColor: 'secondary',
-                boxShadow: 'secondary',
+                borderColor: 'primary',
+                boxShadow: 'mist',
                 outline: 'none',
             },
 

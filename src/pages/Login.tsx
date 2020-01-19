@@ -36,6 +36,7 @@ const LoginForm: React.FC<any> = ({
 }) => {
     const [email, setEmail] = useState<string>('')
     const [password, setPassword] = useState<string>('')
+    const [remember, setRemember] = useState<boolean>(true)
 
     const handleEmailChange = ({
         currentTarget,
@@ -45,7 +46,11 @@ const LoginForm: React.FC<any> = ({
         currentTarget,
     }: React.FormEvent<HTMLInputElement>) => setPassword(currentTarget.value)
 
-    const handleSubmit = () => loginUser(email, password)
+    const handleRememberMe = (e: React.FormEvent<HTMLInputElement>) => {
+        setRemember(e.currentTarget.checked)
+    }
+
+    const handleSubmit = () => loginUser(email, password, remember)
 
     return (
         <Flex flexWrap="wrap" flex="1 0 auto" justifyContent={'space-evenly'}>
@@ -63,7 +68,7 @@ const LoginForm: React.FC<any> = ({
                     sx={{
                         textAlign: 'center',
                         borderRadius: 6,
-                        backgroundImage: `linear-gradient(to left, ${theme.colors.secondary}, ${theme.colors.primary});`,
+                        backgroundImage: `linear-gradient(to left, ${theme.colors.text}, ${theme.colors.primary});`,
                     }}
                 >
                     <Box
@@ -100,7 +105,12 @@ const LoginForm: React.FC<any> = ({
                         <Flex>
                             <Box width={1 / 2}>
                                 <Label>
-                                    <Checkbox id="remember" name="remember" />
+                                    <Checkbox
+                                        id="remember"
+                                        name="remember"
+                                        checked={remember}
+                                        onChange={handleRememberMe}
+                                    />
                                     Remember me
                                 </Label>
                             </Box>
@@ -122,7 +132,8 @@ const LoginForm: React.FC<any> = ({
                         <Box mt={15} width={[1 / 1]}>
                             <Button
                                 width={[1 / 1]}
-                                variant="primary"
+                                // variant="primary"
+                                backgroundColor={'#cf4332'}
                                 onClick={() => {
                                     loginGoogle()
                                 }}
