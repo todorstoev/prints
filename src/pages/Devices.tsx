@@ -1,11 +1,11 @@
-import React, { useCallback } from 'react'
+import React, { useRef } from 'react'
 import { connect, ConnectedProps } from 'react-redux'
 
 import { RootState, AuthState } from '../types'
 import { Flex, Box, Heading } from 'rebass'
 import { Label, Input, Select } from '@rebass/forms'
+import { Map, TileLayer, Marker, Popup } from 'react-leaflet'
 
-import { map, MapOptions } from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 
 const mapState = (state: RootState): AuthState => {
@@ -17,15 +17,23 @@ const connector = connect(mapState)
 type PropsFromRedux = ConnectedProps<typeof connector>
 
 const Devices: React.FC<PropsFromRedux> = () => {
-    const mapEl = useCallback(node => {
-        if (node !== null) {
-            const options: MapOptions = {
-                zoom: 11,
-                center: [51.505, -0.09],
-            }
-            const pickupMap = map(node, options)
+    const location = {
+        lat: 51.505,
+        lng: -0.09,
+    }
+
+    const mapRef = useRef(null)
+
+    const handleClick = () => {
+        const map: any = mapRef.current
+        if (map != null) {
+            map.leafletElement.locate()
         }
-    }, [])
+    }
+
+    const handleLocationFound = (e: Object) => {
+        console.log(e)
+    }
 
     return (
         <Flex mx={2} mb={3}>
@@ -81,7 +89,27 @@ const Devices: React.FC<PropsFromRedux> = () => {
                         <option>ATX</option>
                     </Select>
                 </Box>
-                <Box width={1 / 1} px={2} ref={mapEl} height={200}></Box>
+                <Box width={1 / 1} px={2} height={200}>
+                    {' '}
+                    <Map
+                        center={location}
+                        length={4}
+                        onClick={handleClick}
+                        onLocationfound={handleLocationFound}
+                        ref={mapRef}
+                        zoom={13}
+                    >
+                        <TileLayer
+                            attribution='&amp;copy <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+                            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                        />
+                        {
+                            <Marker position={location}>
+                                <Popup>You are here</Popup>
+                            </Marker>
+                        }
+                    </Map>
+                </Box>
             </Box>
         </Flex>
     )
