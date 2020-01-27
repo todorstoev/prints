@@ -4,46 +4,17 @@ import { connect, ConnectedProps } from 'react-redux'
 import { RootState, AuthState } from '../types'
 import { Flex, Box, Heading } from 'rebass'
 import { Label, Input, Select } from '@rebass/forms'
-import { Icon } from 'leaflet'
-import { Map, TileLayer, Marker, Popup } from 'react-leaflet'
+import { LocationMap } from '../components/LocationMap'
 
-import 'leaflet/dist/leaflet.css'
-
-const mapState = (state: RootState): AuthState => {
+const authState = (state: RootState): AuthState => {
     return state.auth
 }
 
-const connector = connect(mapState)
+const connector = connect(authState)
 
 type PropsFromRedux = ConnectedProps<typeof connector>
 
 const Devices: React.FC<PropsFromRedux> = () => {
-    const location = {
-        lat: 51.505,
-        lng: -0.09,
-    }
-
-    const mapRef = useRef(null)
-
-    const handleClick = () => {
-        const map: any = mapRef.current
-        if (map != null) {
-            map.leafletElement.locate()
-        }
-    }
-
-    const handleLocationFound = (e: Object) => {
-        console.log(e)
-    }
-
-    const markerIcon = new Icon({
-		iconUrl: './assets/marker.svg',
-		iconRetinaUrl: './assets/marker.svg',
-		iconAnchor: [20, 40],
-		popupAnchor: [0, -35],
-		iconSize: [40, 40]
-	});
-
     return (
         <Flex mx={2} mb={3}>
             <Box width={1 / 2}>
@@ -99,24 +70,11 @@ const Devices: React.FC<PropsFromRedux> = () => {
                     </Select>
                 </Box>
                 <Box width={1 / 1} px={2} height={500}>
-                    {' '}
-                    <Map
-                        center={location}
-                        length={4}
-                        onClick={handleClick}
-                        onLocationfound={handleLocationFound}
-                        ref={mapRef}
-                        zoom={13}
-                        style={{ height: '100%' }}
-                    >
-                        <TileLayer
-                            attribution='&amp;copy <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-                            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                        />
-                        <Marker position={location} icon={markerIcon}>
-                            <Popup>You are here</Popup>
-                        </Marker>
-                    </Map>
+                    <LocationMap
+                        getLoc={e => {
+                            console.log(e.latlng)
+                        }}
+                    ></LocationMap>
                 </Box>
             </Box>
         </Flex>
