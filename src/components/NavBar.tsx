@@ -11,7 +11,7 @@ const mapStateToProps = (state: RootState) => {
 const mapDispatch = {
     logoutUser,
 }
-
+    
 const connector = connect(mapStateToProps, mapDispatch)
 
 type PropsFromRedux = ConnectedProps<typeof connector>

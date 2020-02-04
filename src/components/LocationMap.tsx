@@ -1,18 +1,53 @@
-import React, { useRef } from 'react'
+import React, { useRef, useEffect, useState } from 'react'
 import { Icon, LocationEvent } from 'leaflet'
 import { Map, TileLayer, Marker, Popup } from 'react-leaflet'
 
 import 'leaflet/dist/leaflet.css'
+import { Cords } from '../types'
 
 type MouseProps = {
     getLoc: (e: LocationEvent) => void
 }
 
+const getLocationByIpAddress = (): Promise<Cords | Cords> => {
+    return new Promise(resolve => {
+        fetch('https://ipapi.co/json')
+            .then(res => res.json())
+            .then(location =>
+                resolve({
+                    lat: location.latitude,
+                    lng: location.longitude,
+                })
+            )
+    })
+}
+
+const getUserLocation = (): Promise<Cords | any> => {
+    return new Promise(resolve =>
+        navigator.geolocation.getCurrentPosition(
+            location =>
+                resolve({
+                    lat: location.coords.latitude,
+                    lng: location.coords.longitude,
+                }),
+            () => resolve(getLocationByIpAddress())
+        )
+    )
+}
+
 export const LocationMap: React.FC<MouseProps> = ({ getLoc }) => {
-    const location = {
-        lat: 51.505,
-        lng: -0.09,
-    }
+    const [cords, setCords] = useState<Cords>({
+        lat: 0,
+        lng: 0,
+    })
+
+    useEffect(() => {
+        if (cords.lat === 0 && cords.lng === 0) {
+            getUserLocation().then(res => {
+                setCords(res)
+            })
+        }
+    }, [cords])
 
     const mapRef = useRef(null)
 
@@ -34,7 +69,7 @@ export const LocationMap: React.FC<MouseProps> = ({ getLoc }) => {
     return (
         <>
             <Map
-                center={location}
+                center={cords}
                 length={4}
                 onClick={handleClick}
                 onLocationfound={getLoc}
@@ -44,9 +79,9 @@ export const LocationMap: React.FC<MouseProps> = ({ getLoc }) => {
             >
                 <TileLayer
                     attribution='&amp;copy <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                    url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}"
                 />
-                <Marker position={location} icon={markerIcon}>
+                <Marker position={cords} icon={markerIcon}>
                     <Popup>You are here</Popup>
                 </Marker>
             </Map>

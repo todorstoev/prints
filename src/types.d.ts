@@ -14,3 +14,20 @@ export interface RootState {
 type User = {
     username?: boolean
 }
+
+export type Cords = {
+    lat: number
+    lng: number
+}
+
+export type Device = {
+    location: firebase.firestore.GeoPoint
+    dimension: {
+        width: string
+        height: string
+        lenght: string
+    }
+    brand: string
+    material: string
+    type: string
+}

@@ -1,11 +1,12 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { connect, ConnectedProps } from 'react-redux'
 import { useForm } from 'react-hook-form'
 
-import { RootState, AuthState } from '../types'
+import { RootState, AuthState, Device, Cords } from '../types'
 import { Flex, Box, Heading, Button } from 'rebass'
 import { Label, Input, Select } from '@rebass/forms'
 import { LocationMap } from '../components/LocationMap'
+import firebase from 'firebase'
 
 const authState = (state: RootState): AuthState => {
     return state.auth
@@ -17,9 +18,22 @@ type PropsFromRedux = ConnectedProps<typeof connector>
 
 const Devices: React.FC<PropsFromRedux> = () => {
     const { register, handleSubmit, errors } = useForm()
+    const [cords, setCords] = useState<Cords>({
+        lat: 0,
+        lng: 0,
+    })
     const onSubmit = (data: any) => {
-        console.log(data)
-        console.log(data)
+        const device: Device = {
+            dimension: {
+                width: data.width,
+                height: data.height,
+                lenght: data.lenght,
+            },
+            location: new firebase.firestore.GeoPoint(cords.lat, cords.lng),
+            brand: data.brand,
+            material: data.material,
+            type: data.type,
+        }
     }
 
     return (
@@ -35,7 +49,6 @@ const Devices: React.FC<PropsFromRedux> = () => {
                         <Input
                             id="brand"
                             name="brand"
-                            defaultValue="Brand"
                             ref={register({ required: true })}
                         />
                     </Box>
@@ -44,7 +57,6 @@ const Devices: React.FC<PropsFromRedux> = () => {
                         <Input
                             id="type"
                             name="type"
-                            defaultValue="Your Printer Type"
                             ref={register({ required: true })}
                         />
                     </Box>
@@ -55,7 +67,6 @@ const Devices: React.FC<PropsFromRedux> = () => {
                                 <Input
                                     id="width"
                                     name="width"
-                                    defaultValue="width"
                                     ref={register({ required: true })}
                                 />
                             </Box>
@@ -63,7 +74,6 @@ const Devices: React.FC<PropsFromRedux> = () => {
                                 <Input
                                     id="height"
                                     name="height"
-                                    defaultValue="height"
                                     ref={register({ required: true })}
                                 />
                             </Box>
@@ -72,7 +82,6 @@ const Devices: React.FC<PropsFromRedux> = () => {
                                 <Input
                                     id="lenght"
                                     name="lenght"
-                                    defaultValue="lenght"
                                     ref={register({ required: true })}
                                 />
                             </Box>
@@ -82,18 +91,16 @@ const Devices: React.FC<PropsFromRedux> = () => {
                         <Label htmlFor="material">Material</Label>
                         <Select
                             name="material"
-                            defaultValue="NYC"
                             ref={register({ required: true })}
                         >
-                            <option>NYC</option>
-                            <option>DC</option>
-                            <option>ATX</option>
+                            <option>ABS</option>
+                            <option>PLA</option>r<option>PETG</option>
                         </Select>
                     </Box>
                     <Box width={1 / 1} px={2} height={500}>
                         <LocationMap
                             getLoc={e => {
-                                console.log(e.latlng)
+                                setCords(e.latlng)
                             }}
                         ></LocationMap>
                     </Box>
