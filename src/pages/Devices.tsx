@@ -6,7 +6,7 @@ import { RootState, AuthState, Device, Cords } from '../types'
 import { Flex, Box, Heading, Button } from 'rebass'
 import { Label, Input, Select } from '@rebass/forms'
 import { LocationMap } from '../components/LocationMap'
-import firebase from 'firebase'
+import firebase, { db } from '../firebase/firebase'
 
 const authState = (state: RootState): AuthState => {
     return state.auth
@@ -34,6 +34,15 @@ const Devices: React.FC<PropsFromRedux> = () => {
             material: data.material,
             type: data.type,
         }
+
+        db.collection('devices')
+            .add(device)
+            .then(snapshot => {
+                debugger
+            })
+            .catch(e => {
+                debugger
+            })
     }
 
     return (
@@ -105,7 +114,7 @@ const Devices: React.FC<PropsFromRedux> = () => {
                         ></LocationMap>
                     </Box>
                     <Button variant="primary" mr={2} type={'submit'}>
-                        Primary
+                        Add Device
                     </Button>
                 </form>
             </Box>

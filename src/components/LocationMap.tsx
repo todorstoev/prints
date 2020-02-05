@@ -41,47 +41,62 @@ export const LocationMap: React.FC<MouseProps> = ({ getLoc }) => {
         lng: 0,
     })
 
+    const [markerCords, setMarkerCords] = useState<Cords>({
+        lat: 0,
+        lng: 0,
+    })
+
     useEffect(() => {
         if (cords.lat === 0 && cords.lng === 0) {
             getUserLocation().then(res => {
                 setCords(res)
+                setMarkerCords(res)
             })
         }
     }, [cords])
 
     const mapRef = useRef(null)
 
-    const handleClick = () => {
-        const map: any = mapRef.current
+    const handleClick = (e: LocationEvent) => {
+        setMarkerCords(e.latlng)
+        getLoc(e)
+        // const map: any = mapRef.current
 
-        if (map != null) {
-            map.leafletElement.locate()
-        }
+        // if (map != null) {
+        //     debugger
+        //     map.leafletElement.locate()
+        // }
     }
+
+    // const onLocationfound = (e: LocationEvent) => {
+    //     setCords(e.latlng)
+    //     debugger
+    // }
 
     const markerIcon = new Icon({
         iconUrl: './assets/marker.svg',
         iconRetinaUrl: './assets/marker.svg',
         iconAnchor: [20, 40],
         popupAnchor: [0, -35],
-        iconSize: [40, 40],
+        iconSize: [30, 30],
     })
+
     return (
         <>
             <Map
                 center={cords}
                 length={4}
                 onClick={handleClick}
-                onLocationfound={getLoc}
+                // onLocationfound={onLocationfound}
                 ref={mapRef}
                 zoom={13}
                 style={{ height: '100%' }}
             >
                 <TileLayer
                     attribution='&amp;copy <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-                    url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}"
+                    url="http://{s}.tile.osm.org/{z}/{x}/{y}.png"
                 />
-                <Marker position={cords} icon={markerIcon}>
+                <Marker position={markerCords} icon={markerIcon}>
                     <Popup>You are here</Popup>
                 </Marker>
             </Map>
