@@ -12,7 +12,15 @@ export interface RootState {
 }
 
 type User = {
-    username?: boolean
+    refreshToken: string
+    uid: string
+    displayName: string
+    photoURL: string
+    email: string
+    emailVerified: boolean
+    phoneNumber: string
+    isAnonymous: boolean
+    tenantId: string
 }
 
 export type Cords = {
@@ -30,4 +38,5 @@ export type Device = {
     brand: string
     material: string
     type: string
+    uid: string
 }

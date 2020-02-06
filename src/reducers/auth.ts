@@ -19,7 +19,17 @@ export default (
         isVerifying: false,
         error: null,
         isAuthenticated: false,
-        user: {},
+        user: {
+            displayName: '',
+            email: '',
+            emailVerified: false,
+            isAnonymous: false,
+            phoneNumber: '',
+            photoURL: '',
+            refreshToken: '',
+            tenantId: '',
+            uid: '',
+        },
     },
     action: any
 ) => {

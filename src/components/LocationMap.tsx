@@ -6,7 +6,8 @@ import 'leaflet/dist/leaflet.css'
 import { Cords } from '../types'
 
 type MouseProps = {
-    getLoc: (e: LocationEvent) => void
+    getLoc?: (e: LocationEvent) => void
+    startCords?: Cords
 }
 
 const getLocationByIpAddress = (): Promise<Cords | Cords> => {
@@ -35,7 +36,7 @@ const getUserLocation = (): Promise<Cords | any> => {
     )
 }
 
-export const LocationMap: React.FC<MouseProps> = ({ getLoc }) => {
+export const LocationMap: React.FC<MouseProps> = ({ getLoc, startCords }) => {
     const [cords, setCords] = useState<Cords>({
         lat: 0,
         lng: 0,
@@ -53,13 +54,13 @@ export const LocationMap: React.FC<MouseProps> = ({ getLoc }) => {
                 setMarkerCords(res)
             })
         }
-    }, [cords])
+    }, [startCords])
 
     const mapRef = useRef(null)
 
     const handleClick = (e: LocationEvent) => {
         setMarkerCords(e.latlng)
-        getLoc(e)
+        getLoc && getLoc(e)
         // const map: any = mapRef.current
 
         // if (map != null) {
@@ -84,7 +85,7 @@ export const LocationMap: React.FC<MouseProps> = ({ getLoc }) => {
     return (
         <>
             <Map
-                center={cords}
+                center={startCords || cords}
                 length={4}
                 onClick={handleClick}
                 // onLocationfound={onLocationfound}
