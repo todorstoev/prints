@@ -6,7 +6,7 @@ import { RootState, AuthState, Device, Cords } from '../types'
 import { Flex, Box, Heading, Button, Text, Card } from 'rebass'
 import { Label, Input, Select } from '@rebass/forms'
 import { LocationMap } from '../components/LocationMap'
-import firebase, { db, myFirebase } from '../firebase/firebase'
+import firebase, { db } from '../firebase/firebase'
 
 const authState = (state: RootState): AuthState => {
     return state.auth
@@ -23,16 +23,18 @@ const Devices: React.FC<PropsFromRedux> = ({ user }) => {
         lng: 0,
     })
     const [devices, setDevices] = useState<Array<Device>>([])
-
+    console.log(errors)
     useEffect(() => {
-        db.collection('devices').onSnapshot(snapshot => {
-            let deviceBuffer: Array<Device> = []
-            snapshot.forEach(doc => {
-                deviceBuffer.push(doc.data() as Device)
+        db.collection('devices')
+            .where('uid', '==', user.uid)
+            .onSnapshot(snapshot => {
+                let deviceBuffer: Array<Device> = []
+                snapshot.forEach(doc => {
+                    deviceBuffer.push(doc.data() as Device)
+                })
+                setDevices(deviceBuffer)
             })
-            setDevices(deviceBuffer)
-        })
-    }, [cords])
+    }, [user.uid])
 
     const onSubmit = (data: any) => {
         const device: Device = {
@@ -70,7 +72,7 @@ const Devices: React.FC<PropsFromRedux> = ({ user }) => {
                 <Box width={1 / 1} px={2}>
                     {devices.length > 0 &&
                         devices.map((device: Device, i) => (
-                            <Card key={i} width={'auto'}>
+                            <Card key={i} width={'auto'} marginY={10}>
                                 <Box width={1 / 2}>
                                     <Heading>Device</Heading>
                                     <Text>Brand: {device.brand}</Text>
@@ -100,16 +102,70 @@ const Devices: React.FC<PropsFromRedux> = ({ user }) => {
                         <Input
                             id="brand"
                             name="brand"
-                            ref={register({ required: true })}
+                            sx={{
+                                ':focus': {
+                                    borderColor: errors.brand
+                                        ? 'error'
+                                        : 'primary',
+                                },
+                                borderColor: errors.brand ? 'error' : 'gray',
+                            }}
+                            ref={register({
+                                required: {
+                                    value: true,
+                                    message: 'This fields is required',
+                                },
+                            })}
                         />
+                        <Text color={'error'}>
+                            {errors.brand && 'Brand is required'}
+                        </Text>
+                    </Box>
+                    <Box width={1 / 1} px={2}>
+                        <Label htmlFor="model">Model</Label>
+                        <Input
+                            id="model"
+                            name="model"
+                            sx={{
+                                ':focus': {
+                                    borderColor: errors.model
+                                        ? 'error'
+                                        : 'gray',
+                                },
+                                borderColor: errors.model ? 'error' : 'gray',
+                            }}
+                            ref={register({
+                                required: {
+                                    value: true,
+                                    message: 'This fields is required',
+                                },
+                            })}
+                        />
+                        <Text color={'error'}>
+                            {errors.model && 'Model is required'}
+                        </Text>
                     </Box>
                     <Box width={1 / 1} px={2}>
                         <Label htmlFor="type">Type</Label>
                         <Input
                             id="type"
                             name="type"
-                            ref={register({ required: true })}
+                            sx={{
+                                ':focus': {
+                                    borderColor: errors.type ? 'error' : 'gray',
+                                },
+                                borderColor: errors.type ? 'error' : 'gray',
+                            }}
+                            ref={register({
+                                required: {
+                                    value: true,
+                                    message: 'This fields is required',
+                                },
+                            })}
                         />
+                        <Text color={'error'}>
+                            {errors.type && 'Type is required'}
+                        </Text>
                     </Box>
                     <Box width={1 / 1} px={2}>
                         <Label htmlFor="width">Dimension</Label>
@@ -118,23 +174,77 @@ const Devices: React.FC<PropsFromRedux> = ({ user }) => {
                                 <Input
                                     id="width"
                                     name="width"
-                                    ref={register({ required: true })}
+                                    sx={{
+                                        ':focus': {
+                                            borderColor: errors.width
+                                                ? 'error'
+                                                : 'gray',
+                                        },
+                                        borderColor: errors.width
+                                            ? 'error'
+                                            : 'gray',
+                                    }}
+                                    ref={register({
+                                        required: {
+                                            value: true,
+                                            message: 'This fields is required',
+                                        },
+                                    })}
                                 />
+                                <Text color={'error'}>
+                                    {errors.width && 'Width is required'}
+                                </Text>
                             </Box>
                             <Box width={1 / 3} pr={1}>
                                 <Input
                                     id="height"
                                     name="height"
-                                    ref={register({ required: true })}
+                                    sx={{
+                                        ':focus': {
+                                            borderColor: errors.height
+                                                ? 'error'
+                                                : 'gray',
+                                        },
+                                        borderColor: errors.height
+                                            ? 'error'
+                                            : 'gray',
+                                    }}
+                                    ref={register({
+                                        required: {
+                                            value: true,
+                                            message: 'This fields is required',
+                                        },
+                                    })}
                                 />
+                                <Text color={'error'}>
+                                    {errors.height && 'Height is required'}
+                                </Text>
                             </Box>
 
                             <Box width={1 / 3}>
                                 <Input
                                     id="lenght"
                                     name="lenght"
-                                    ref={register({ required: true })}
+                                    sx={{
+                                        ':focus': {
+                                            borderColor: errors.lenght
+                                                ? 'error'
+                                                : 'gray',
+                                        },
+                                        borderColor: errors.lenght
+                                            ? 'error'
+                                            : 'gray',
+                                    }}
+                                    ref={register({
+                                        required: {
+                                            value: true,
+                                            message: 'This fields is required',
+                                        },
+                                    })}
                                 />
+                                <Text color={'error'}>
+                                    {errors.lenght && 'Lenght is required'}
+                                </Text>
                             </Box>
                         </Flex>
                     </Box>
@@ -142,7 +252,12 @@ const Devices: React.FC<PropsFromRedux> = ({ user }) => {
                         <Label htmlFor="material">Material</Label>
                         <Select
                             name="material"
-                            ref={register({ required: true })}
+                            ref={register({
+                                required: {
+                                    value: true,
+                                    message: 'This fields is required',
+                                },
+                            })}
                         >
                             <option>ABS</option>
                             <option>PLA</option>r<option>PETG</option>

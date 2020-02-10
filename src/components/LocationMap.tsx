@@ -54,7 +54,7 @@ export const LocationMap: React.FC<MouseProps> = ({ getLoc, startCords }) => {
                 setMarkerCords(res)
             })
         }
-    }, [startCords])
+    }, [cords.lat, cords.lng])
 
     const mapRef = useRef(null)
 
