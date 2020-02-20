@@ -3,14 +3,14 @@ import { Icon, LocationEvent } from 'leaflet'
 import { Map, TileLayer, Marker, Popup } from 'react-leaflet'
 
 import 'leaflet/dist/leaflet.css'
-import { Cords } from '../types'
+import { Coords } from '../types'
 
 type MouseProps = {
     getLoc?: (e: LocationEvent) => void
-    startCords?: Cords
+    startCoords?: Coords
 }
 
-const getLocationByIpAddress = (): Promise<Cords | Cords> => {
+const getLocationByIpAddress = (): Promise<Coords | Coords> => {
     return new Promise(resolve => {
         fetch('https://ipapi.co/json')
             .then(res => res.json())
@@ -23,7 +23,7 @@ const getLocationByIpAddress = (): Promise<Cords | Cords> => {
     })
 }
 
-const getUserLocation = (): Promise<Cords | any> => {
+const getUserLocation = (): Promise<Coords | any> => {
     return new Promise(resolve =>
         navigator.geolocation.getCurrentPosition(
             location =>
@@ -36,30 +36,30 @@ const getUserLocation = (): Promise<Cords | any> => {
     )
 }
 
-export const LocationMap: React.FC<MouseProps> = ({ getLoc, startCords }) => {
-    const [cords, setCords] = useState<Cords>({
+export const LocationMap: React.FC<MouseProps> = ({ getLoc, startCoords }) => {
+    const [Coords, setCoords] = useState<Coords>({
         lat: 0,
         lng: 0,
     })
 
-    const [markerCords, setMarkerCords] = useState<Cords>({
+    const [markerCoords, setMarkerCoords] = useState<Coords>({
         lat: 0,
         lng: 0,
     })
 
     useEffect(() => {
-        if (cords.lat === 0 && cords.lng === 0) {
+        if (Coords.lat === 0 && Coords.lng === 0) {
             getUserLocation().then(res => {
-                setCords(res)
-                setMarkerCords(res)
+                setCoords(res)
+                setMarkerCoords(res)
             })
         }
-    }, [cords.lat, cords.lng])
+    }, [Coords.lat, Coords.lng])
 
     const mapRef = useRef(null)
 
     const handleClick = (e: LocationEvent) => {
-        setMarkerCords(e.latlng)
+        setMarkerCoords(e.latlng)
         getLoc && getLoc(e)
         // const map: any = mapRef.current
 
@@ -70,7 +70,7 @@ export const LocationMap: React.FC<MouseProps> = ({ getLoc, startCords }) => {
     }
 
     // const onLocationfound = (e: LocationEvent) => {
-    //     setCords(e.latlng)
+    //     setCoords(e.latlng)
     //     debugger
     // }
 
@@ -85,7 +85,7 @@ export const LocationMap: React.FC<MouseProps> = ({ getLoc, startCords }) => {
     return (
         <>
             <Map
-                center={startCords || cords}
+                center={startCoords || Coords}
                 length={4}
                 onClick={handleClick}
                 // onLocationfound={onLocationfound}
@@ -97,7 +97,7 @@ export const LocationMap: React.FC<MouseProps> = ({ getLoc, startCords }) => {
                     attribution='&amp;copy <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
                     url="http://{s}.tile.osm.org/{z}/{x}/{y}.png"
                 />
-                <Marker position={markerCords} icon={markerIcon}>
+                <Marker position={markerCoords} icon={markerIcon}>
                     <Popup>You are here</Popup>
                 </Marker>
             </Map>

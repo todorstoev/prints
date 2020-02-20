@@ -2,11 +2,11 @@ import React, { useState, useEffect } from 'react'
 import { connect, ConnectedProps } from 'react-redux'
 import { useForm } from 'react-hook-form'
 
-import { RootState, AuthState, Device, Cords } from '../types'
+import { RootState, AuthState, Device, Coords } from '../types'
 import { Flex, Box, Heading, Button, Text, Card } from 'rebass'
 import { Label, Input, Select } from '@rebass/forms'
 import { LocationMap } from '../components/LocationMap'
-import firebase, { db } from '../firebase/firebase'
+import { db } from '../firebase/firebase'
 
 const authState = (state: RootState): AuthState => {
     return state.auth
@@ -18,15 +18,15 @@ type PropsFromRedux = ConnectedProps<typeof connector>
 
 const Devices: React.FC<PropsFromRedux> = ({ user }) => {
     const { register, handleSubmit, errors } = useForm()
-    const [cords, setCords] = useState<Cords>({
+    const [cords, setCords] = useState<Coords>({
         lat: 0,
         lng: 0,
     })
     const [devices, setDevices] = useState<Array<Device>>([])
-    console.log(errors)
+
     useEffect(() => {
         db.collection('devices')
-            .where('uid', '==', user.uid)
+            .where('owner', '==', user.uid)
             .onSnapshot(snapshot => {
                 let deviceBuffer: Array<Device> = []
                 snapshot.forEach(doc => {
@@ -43,11 +43,11 @@ const Devices: React.FC<PropsFromRedux> = ({ user }) => {
                 height: data.height,
                 lenght: data.lenght,
             },
-            location: new firebase.firestore.GeoPoint(cords.lat, cords.lng),
+            location: { lat: cords.lat, lng: cords.lng },
             brand: data.brand,
             material: data.material,
             type: data.type,
-            uid: user.uid,
+            owner: user.uid,
         }
 
         db.collection('devices')

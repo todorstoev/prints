@@ -23,13 +23,13 @@ type User = {
     tenantId: string
 }
 
-export type Cords = {
+export type Coords = {
     lat: number
     lng: number
 }
 
 export type Device = {
-    location: firebase.firestore.GeoPoint
+    location: Coords
     dimension: {
         width: string
         height: string
@@ -38,5 +38,5 @@ export type Device = {
     brand: string
     material: string
     type: string
-    uid: string
+    owner: string
 }
