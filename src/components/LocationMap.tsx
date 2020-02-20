@@ -10,6 +10,7 @@ type MouseProps = {
     startCoords?: Coords
 }
 
+
 const getLocationByIpAddress = (): Promise<Coords | Coords> => {
     return new Promise(resolve => {
         fetch('https://ipapi.co/json')
