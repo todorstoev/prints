@@ -7,15 +7,15 @@ import { Coords } from '../types'
 
 type MapMarkerProps = {
     position: Coords
+    icon?: Icon
     onClick?: (e: LeafletMouseEvent) => void
 }
 
 const MapMarker: React.FC<MapMarkerProps> = props => {
-    const { position, children } = props
+    const { position, icon, onClick, children } = props
 
-    const icon = new Icon({
-        iconUrl: './assets/marker.svg',
-        iconRetinaUrl: './assets/marker.svg',
+    const defaultIcon = new Icon({
+        iconUrl: './assets/default-location-pin-icon.svg',
         iconAnchor: [20, 40],
         popupAnchor: [0, -35],
         iconSize: [40, 40],
@@ -24,8 +24,8 @@ const MapMarker: React.FC<MapMarkerProps> = props => {
     return (
         <Marker
             position={position}
-            icon={icon}
-            onClick={() => console.log('test')}
+            icon={icon || defaultIcon}
+            onClick={onClick}
         >
             {children}
         </Marker>
