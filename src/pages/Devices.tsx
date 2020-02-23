@@ -2,11 +2,14 @@ import React, { useState, useEffect } from 'react'
 import { connect, ConnectedProps } from 'react-redux'
 import { useForm } from 'react-hook-form'
 
-import { RootState, AuthState, Device, Coords } from '../types'
+import { RootState, AuthState, Device, Coords, Printer } from '../types'
 import { Flex, Box, Heading, Button, Text, Card } from 'rebass'
-import { Label, Input, Select } from '@rebass/forms'
+import { Label, Input } from '@rebass/forms'
 import { LocationMap } from '../components/LocationMap'
 import { db } from '../firebase/firebase'
+import Select, { OptionsType } from 'react-select'
+import makeAnimated from 'react-select/animated'
+import { useTheme } from 'emotion-theming'
 
 const authState = (state: RootState): AuthState => {
     return state.auth
@@ -17,12 +20,24 @@ const connector = connect(authState)
 type PropsFromRedux = ConnectedProps<typeof connector>
 
 const Devices: React.FC<PropsFromRedux> = ({ user }) => {
+    const mainTheme = useTheme<any>()
     const { register, handleSubmit, errors } = useForm()
     const [cords, setCords] = useState<Coords>({
         lat: 0,
         lng: 0,
     })
     const [devices, setDevices] = useState<Array<Device>>([])
+    const [printers, setPrinters] = useState<Array<Printer>>([])
+    const [predefinedDevices, setPredefinedDevices] = useState<any>()
+    const [selectedPrinter, setSelectedPrinter] = useState<Printer>()
+
+    const materials: any = [
+        { value: 'pla', label: 'PLA' },
+        { value: 'abs', label: 'ABS' },
+        { value: 'petg', label: 'PETG' },
+    ]
+
+    const animatedComponents = makeAnimated()
 
     useEffect(() => {
         db.collection('devices')
@@ -34,20 +49,36 @@ const Devices: React.FC<PropsFromRedux> = ({ user }) => {
                 })
                 setDevices(deviceBuffer)
             })
+
+        db.collection('printers').onSnapshot(snapshot => {
+            let printersBuffer: Array<Printer> = []
+            let predefinedBuffer: Array<any> = []
+            snapshot.forEach(doc => {
+                const printer = doc.data() as Printer
+                predefinedBuffer.push({
+                    value: printer,
+                    label: `${printer.brand} ${printer.model}`,
+                })
+                printersBuffer.push(printer)
+            })
+            setPredefinedDevices(predefinedBuffer)
+            setPrinters(printersBuffer)
+        })
     }, [user.uid])
 
     const onSubmit = (data: any) => {
         const device: Device = {
-            dimension: {
+            dimensions: {
                 width: data.width,
                 height: data.height,
-                lenght: data.lenght,
+                depth: data.depth,
             },
             location: { lat: cords.lat, lng: cords.lng },
             brand: data.brand,
             material: data.material,
             type: data.type,
             owner: user.uid,
+            model: data.model,
         }
 
         db.collection('devices')
@@ -78,9 +109,9 @@ const Devices: React.FC<PropsFromRedux> = ({ user }) => {
                                     <Text>Brand: {device.brand}</Text>
                                     <Text>Type: {device.type}</Text>
                                     <Text>
-                                        Dimension: {device.dimension.height} /{' '}
-                                        {device.dimension.width} /{' '}
-                                        {device.dimension.lenght}
+                                        Dimensions: {device.dimensions.height} /{' '}
+                                        {device.dimensions.width} /{' '}
+                                        {device.dimensions.depth}
                                     </Text>
                                     <Text>Мaterial: {device.material}</Text>
                                 </Box>
@@ -97,11 +128,40 @@ const Devices: React.FC<PropsFromRedux> = ({ user }) => {
                     <Box width={1 / 1} px={2}>
                         <Heading>Add new device</Heading>
                     </Box>
+                    <Box
+                        width={1 / 1}
+                        px={2}
+                        sx={{ position: 'relative', zIndex: 9999 }}
+                    >
+                        <Select
+                            isClearable={true}
+                            onChange={selected => {
+                                debugger
+                                const selectedPrinterd = (selected as unknown) as {
+                                    label: string
+                                    value: Printer
+                                }
+                                setSelectedPrinter(selectedPrinterd.value)
+                            }}
+                            placeholder={'search for printer...'}
+                            options={predefinedDevices}
+                            theme={theme => ({
+                                ...theme,
+
+                                colors: {
+                                    ...theme.colors,
+                                    primary: mainTheme.colors.primary,
+                                    secondary: mainTheme.colors.secondary,
+                                },
+                            })}
+                        />
+                    </Box>
                     <Box width={1 / 1} px={2}>
                         <Label htmlFor="brand">Brand</Label>
                         <Input
                             id="brand"
                             name="brand"
+                            value={selectedPrinter ? selectedPrinter.brand : ''}
                             sx={{
                                 ':focus': {
                                     borderColor: errors.brand
@@ -126,6 +186,7 @@ const Devices: React.FC<PropsFromRedux> = ({ user }) => {
                         <Input
                             id="model"
                             name="model"
+                            value={selectedPrinter ? selectedPrinter.model : ''}
                             sx={{
                                 ':focus': {
                                     borderColor: errors.model
@@ -146,34 +207,17 @@ const Devices: React.FC<PropsFromRedux> = ({ user }) => {
                         </Text>
                     </Box>
                     <Box width={1 / 1} px={2}>
-                        <Label htmlFor="type">Type</Label>
-                        <Input
-                            id="type"
-                            name="type"
-                            sx={{
-                                ':focus': {
-                                    borderColor: errors.type ? 'error' : 'gray',
-                                },
-                                borderColor: errors.type ? 'error' : 'gray',
-                            }}
-                            ref={register({
-                                required: {
-                                    value: true,
-                                    message: 'This fields is required',
-                                },
-                            })}
-                        />
-                        <Text color={'error'}>
-                            {errors.type && 'Type is required'}
-                        </Text>
-                    </Box>
-                    <Box width={1 / 1} px={2}>
-                        <Label htmlFor="width">Dimension</Label>
                         <Flex>
                             <Box width={1 / 3} pr={1}>
+                                <Label htmlFor="width">Width (in mm)</Label>
                                 <Input
                                     id="width"
                                     name="width"
+                                    value={
+                                        selectedPrinter
+                                            ? selectedPrinter.dimensions.width
+                                            : ''
+                                    }
                                     sx={{
                                         ':focus': {
                                             borderColor: errors.width
@@ -196,9 +240,15 @@ const Devices: React.FC<PropsFromRedux> = ({ user }) => {
                                 </Text>
                             </Box>
                             <Box width={1 / 3} pr={1}>
+                                <Label htmlFor="height">Height (in mm)</Label>
                                 <Input
                                     id="height"
                                     name="height"
+                                    value={
+                                        selectedPrinter
+                                            ? selectedPrinter.dimensions.height
+                                            : ''
+                                    }
                                     sx={{
                                         ':focus': {
                                             borderColor: errors.height
@@ -222,16 +272,22 @@ const Devices: React.FC<PropsFromRedux> = ({ user }) => {
                             </Box>
 
                             <Box width={1 / 3}>
+                                <Label htmlFor="depth">Depth (in mm)</Label>
                                 <Input
-                                    id="lenght"
-                                    name="lenght"
+                                    id="depth"
+                                    name="depth"
+                                    value={
+                                        selectedPrinter
+                                            ? selectedPrinter.dimensions.height
+                                            : ''
+                                    }
                                     sx={{
                                         ':focus': {
-                                            borderColor: errors.lenght
+                                            borderColor: errors.depth
                                                 ? 'error'
                                                 : 'gray',
                                         },
-                                        borderColor: errors.lenght
+                                        borderColor: errors.depth
                                             ? 'error'
                                             : 'gray',
                                     }}
@@ -243,36 +299,70 @@ const Devices: React.FC<PropsFromRedux> = ({ user }) => {
                                     })}
                                 />
                                 <Text color={'error'}>
-                                    {errors.lenght && 'Lenght is required'}
+                                    {errors.depth && 'Depth is required'}
                                 </Text>
                             </Box>
                         </Flex>
                     </Box>
                     <Box width={1 / 1} px={2}>
-                        <Label htmlFor="material">Material</Label>
-                        <Select
-                            name="material"
+                        <Label htmlFor="type">Type</Label>
+                        <Input
+                            id="type"
+                            name="type"
+                            sx={{
+                                ':focus': {
+                                    borderColor: errors.type ? 'error' : 'gray',
+                                },
+                                borderColor: errors.type ? 'error' : 'gray',
+                            }}
                             ref={register({
                                 required: {
                                     value: true,
                                     message: 'This fields is required',
                                 },
                             })}
-                        >
-                            <option>ABS</option>
-                            <option>PLA</option>r<option>PETG</option>
-                        </Select>
+                        />
+                        <Text color={'error'}>
+                            {errors.type && 'Type is required'}
+                        </Text>
                     </Box>
-                    <Box width={1 / 1} px={2} height={500}>
+
+                    <Box
+                        width={1 / 1}
+                        px={2}
+                        sx={{ zIndex: 9998, position: 'relative' }}
+                    >
+                        <Label htmlFor="material">Material</Label>
+                        <Select
+                            theme={theme => ({
+                                ...theme,
+
+                                colors: {
+                                    ...theme.colors,
+                                    primary: mainTheme.colors.primary,
+                                    secondary: mainTheme.colors.secondary,
+                                },
+                            })}
+                            placeholder={'choose material...'}
+                            options={materials}
+                            defaultValue={[materials[0]]}
+                            isMulti={true}
+                            closeMenuOnSelect={false}
+                            components={animatedComponents}
+                        ></Select>
+                    </Box>
+                    <Box width={1 / 1} px={2} height={500} marginY={10}>
                         <LocationMap
                             getLoc={e => {
                                 setCords(e.latlng)
                             }}
                         ></LocationMap>
                     </Box>
-                    <Button variant="primary" mr={2} type={'submit'}>
-                        Add Device
-                    </Button>
+                    <Box width={1 / 1} px={2} height={500}>
+                        <Button variant="primary" mr={2} type={'submit'}>
+                            Add Device
+                        </Button>
+                    </Box>
                 </form>
             </Box>
         </Flex>

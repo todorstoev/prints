@@ -28,14 +28,18 @@ export type Coords = {
     lng: number
 }
 
-export type Device = {
-    location: Coords
-    dimension: {
-        width: string
-        height: string
-        lenght: string
+export interface Printer {
+    dimensions: {
+        width: number
+        height: number
+        depth: number
     }
     brand: string
+    model: string
+}
+
+export interface Device extends Printer {
+    location: Coords
     material: string
     type: string
     owner: string
