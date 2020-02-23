@@ -11,7 +11,7 @@ const mapStateToProps = (state: RootState) => {
 const mapDispatch = {
     logoutUser,
 }
-    
+
 const connector = connect(mapStateToProps, mapDispatch)
 
 type PropsFromRedux = ConnectedProps<typeof connector>
@@ -19,9 +19,9 @@ type PropsFromRedux = ConnectedProps<typeof connector>
 const NavBar: React.FC<PropsFromRedux> = ({ isAuthenticated, logoutUser }) => {
     return (
         <Flex px={2} color="white" bg="black" alignItems="center">
-            <Text p={2} fontWeight="bold">
+            <Link p={2} variant="nav" href="/">
                 3DReact
-            </Text>
+            </Link>
             <Box mx="auto" />
             {isAuthenticated && (
                 <Link variant="nav" href="/devices">
