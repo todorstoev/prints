@@ -36,6 +36,7 @@ export const theme: any = {
     },
     shadows: {
         card: '0 0 4px rgba(0, 0, 0, .125)',
+        // small: '0 2px 4px -2px rgba(11, 39, 65, 0.3)',
     },
     // rebass variants
     text: {
@@ -88,6 +89,9 @@ export const theme: any = {
             color: 'background',
             bg: 'primary',
             borderRadius: 'default',
+            ':focus': {
+                outline: 'none',
+            },
         },
         outline: {
             variant: 'buttons.primary',
@@ -110,10 +114,12 @@ export const theme: any = {
     },
     forms: {
         input: {
+            transition: 'all 0.2s linear',
+            borderWidth: '1px',
             color: 'text',
             ':focus': {
                 borderColor: 'primary',
-                boxShadow: 'mist',
+                boxShadow: '0 0 0 1px #030E9C',
                 outline: 'none',
             },
 

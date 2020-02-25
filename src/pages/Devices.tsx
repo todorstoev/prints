@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, ChangeEvent } from 'react'
 import { connect, ConnectedProps } from 'react-redux'
 import { useForm } from 'react-hook-form'
 
@@ -7,7 +7,7 @@ import { Flex, Box, Heading, Button, Text, Card } from 'rebass'
 import { Label, Input } from '@rebass/forms'
 import { LocationMap } from '../components/LocationMap'
 import { db } from '../firebase/firebase'
-import Select, { OptionsType } from 'react-select'
+import Select, { ValueType } from 'react-select'
 import makeAnimated from 'react-select/animated'
 import { useTheme } from 'emotion-theming'
 
@@ -26,10 +26,18 @@ const Devices: React.FC<PropsFromRedux> = ({ user }) => {
         lat: 0,
         lng: 0,
     })
+
     const [devices, setDevices] = useState<Array<Device>>([])
-    const [printers, setPrinters] = useState<Array<Printer>>([])
     const [predefinedDevices, setPredefinedDevices] = useState<any>()
-    const [selectedPrinter, setSelectedPrinter] = useState<Printer>()
+
+    // Printer State
+    const [selectedBrand, setSelectedBrand] = useState<string>('')
+    const [selectedModel, setSelectedModel] = useState<string>('')
+    const [selectedMaterial, setSelectedMaterial] = useState<string[]>([])
+    const [selectedWidth, setSelectedWidth] = useState<number>(0)
+    const [selectedHeight, setSelectedHeight] = useState<number>(0)
+    const [selectedDepth, setSelectedDepth] = useState<number>(0)
+    // Printer State
 
     const materials: any = [
         { value: 'pla', label: 'PLA' },
@@ -62,20 +70,20 @@ const Devices: React.FC<PropsFromRedux> = ({ user }) => {
                 printersBuffer.push(printer)
             })
             setPredefinedDevices(predefinedBuffer)
-            setPrinters(printersBuffer)
         })
     }, [user.uid])
 
     const onSubmit = (data: any) => {
+        debugger
         const device: Device = {
             dimensions: {
-                width: data.width,
-                height: data.height,
-                depth: data.depth,
+                width: Number(data.width),
+                height: Number(data.height),
+                depth: Number(data.depth),
             },
             location: { lat: cords.lat, lng: cords.lng },
             brand: data.brand,
-            material: data.material,
+            material: selectedMaterial,
             type: data.type,
             owner: user.uid,
             model: data.model,
@@ -135,13 +143,24 @@ const Devices: React.FC<PropsFromRedux> = ({ user }) => {
                     >
                         <Select
                             isClearable={true}
-                            onChange={selected => {
-                                debugger
-                                const selectedPrinterd = (selected as unknown) as {
-                                    label: string
-                                    value: Printer
+                            onChange={(selected: ValueType<any>) => {
+                                if (selected === null) {
+                                    setSelectedBrand('')
+                                    setSelectedModel('')
+                                    setSelectedWidth(0)
+                                    setSelectedHeight(0)
+                                    setSelectedDepth(0)
+                                } else {
+                                    const { value } = selected as {
+                                        value: Printer
+                                    }
+
+                                    setSelectedBrand(value.brand)
+                                    setSelectedModel(value.model)
+                                    setSelectedWidth(value.dimensions.width)
+                                    setSelectedHeight(value.dimensions.height)
+                                    setSelectedDepth(value.dimensions.depth)
                                 }
-                                setSelectedPrinter(selectedPrinterd.value)
                             }}
                             placeholder={'search for printer...'}
                             options={predefinedDevices}
@@ -161,13 +180,11 @@ const Devices: React.FC<PropsFromRedux> = ({ user }) => {
                         <Input
                             id="brand"
                             name="brand"
-                            value={selectedPrinter ? selectedPrinter.brand : ''}
+                            value={selectedBrand}
+                            onChange={(val: ChangeEvent<HTMLInputElement>) => {
+                                setSelectedBrand(val.target.value)
+                            }}
                             sx={{
-                                ':focus': {
-                                    borderColor: errors.brand
-                                        ? 'error'
-                                        : 'primary',
-                                },
                                 borderColor: errors.brand ? 'error' : 'gray',
                             }}
                             ref={register({
@@ -186,13 +203,11 @@ const Devices: React.FC<PropsFromRedux> = ({ user }) => {
                         <Input
                             id="model"
                             name="model"
-                            value={selectedPrinter ? selectedPrinter.model : ''}
+                            value={selectedModel}
+                            onChange={(val: ChangeEvent<HTMLInputElement>) => {
+                                setSelectedModel(val.target.value)
+                            }}
                             sx={{
-                                ':focus': {
-                                    borderColor: errors.model
-                                        ? 'error'
-                                        : 'gray',
-                                },
                                 borderColor: errors.model ? 'error' : 'gray',
                             }}
                             ref={register({
@@ -213,17 +228,17 @@ const Devices: React.FC<PropsFromRedux> = ({ user }) => {
                                 <Input
                                     id="width"
                                     name="width"
-                                    value={
-                                        selectedPrinter
-                                            ? selectedPrinter.dimensions.width
-                                            : ''
-                                    }
+                                    type={'number'}
+                                    value={selectedWidth}
+                                    onChange={(
+                                        val: ChangeEvent<HTMLInputElement>
+                                    ) => {
+                                        setSelectedWidth(
+                                            (val.target
+                                                .value as unknown) as number
+                                        )
+                                    }}
                                     sx={{
-                                        ':focus': {
-                                            borderColor: errors.width
-                                                ? 'error'
-                                                : 'gray',
-                                        },
                                         borderColor: errors.width
                                             ? 'error'
                                             : 'gray',
@@ -244,17 +259,17 @@ const Devices: React.FC<PropsFromRedux> = ({ user }) => {
                                 <Input
                                     id="height"
                                     name="height"
-                                    value={
-                                        selectedPrinter
-                                            ? selectedPrinter.dimensions.height
-                                            : ''
-                                    }
+                                    type={'number'}
+                                    value={selectedHeight}
+                                    onChange={(
+                                        val: ChangeEvent<HTMLInputElement>
+                                    ) => {
+                                        setSelectedHeight(
+                                            (val.target
+                                                .value as unknown) as number
+                                        )
+                                    }}
                                     sx={{
-                                        ':focus': {
-                                            borderColor: errors.height
-                                                ? 'error'
-                                                : 'gray',
-                                        },
                                         borderColor: errors.height
                                             ? 'error'
                                             : 'gray',
@@ -276,17 +291,17 @@ const Devices: React.FC<PropsFromRedux> = ({ user }) => {
                                 <Input
                                     id="depth"
                                     name="depth"
-                                    value={
-                                        selectedPrinter
-                                            ? selectedPrinter.dimensions.height
-                                            : ''
-                                    }
+                                    type={'number'}
+                                    value={selectedDepth}
+                                    onChange={(
+                                        val: ChangeEvent<HTMLInputElement>
+                                    ) => {
+                                        setSelectedDepth(
+                                            (val.target
+                                                .value as unknown) as number
+                                        )
+                                    }}
                                     sx={{
-                                        ':focus': {
-                                            borderColor: errors.depth
-                                                ? 'error'
-                                                : 'gray',
-                                        },
                                         borderColor: errors.depth
                                             ? 'error'
                                             : 'gray',
@@ -310,9 +325,6 @@ const Devices: React.FC<PropsFromRedux> = ({ user }) => {
                             id="type"
                             name="type"
                             sx={{
-                                ':focus': {
-                                    borderColor: errors.type ? 'error' : 'gray',
-                                },
                                 borderColor: errors.type ? 'error' : 'gray',
                             }}
                             ref={register({
@@ -343,6 +355,12 @@ const Devices: React.FC<PropsFromRedux> = ({ user }) => {
                                     secondary: mainTheme.colors.secondary,
                                 },
                             })}
+                            onChange={(selected: ValueType<any>) => {
+                                const maths = selected.map(
+                                    (el: any) => el.value
+                                )
+                                setSelectedMaterial(maths)
+                            }}
                             placeholder={'choose material...'}
                             options={materials}
                             defaultValue={[materials[0]]}

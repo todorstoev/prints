@@ -40,7 +40,7 @@ export interface Printer {
 
 export interface Device extends Printer {
     location: Coords
-    material: string
+    material: string[]
     type: string
     owner: string
 }
