@@ -1,15 +1,17 @@
 import React, { useState, useEffect, ChangeEvent } from 'react'
+
 import { connect, ConnectedProps } from 'react-redux'
 import { useForm } from 'react-hook-form'
-
-import { RootState, AuthState, Device, Coords, Printer } from '../types'
+import { useTheme } from 'emotion-theming'
 import { Flex, Box, Heading, Button, Text, Card } from 'rebass'
 import { Label, Input } from '@rebass/forms'
-import { LocationMap } from '../components/LocationMap'
-import { db } from '../firebase/firebase'
 import Select, { ValueType } from 'react-select'
 import makeAnimated from 'react-select/animated'
-import { useTheme } from 'emotion-theming'
+
+import { RootState, AuthState, Device, Coords, Printer } from '../types'
+import { db } from '../firebase/firebase'
+import { getUserLocation } from '../utils/location'
+import Map from '../components/Map'
 
 const authState = (state: RootState): AuthState => {
     return state.auth
@@ -22,7 +24,7 @@ type PropsFromRedux = ConnectedProps<typeof connector>
 const Devices: React.FC<PropsFromRedux> = ({ user }) => {
     const mainTheme = useTheme<any>()
     const { register, handleSubmit, errors } = useForm()
-    const [cords, setCords] = useState<Coords>({
+    const [userLocation, setUserLocation] = useState<Coords>({
         lat: 0,
         lng: 0,
     })
@@ -46,6 +48,10 @@ const Devices: React.FC<PropsFromRedux> = ({ user }) => {
     ]
 
     const animatedComponents = makeAnimated()
+
+    useEffect(() => {
+        getUserLocation().then(setUserLocation)
+    }, [])
 
     useEffect(() => {
         db.collection('devices')
@@ -81,7 +87,7 @@ const Devices: React.FC<PropsFromRedux> = ({ user }) => {
                 height: Number(data.height),
                 depth: Number(data.depth),
             },
-            location: { lat: cords.lat, lng: cords.lng },
+            location: { lat: userLocation.lat, lng: userLocation.lng },
             brand: data.brand,
             material: selectedMaterial,
             type: data.type,
@@ -124,7 +130,7 @@ const Devices: React.FC<PropsFromRedux> = ({ user }) => {
                                     <Text>Мaterial: {device.material}</Text>
                                 </Box>
                                 <Box width={1 / 2}>
-                                    <LocationMap />
+                                    <Map zoom={13} center={userLocation} />
                                 </Box>
                             </Card>
                         ))}
@@ -370,11 +376,7 @@ const Devices: React.FC<PropsFromRedux> = ({ user }) => {
                         ></Select>
                     </Box>
                     <Box width={1 / 1} px={2} height={500} marginY={10}>
-                        <LocationMap
-                            getLoc={e => {
-                                setCords(e.latlng)
-                            }}
-                        ></LocationMap>
+                        <Map zoom={13} center={userLocation}></Map>
                     </Box>
                     <Box width={1 / 1} px={2} height={500}>
                         <Button variant="primary" mr={2} type={'submit'}>

@@ -1,6 +1,9 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import './index.css';
-import Root from './Root';
+import React from 'react'
+import ReactDOM from 'react-dom'
 
-ReactDOM.render(<Root />, document.getElementById('root'));
+import Root from './Root'
+
+import 'leaflet/dist/leaflet.css'
+import './index.css'
+
+ReactDOM.render(<Root />, document.getElementById('root'))
