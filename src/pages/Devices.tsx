@@ -10,6 +10,7 @@ import makeAnimated from 'react-select/animated'
 
 import { RootState, AuthState, Device, Coords, Printer } from '../types'
 import { db } from '../firebase/firebase'
+import { getUserDevices, getPrinters } from '../utils/db'
 import { getUserLocation } from '../utils/location'
 import Map from '../components/Map'
 
@@ -29,8 +30,8 @@ const Devices: React.FC<PropsFromRedux> = ({ user }) => {
         lng: 0,
     })
 
-    const [devices, setDevices] = useState<Array<Device>>([])
-    const [predefinedDevices, setPredefinedDevices] = useState<any>()
+    const [devices, setDevices] = useState<Device[]>([])
+    const [printerOptions, setPrinterOptions] = useState<any[]>([])
 
     // Printer State
     const [selectedBrand, setSelectedBrand] = useState<string>('')
@@ -51,31 +52,14 @@ const Devices: React.FC<PropsFromRedux> = ({ user }) => {
 
     useEffect(() => {
         getUserLocation().then(setUserLocation)
-    }, [])
+        getUserDevices(user.uid).then(setDevices)
+        getPrinters().then(printers => {
+            const printerOptions = printers.map(printer => ({
+                value: printer,
+                label: `${printer.brand} ${printer.model}`,
+            }))
 
-    useEffect(() => {
-        db.collection('devices')
-            .where('owner', '==', user.uid)
-            .onSnapshot(snapshot => {
-                let deviceBuffer: Array<Device> = []
-                snapshot.forEach(doc => {
-                    deviceBuffer.push(doc.data() as Device)
-                })
-                setDevices(deviceBuffer)
-            })
-
-        db.collection('printers').onSnapshot(snapshot => {
-            let printersBuffer: Array<Printer> = []
-            let predefinedBuffer: Array<any> = []
-            snapshot.forEach(doc => {
-                const printer = doc.data() as Printer
-                predefinedBuffer.push({
-                    value: printer,
-                    label: `${printer.brand} ${printer.model}`,
-                })
-                printersBuffer.push(printer)
-            })
-            setPredefinedDevices(predefinedBuffer)
+            setPrinterOptions(printerOptions)
         })
     }, [user.uid])
 
@@ -95,6 +79,7 @@ const Devices: React.FC<PropsFromRedux> = ({ user }) => {
             model: data.model,
         }
 
+        // TODO: Extract in db util
         db.collection('devices')
             .add(device)
             .then(snapshot => {
@@ -169,7 +154,7 @@ const Devices: React.FC<PropsFromRedux> = ({ user }) => {
                                 }
                             }}
                             placeholder={'search for printer...'}
-                            options={predefinedDevices}
+                            options={printerOptions}
                             theme={theme => ({
                                 ...theme,
 
