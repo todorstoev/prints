@@ -113,6 +113,12 @@ const Devices: React.FC<PropsFromRedux> = ({ user }) => {
             })
     }
 
+    const onDeviceDelete = (device: Device) => {
+        db.collection('devices')
+            .doc(device.id)
+            .delete()
+    }
+
     return (
         <Flex mx={2} mb={3}>
             <Box width={1 / 2} className={'left-side'}>
@@ -125,7 +131,22 @@ const Devices: React.FC<PropsFromRedux> = ({ user }) => {
                 <Box width={1 / 1} px={2}>
                     {devices.length > 0 &&
                         devices.map((device: Device, i) => (
-                            <Card key={i} width={'auto'} marginY={10}>
+                            <Card
+                                key={i}
+                                width={'auto'}
+                                marginY={10}
+                                sx={{ position: 'relative' }}
+                            >
+                                <Box
+                                    onClick={e => onDeviceDelete(device)}
+                                    sx={{
+                                        position: 'absolute',
+                                        top: 10,
+                                        right: 10,
+                                    }}
+                                >
+                                    x
+                                </Box>
                                 <Box width={1 / 2}>
                                     <Heading>Device</Heading>
                                     <Text>Brand: {device.brand}</Text>
@@ -358,7 +379,6 @@ const Devices: React.FC<PropsFromRedux> = ({ user }) => {
                         <Label htmlFor="type">Type</Label>
                         <Controller
                             onChange={([selected]) => {
-                                debugger
                                 return { value: selected }
                             }}
                             control={control}
