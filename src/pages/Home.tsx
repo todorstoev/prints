@@ -14,7 +14,7 @@ type DeviceMarker = {
     brand: string
     model: string
     type: string
-    material: string[]
+    materials: string[]
     location: Coords
 }
 
@@ -27,14 +27,14 @@ type HomeState = {
 }
 
 const DeviceMarkerPopup: React.FC<DeviceMarker> = props => {
-    const { model, type, material } = props
+    const { model, type, materials } = props
 
     return (
         <Popup>
             <Box>
                 <Text>Model: {model}</Text>
                 <Text>Type: {type}</Text>
-                <Text>Materials: {material.join(', ')}</Text>
+                <Text>Materials: {materials.join(', ')}</Text>
                 <Link href="#">See more</Link>
             </Box>
         </Popup>
@@ -55,9 +55,9 @@ export class Home extends React.Component<HomeProps, HomeState> {
 
         getDevices().then(devices => {
             const mapMarkers = devices.map(device => {
-                const { brand, model, type, material, location } = device
+                const { brand, model, type, materials, location } = device
 
-                return { brand, model, type, material, location }
+                return { brand, model, type, materials, location }
             })
 
             this.setState({ mapMarkers })

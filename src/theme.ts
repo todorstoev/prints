@@ -89,8 +89,13 @@ export const theme: any = {
             color: 'background',
             bg: 'primary',
             borderRadius: 'default',
+            transition: 'all .1s linear',
             ':focus': {
                 outline: 'none',
+            },
+            ':hover': {
+                bg: 'secondary',
+                cursor: 'pointer',
             },
         },
         outline: {

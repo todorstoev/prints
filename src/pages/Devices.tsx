@@ -1,7 +1,6 @@
-import React, { useState, useEffect, ChangeEvent } from 'react'
-
+import React, { useState, useEffect, ChangeEvent, CSSProperties } from 'react'
 import { connect, ConnectedProps } from 'react-redux'
-import { useForm } from 'react-hook-form'
+import { useForm, Controller } from 'react-hook-form'
 import { useTheme } from 'emotion-theming'
 import { Flex, Box, Heading, Button, Text, Card } from 'rebass'
 import { Label, Input } from '@rebass/forms'
@@ -13,6 +12,7 @@ import { db } from '../firebase/firebase'
 import { getUserDevices, getPrinters } from '../utils/db'
 import { getUserLocation } from '../utils/location'
 import Map from '../components/Map'
+import MapMarker from '../components/MapMarker'
 
 const authState = (state: RootState): AuthState => {
     return state.auth
@@ -24,7 +24,7 @@ type PropsFromRedux = ConnectedProps<typeof connector>
 
 const Devices: React.FC<PropsFromRedux> = ({ user }) => {
     const mainTheme = useTheme<any>()
-    const { register, handleSubmit, errors } = useForm()
+    const { register, handleSubmit, errors, clearError, control } = useForm()
     const [userLocation, setUserLocation] = useState<Coords>({
         lat: 0,
         lng: 0,
@@ -33,26 +33,47 @@ const Devices: React.FC<PropsFromRedux> = ({ user }) => {
     const [devices, setDevices] = useState<Device[]>([])
     const [printerOptions, setPrinterOptions] = useState<any[]>([])
 
+    const [pickerCords, setPickerCords] = useState<Coords>({
+        lat: 0,
+        lng: 0,
+    })
+
     // Printer State
     const [selectedBrand, setSelectedBrand] = useState<string>('')
     const [selectedModel, setSelectedModel] = useState<string>('')
-    const [selectedMaterial, setSelectedMaterial] = useState<string[]>([])
     const [selectedWidth, setSelectedWidth] = useState<number>(0)
     const [selectedHeight, setSelectedHeight] = useState<number>(0)
     const [selectedDepth, setSelectedDepth] = useState<number>(0)
     // Printer State
 
-    const materials: any = [
+    const materials: Array<any> = [
         { value: 'pla', label: 'PLA' },
         { value: 'abs', label: 'ABS' },
         { value: 'petg', label: 'PETG' },
+    ]
+
+    const types: Array<any> = [
+        { value: 'FDM', label: 'FDM' },
+        { value: 'SLS', label: 'SLS' },
+        { value: 'Resin', label: 'Resin' },
     ]
 
     const animatedComponents = makeAnimated()
 
     useEffect(() => {
         getUserLocation().then(setUserLocation)
-        getUserDevices(user.uid).then(setDevices)
+        getUserDevices(user.uid, snapshot => {
+            const devices = snapshot.docs.map((doc: any) => {
+                const data = doc.data() as Device
+
+                return {
+                    ...data,
+                    id: doc.id,
+                }
+            })
+
+            setDevices(devices)
+        })
         getPrinters().then(printers => {
             const printerOptions = printers.map(printer => ({
                 value: printer,
@@ -63,18 +84,20 @@ const Devices: React.FC<PropsFromRedux> = ({ user }) => {
         })
     }, [user.uid])
 
-    const onSubmit = (data: any) => {
-        debugger
+    const onSubmit = (data: any, e: any) => {
         const device: Device = {
             dimensions: {
                 width: Number(data.width),
                 height: Number(data.height),
                 depth: Number(data.depth),
             },
-            location: { lat: userLocation.lat, lng: userLocation.lng },
+            location: {
+                lat: pickerCords ? pickerCords.lat : userLocation.lat,
+                lng: pickerCords ? pickerCords.lng : userLocation.lng,
+            },
             brand: data.brand,
-            material: selectedMaterial,
-            type: data.type,
+            materials: data.materials.map((mat: any) => mat.label),
+            type: data.type.label,
             owner: user.uid,
             model: data.model,
         }
@@ -112,7 +135,18 @@ const Devices: React.FC<PropsFromRedux> = ({ user }) => {
                                         {device.dimensions.width} /{' '}
                                         {device.dimensions.depth}
                                     </Text>
-                                    <Text>Мaterial: {device.material}</Text>
+                                    <Flex alignItems={'start'}>
+                                        Мaterial:
+                                        {device.materials.map(material => (
+                                            <Text
+                                                width={'auto'}
+                                                mx={1}
+                                                key={material}
+                                            >
+                                                {material}
+                                            </Text>
+                                        ))}
+                                    </Flex>
                                 </Box>
                                 <Box width={1 / 2}>
                                     <Map zoom={13} center={userLocation} />
@@ -130,7 +164,7 @@ const Devices: React.FC<PropsFromRedux> = ({ user }) => {
                     <Box
                         width={1 / 1}
                         px={2}
-                        sx={{ position: 'relative', zIndex: 9999 }}
+                        sx={{ position: 'relative', zIndex: 12 }}
                     >
                         <Select
                             isClearable={true}
@@ -151,9 +185,15 @@ const Devices: React.FC<PropsFromRedux> = ({ user }) => {
                                     setSelectedWidth(value.dimensions.width)
                                     setSelectedHeight(value.dimensions.height)
                                     setSelectedDepth(value.dimensions.depth)
+
+                                    clearError('brand')
+
+                                    if (selected.value.model) {
+                                        clearError('model')
+                                    }
                                 }
                             }}
-                            placeholder={'search for printer...'}
+                            placeholder={'Search for printer ...'}
                             options={printerOptions}
                             theme={theme => ({
                                 ...theme,
@@ -310,20 +350,47 @@ const Devices: React.FC<PropsFromRedux> = ({ user }) => {
                             </Box>
                         </Flex>
                     </Box>
-                    <Box width={1 / 1} px={2}>
+                    <Box
+                        width={1 / 1}
+                        px={2}
+                        sx={{ zIndex: 11, position: 'relative' }}
+                    >
                         <Label htmlFor="type">Type</Label>
-                        <Input
-                            id="type"
-                            name="type"
-                            sx={{
-                                borderColor: errors.type ? 'error' : 'gray',
+                        <Controller
+                            onChange={([selected]) => {
+                                debugger
+                                return { value: selected }
                             }}
-                            ref={register({
-                                required: {
-                                    value: true,
-                                    message: 'This fields is required',
-                                },
-                            })}
+                            control={control}
+                            name={'type'}
+                            rules={{ required: true }}
+                            as={
+                                <Select
+                                    options={types}
+                                    styles={{
+                                        control: (
+                                            e: CSSProperties
+                                        ): CSSProperties => {
+                                            return {
+                                                ...e,
+                                                borderColor: !errors.type
+                                                    ? 'rgb(204, 204, 204)'
+                                                    : mainTheme.colors.error,
+                                            }
+                                        },
+                                    }}
+                                    theme={theme => ({
+                                        ...theme,
+
+                                        colors: {
+                                            ...theme.colors,
+                                            primary: mainTheme.colors.primary,
+                                            secondary:
+                                                mainTheme.colors.secondary,
+                                        },
+                                    })}
+                                />
+                            }
                         />
                         <Text color={'error'}>
                             {errors.type && 'Type is required'}
@@ -333,37 +400,69 @@ const Devices: React.FC<PropsFromRedux> = ({ user }) => {
                     <Box
                         width={1 / 1}
                         px={2}
-                        sx={{ zIndex: 9998, position: 'relative' }}
+                        sx={{ zIndex: 10, position: 'relative' }}
                     >
-                        <Label htmlFor="material">Material</Label>
-                        <Select
-                            theme={theme => ({
-                                ...theme,
-
-                                colors: {
-                                    ...theme.colors,
-                                    primary: mainTheme.colors.primary,
-                                    secondary: mainTheme.colors.secondary,
-                                },
-                            })}
-                            onChange={(selected: ValueType<any>) => {
-                                const maths = selected.map(
-                                    (el: any) => el.value
-                                )
-                                setSelectedMaterial(maths)
+                        <Label htmlFor="materials">Materials</Label>
+                        <Controller
+                            onChange={([selected]) => {
+                                return { value: selected }
                             }}
-                            placeholder={'choose material...'}
-                            options={materials}
-                            defaultValue={[materials[0]]}
-                            isMulti={true}
-                            closeMenuOnSelect={false}
-                            components={animatedComponents}
-                        ></Select>
+                            control={control}
+                            rules={{ required: true }}
+                            name={'materials'}
+                            as={
+                                <Select
+                                    styles={{
+                                        control: (
+                                            e: CSSProperties
+                                        ): CSSProperties => {
+                                            return {
+                                                ...e,
+                                                borderColor: !errors.materials
+                                                    ? 'rgb(204, 204, 204)'
+                                                    : mainTheme.colors.error,
+                                            }
+                                        },
+                                    }}
+                                    theme={theme => ({
+                                        ...theme,
+
+                                        colors: {
+                                            ...theme.colors,
+                                            primary: mainTheme.colors.primary,
+                                            secondary:
+                                                mainTheme.colors.secondary,
+                                        },
+                                    })}
+                                    isClearable={false}
+                                    placeholder={'Choose materials ...'}
+                                    options={materials}
+                                    isMulti={true}
+                                    components={animatedComponents}
+                                ></Select>
+                            }
+                        />
+                        <Text color={'error'}>
+                            {errors.materials &&
+                                'There must be at least 1 material'}
+                        </Text>
                     </Box>
-                    <Box width={1 / 1} px={2} height={500} marginY={10}>
-                        <Map zoom={13} center={userLocation}></Map>
+                    <Box
+                        width={1 / 1}
+                        px={2}
+                        height={500}
+                        marginY={10}
+                        sx={{ zIndex: 0, position: 'relative' }}
+                    >
+                        <Map
+                            zoom={13}
+                            center={userLocation}
+                            onClick={e => setPickerCords(e.latlng)}
+                        >
+                            <MapMarker position={pickerCords}></MapMarker>
+                        </Map>
                     </Box>
-                    <Box width={1 / 1} px={2} height={500}>
+                    <Box width={1 / 1} px={2}>
                         <Button variant="primary" mr={2} type={'submit'}>
                             Add Device
                         </Button>

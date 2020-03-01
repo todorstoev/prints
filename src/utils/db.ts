@@ -1,5 +1,6 @@
 import { Device, Printer } from '../types'
 import { db } from '../firebase/firebase'
+import { on } from 'cluster'
 
 export const getDevices = (): Promise<Device[]> => {
     return new Promise<Device[]>((resolve, reject) => {
@@ -11,16 +12,15 @@ export const getDevices = (): Promise<Device[]> => {
     })
 }
 
-export const getUserDevices = (userUid: string): Promise<Device[]> => {
-    return new Promise<Device[]>((resolve, reject) => {
-        db.collection('devices')
-            .where('owner', '==', userUid)
-            .onSnapshot(snapshot => {
-                const devices = snapshot.docs.map(doc => doc.data() as Device)
-
-                resolve(devices)
-            })
-    })
+export const getUserDevices = (
+    userUid: string,
+    onDeviceChanged: (currentData: firebase.firestore.DocumentData) => void,
+    onError?: () => void,
+    onCompletion?: () => void
+) => {
+    db.collection('devices')
+        .where('owner', '==', userUid)
+        .onSnapshot(onDeviceChanged, onError, onCompletion)
 }
 
 export const getPrinters = (): Promise<Printer[]> => {
