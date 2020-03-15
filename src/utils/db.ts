@@ -1,6 +1,5 @@
 import { Device, Printer } from '../types'
 import { db } from '../firebase/firebase'
-import { on } from 'cluster'
 
 export const getDevices = (): Promise<Device[]> => {
     return new Promise<Device[]>((resolve, reject) => {

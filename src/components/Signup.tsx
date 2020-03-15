@@ -1,9 +1,32 @@
 import React, { useState } from 'react'
+import { connect, ConnectedProps } from 'react-redux'
+import { registerUser } from '../actions'
 import { Heading, Box, Text, Button, Flex, Link } from 'rebass'
 import { Input, Label } from '@rebass/forms'
 import { theme } from '../theme'
+import { RootState } from '../types'
 
-const SignUp: React.FC<any> = ({ registerUser, error, setIsLogin }) => {
+const mapState = (state: RootState) => {
+    return {
+        isLoggingIn: state.auth.isLoggingIn,
+        error: state.auth.error,
+        isAuthenticated: state.auth.isAuthenticated,
+    }
+}
+
+const mapDispatch = {
+    registerUser,
+}
+
+const connector = connect(mapState, mapDispatch)
+
+type PropsFromRedux = ConnectedProps<typeof connector>
+
+type Props = PropsFromRedux & {
+    setIsLogin: (login: boolean) => void
+}
+
+const SignUp: React.FC<Props> = ({ registerUser, error, setIsLogin }) => {
     const [email, setEmail] = useState<string>('')
     const [password, setPassword] = useState<string>('')
 
@@ -101,4 +124,4 @@ const SignUp: React.FC<any> = ({ registerUser, error, setIsLogin }) => {
     )
 }
 
-export default SignUp
+export default connector(SignUp)
