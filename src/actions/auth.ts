@@ -5,7 +5,9 @@ import {
     nonePersistance,
 } from '../firebase/firebase'
 import { Dispatch } from 'redux'
-import { FirebaseError } from 'firebase'
+import { FirebaseError, User } from 'firebase'
+import { PrintsUser } from '../types'
+import { remapUser, saveUserToDb, fbErrorMessages } from '../utils'
 
 export const LOGIN_REQUEST = 'LOGIN_REQUEST'
 export const LOGIN_SUCCESS = 'LOGIN_SUCCESS'
@@ -71,25 +73,47 @@ const verifySuccess = () => {
     }
 }
 
-const recieveError = (error: FirebaseError) => {
+const recieveError = (error: string) => {
     return {
         type: ERROR,
         error,
     }
 }
 
-export const registerUser = (emal: string, password: string) => (
+export const registerUser = (email: string, password: string) => (
     dispatch: Dispatch
 ): void => {
     dispatch(requestRegister())
     myFirebase
         .auth()
-        .createUserWithEmailAndPassword(emal, password)
+        .createUserWithEmailAndPassword(email, password)
         .then(user => {
-            dispatch(recieveRegister(user))
+            const userToInsert: PrintsUser = {
+                email,
+                firstName: '',
+                lastName: '',
+                uid: (user.user as User).uid,
+                username: '',
+                pic: './assets/user-unknown-com.svg',
+            }
+            saveUserToDb(userToInsert)
+                .then(res => {
+                    if (res)
+                        dispatch(
+                            recieveRegister({
+                                ...userToInsert,
+                                refreshToken: (user.user as User).refreshToken,
+                            } as PrintsUser)
+                        )
+                })
+                .catch(e => {
+                    dispatch(recieveError(e))
+                })
         })
         .catch((e: FirebaseError) => {
-            dispatch(recieveError(e))
+            const error: string = fbErrorMessages(e)
+
+            dispatch(recieveError(error))
         })
 }
 
@@ -98,12 +122,27 @@ export const loginGoogle = () => (dispatch: Dispatch) => {
     myFirebase
         .auth()
         .signInWithPopup(googleProvider)
-        .then(user => {
-            dispatch(receiveLogin(user))
-            console.log(user)
+        .then((user: any) => {
+            const userToInsert: PrintsUser = remapUser(user)
+            if (user.additionalUserInfo.isNewUser) {
+                saveUserToDb(userToInsert)
+                    .then(res => {
+                        if (res)
+                            dispatch(
+                                receiveLogin({
+                                    ...userToInsert,
+                                    refreshToken: user.user.refreshToken,
+                                } as PrintsUser)
+                            )
+                    })
+                    .catch(e => {
+                        dispatch(recieveError(e))
+                    })
+            } else {
+                dispatch(receiveLogin(userToInsert))
+            }
         })
         .catch(e => {
-            console.log(e)
             dispatch(recieveError(e))
         })
 }
@@ -124,7 +163,9 @@ export const loginUser = (
             dispatch(receiveLogin(user))
         })
         .catch((e: FirebaseError) => {
-            dispatch(recieveError(e))
+            const error = fbErrorMessages(e)
+
+            dispatch(recieveError(error))
         })
 }
 
@@ -150,5 +191,12 @@ export const verifyAuth: any = () => (dispatch: Dispatch) => {
             dispatch(receiveLogin(user))
         }
         dispatch(verifySuccess())
+    })
+}
+
+export const clearAuthErrors = () => (dispatch: Dispatch) => {
+    dispatch({
+        type: ERROR,
+        error: null,
     })
 }

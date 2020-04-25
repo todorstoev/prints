@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Button, Box, Heading, Text, Flex, Link } from 'rebass'
 import { Input, Label, Checkbox } from '@rebass/forms'
-import { loginUser, loginGoogle } from '../actions'
+import { loginUser, loginGoogle, clearAuthErrors } from '../actions'
 import { theme } from '../theme'
 import { RootState } from '../types'
 import { connect, ConnectedProps } from 'react-redux'
@@ -16,6 +16,7 @@ const mapState = (state: RootState) => {
 const mapDispatch = {
     loginUser,
     loginGoogle,
+    clearAuthErrors,
 }
 
 const connector = connect(mapState, mapDispatch)
@@ -31,6 +32,7 @@ const SignIn: React.FC<Props> = ({
     loginUser,
     setIsLogin,
     loginGoogle,
+    clearAuthErrors,
 }) => {
     const [email, setEmail] = useState<string>('')
     const [password, setPassword] = useState<string>('')
@@ -53,7 +55,7 @@ const SignIn: React.FC<Props> = ({
     return (
         <Flex flexWrap="wrap" flex="1 0 auto" justifyContent={'space-evenly'}>
             <Box
-                width={['25%']}
+                width={['auto']}
                 className={'login-form'}
                 margin={'100px  auto'}
                 as="form"
@@ -150,6 +152,7 @@ const SignIn: React.FC<Props> = ({
                                 }}
                                 onClick={() => {
                                     setIsLogin(false)
+                                    clearAuthErrors()
                                 }}
                             >
                                 Register

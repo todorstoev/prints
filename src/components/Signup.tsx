@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { connect, ConnectedProps } from 'react-redux'
-import { registerUser } from '../actions'
+import { registerUser, clearAuthErrors } from '../actions'
 import { Heading, Box, Text, Button, Flex, Link } from 'rebass'
 import { Input, Label } from '@rebass/forms'
 import { theme } from '../theme'
@@ -16,6 +16,7 @@ const mapState = (state: RootState) => {
 
 const mapDispatch = {
     registerUser,
+    clearAuthErrors,
 }
 
 const connector = connect(mapState, mapDispatch)
@@ -26,9 +27,15 @@ type Props = PropsFromRedux & {
     setIsLogin: (login: boolean) => void
 }
 
-const SignUp: React.FC<Props> = ({ registerUser, error, setIsLogin }) => {
+const SignUp: React.FC<Props> = ({
+    registerUser,
+    error,
+    setIsLogin,
+    clearAuthErrors,
+}) => {
     const [email, setEmail] = useState<string>('')
     const [password, setPassword] = useState<string>('')
+    
 
     const handleEmailChange = ({
         currentTarget,
@@ -42,7 +49,7 @@ const SignUp: React.FC<Props> = ({ registerUser, error, setIsLogin }) => {
     return (
         <Flex flexWrap="wrap" flex="1 0 auto" justifyContent={'space-evenly'}>
             <Box
-                width={['25%']}
+                width={['auto']}
                 className={'signup-form'}
                 margin={'100px  auto'}
                 as="form"
@@ -111,6 +118,7 @@ const SignUp: React.FC<Props> = ({ registerUser, error, setIsLogin }) => {
                                     }}
                                     onClick={() => {
                                         setIsLogin(true)
+                                        clearAuthErrors()
                                     }}
                                 >
                                     Log In

@@ -9,8 +9,7 @@ import makeAnimated from 'react-select/animated'
 
 import { RootState, AuthState, Device, Coords, Printer } from '../types'
 import { db } from '../firebase/firebase'
-import { getUserDevices, getPrinters } from '../utils/db'
-import { getUserLocation } from '../utils/location'
+import { getUserLocation, getUserDevices, getPrinters } from '../utils'
 import Map from '../components/Map'
 import MapMarker from '../components/MapMarker'
 
@@ -62,7 +61,7 @@ const Devices: React.FC<PropsFromRedux> = ({ user }) => {
 
     useEffect(() => {
         getUserLocation().then(setUserLocation)
-        getUserDevices(user.uid, snapshot => {
+        getUserDevices(user.uid as string, snapshot => {
             const devices = snapshot.docs.map((doc: any) => {
                 const data = doc.data() as Device
 
@@ -98,7 +97,7 @@ const Devices: React.FC<PropsFromRedux> = ({ user }) => {
             brand: data.brand,
             materials: data.materials.map((mat: any) => mat.label),
             type: data.type.label,
-            owner: user.uid,
+            owner: user.uid as string,
             model: data.model,
         }
 
@@ -378,9 +377,6 @@ const Devices: React.FC<PropsFromRedux> = ({ user }) => {
                     >
                         <Label htmlFor="type">Type</Label>
                         <Controller
-                            onChange={([selected]) => {
-                                return { value: selected }
-                            }}
                             control={control}
                             name={'type'}
                             rules={{ required: true }}
@@ -424,9 +420,6 @@ const Devices: React.FC<PropsFromRedux> = ({ user }) => {
                     >
                         <Label htmlFor="materials">Materials</Label>
                         <Controller
-                            onChange={([selected]) => {
-                                return { value: selected }
-                            }}
                             control={control}
                             rules={{ required: true }}
                             name={'materials'}

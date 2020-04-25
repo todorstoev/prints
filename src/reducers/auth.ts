@@ -20,15 +20,13 @@ export default (
         error: null,
         isAuthenticated: false,
         user: {
-            displayName: '',
             email: '',
-            emailVerified: false,
-            isAnonymous: false,
-            phoneNumber: '',
-            photoURL: '',
-            refreshToken: '',
-            tenantId: '',
             uid: '',
+            firstName: '',
+            lastName: '',
+            pic: '',
+            refreshToken: '',
+            username: '',
         },
     },
     action: any
@@ -53,7 +51,7 @@ export default (
                 ...state,
                 isLoggingIn: false,
                 isAuthenticated: false,
-                error: action.error.message,
+                error: action.error,
             }
         case REGISTER_REQUEST:
             return {

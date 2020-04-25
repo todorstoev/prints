@@ -1,5 +1,6 @@
-import { Device, Printer } from '../types'
+import { Device, Printer, PrintsUser } from '../types'
 import { db } from '../firebase/firebase'
+import { FirebaseError } from 'firebase'
 
 export const getDevices = (): Promise<Device[]> => {
     return new Promise<Device[]>((resolve, reject) => {
@@ -29,5 +30,20 @@ export const getPrinters = (): Promise<Printer[]> => {
 
             resolve(printers)
         })
+    })
+}
+
+export const saveUserToDb = (
+    user: PrintsUser
+): Promise<boolean | FirebaseError> => {
+    return new Promise((resolve, reject) => {
+        db.collection('users')
+            .add(user)
+            .then(_snapshot => {
+                resolve(true)
+            })
+            .catch(e => {
+                reject(e)
+            })
     })
 }

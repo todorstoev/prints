@@ -1,7 +1,7 @@
 import React from 'react'
 import { connect, ConnectedProps } from 'react-redux'
 import { RootState } from '../types'
-import { Flex, Text, Link, Box } from 'rebass'
+import { Flex, Link, Box } from 'rebass'
 import { logoutUser } from '../actions'
 
 const mapStateToProps = (state: RootState) => {

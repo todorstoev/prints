@@ -4,23 +4,21 @@ export interface AuthState {
     isVerifying: boolean
     error: string | null
     isAuthenticated: boolean
-    user: User
+    user: PrintsUser
 }
 
 export interface RootState {
     auth: AuthState
 }
 
-type User = {
-    refreshToken: string
-    uid: string
-    displayName: string
-    photoURL: string
+export interface PrintsUser {
+    firstName: string
+    lastName: string
     email: string
-    emailVerified: boolean
-    phoneNumber: string
-    isAnonymous: boolean
-    tenantId: string
+    pic: string
+    uid: string | undefined
+    username: string
+    refreshToken?: string
 }
 
 export type Coords = {

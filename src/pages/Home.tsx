@@ -5,8 +5,7 @@ import { Popup } from 'react-leaflet'
 import { Box, Text, Link } from 'rebass'
 
 import { Coords } from '../types'
-import { getDevices } from '../utils/db'
-import { getUserLocation } from '../utils/location'
+import { getUserLocation, getDevices } from '../utils'
 import Map from '../components/Map'
 import MapMarker from '../components/MapMarker'
 
@@ -77,15 +76,17 @@ export class Home extends React.Component<HomeProps, HomeState> {
         return (
             <div style={{ height: '100vh' }}>
                 <Map center={mapCenter} zoom={mapZoom}>
-                    {mapMarkers.map((marker, index) => (
-                        <MapMarker
-                            key={index}
-                            position={marker.location}
-                            icon={deviceIcon}
-                        >
-                            <DeviceMarkerPopup {...marker} />
-                        </MapMarker>
-                    ))}
+                    {mapMarkers.map((marker, index) => {
+                        return (
+                            <MapMarker
+                                key={index}
+                                position={marker.location}
+                                icon={deviceIcon}
+                            >
+                                marker && <DeviceMarkerPopup {...marker} />
+                            </MapMarker>
+                        )
+                    })}
                 </Map>
             </div>
         )
