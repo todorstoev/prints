@@ -83,7 +83,7 @@ export class Home extends React.Component<HomeProps, HomeState> {
                                 position={marker.location}
                                 icon={deviceIcon}
                             >
-                                marker && <DeviceMarkerPopup {...marker} />
+                                {marker && <DeviceMarkerPopup {...marker} />}
                             </MapMarker>
                         )
                     })}
