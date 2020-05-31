@@ -2,7 +2,7 @@ import React from 'react'
 import { connect, ConnectedProps } from 'react-redux'
 import { RootState } from '../types'
 import { Flex, Box, Link, Text } from 'rebass'
-import { logoutUser ,} from '../actions'
+import { logoutUser } from '../actions'
 
 const mapStateToProps = (state: RootState) => state.auth
 
@@ -34,12 +34,6 @@ const NavBar: React.FC<Props> = ({ user, logoutUser }) => {
             <Box>
                 <Link variant="nav" href="/">
                     <Text color={'primary'}>Map</Text>
-                </Link>
-            </Box>
-
-            <Box>
-                <Link variant="nav" href="/devices">
-                    <Text color={'primary'}>Devices</Text>
                 </Link>
             </Box>
 

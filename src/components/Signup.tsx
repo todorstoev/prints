@@ -3,7 +3,7 @@ import { connect, ConnectedProps } from 'react-redux'
 import { registerUser, clearAuthErrors } from '../actions'
 import { Heading, Box, Text, Button, Flex, Link } from 'rebass'
 import { Input, Label } from '@rebass/forms'
-import { theme } from '../theme'
+import { useTheme } from 'emotion-theming'
 import { RootState } from '../types'
 
 const mapState = (state: RootState) => {
@@ -56,74 +56,57 @@ const SignUp: React.FC<Props> = ({
                 p={20}
                 backgroundColor={'#fff'}
             >
-                <Box
-                    p={1}
-                    sx={{
-                        textAlign: 'center',
-                        borderRadius: 6,
-                        backgroundImage: `linear-gradient(to left, ${theme.colors.text}, ${theme.colors.primary});`,
-                    }}
-                >
-                    <Box
-                        p={4}
-                        backgroundColor={'#fff'}
-                        sx={{ borderRadius: 6 }}
-                    >
-                        <Heading fontSize={[5, 6, 7]}>Sign Up</Heading>
-                        <Label htmlFor="email">Email</Label>
-                        <Input
-                            name={'email'}
-                            className={'email'}
-                            mt={2}
-                            onChange={handleEmailChange}
-                        />
-                        <Label htmlFor="password">Password</Label>
-                        <Input
-                            name={'password'}
-                            type={'password'}
-                            className={'password'}
-                            mb={2}
-                            onChange={handlePasswordChange}
-                        />
-                        <Box height={25}>
-                            {error && (
-                                <Text color="error" mt={2}>
-                                    {error}
-                                </Text>
-                            )}
-                        </Box>
-                        <Box mt={10} width={[1 / 1]}>
-                            <Button
-                                type={'button'}
-                                onClick={handleSubmit}
-                                variant="primary"
-                                width={[1 / 1]}
-                            >
-                                Register
-                            </Button>
+                <Box p={4} backgroundColor={'#fff'} sx={{ borderRadius: 6 }}>
+                    <Heading fontSize={[5, 6, 7]}>Sign Up</Heading>
+                    <Label htmlFor="email">Email</Label>
+                    <Input
+                        name={'email'}
+                        className={'email'}
+                        mt={2}
+                        onChange={handleEmailChange}
+                    />
+                    <Label htmlFor="password">Password</Label>
+                    <Input
+                        name={'password'}
+                        type={'password'}
+                        className={'password'}
+                        mb={2}
+                        onChange={handlePasswordChange}
+                    />
+                    <Box height={25}>
+                        {error && (
+                            <Text color="error" mt={2}>
+                                {error}
+                            </Text>
+                        )}
+                    </Box>
+                    <Box mt={10} width={[1 / 1]}>
+                        <Button
+                            type={'button'}
+                            onClick={handleSubmit}
+                            variant="primary"
+                            width={[1 / 1]}
+                        >
+                            Register
+                        </Button>
 
-                            <Flex
-                                flexWrap="wrap"
-                                mt={20}
-                                justifyContent={'start'}
-                            >
-                                <Text mr={3}>Allready have an account ?</Text>
+                        <Flex flexWrap="wrap" mt={20} justifyContent={'start'}>
+                            <Text mr={3}>Allready have an account ?</Text>
 
-                                <Link
-                                    sx={{
-                                        ':hover': {
-                                            cursor: 'pointer',
-                                        },
-                                    }}
-                                    onClick={() => {
-                                        setIsLogin(true)
-                                        clearAuthErrors()
-                                    }}
-                                >
-                                    Log In
-                                </Link>
-                            </Flex>
-                        </Box>
+                            <Link
+                                sx={{
+                                    ':hover': {
+                                        cursor: 'pointer',
+                                    },
+                                }}
+                                onClick={() => {
+                                    setIsLogin(true)
+                                    clearAuthErrors()
+                                }}
+                            >
+                                Log In
+                            </Link>
+                        </Flex>
                     </Box>
                 </Box>
             </Box>

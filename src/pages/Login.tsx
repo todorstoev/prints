@@ -41,7 +41,6 @@ const Login: React.FC<PropsFromRedux> = ({ isAuthenticated }) => {
         <Box
             height={'100%'}
             sx={{
-                // backgroundImage: 'linear-gradient(to left, #00f260, #0575e6);',
                 overflow: 'hidden',
             }}
         >

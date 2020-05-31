@@ -1,19 +1,15 @@
 export const theme: any = {
     colors: {
-        text: '#000',
         background: '#fff',
-        primary: '#023E6B',
-        secondary: '#1b2c6059',
-        error: '#d93b48',
+        primary: '#037BB6',
+        secondary: '#67BFE7',
+        error: 'red',
         muted: '#f6f6f9',
-        mist: '#eaf7f8',
-        gray: '#dddddf',
-        orange: '#F74F04',
         highlight: 'hsla(205, 100%, 40%, 0.125)',
     },
     fonts: {
         body: 'system-ui, sans-serif',
-        heading: 'inherit',
+        heading: 'system-ui, sans-serif',
         monospace: 'Menlo, monospace',
     },
     fontSizes: [12, 14, 16, 20, 24, 32, 48, 64, 96],
@@ -28,7 +24,7 @@ export const theme: any = {
     },
     space: [0, 4, 8, 16, 32, 64, 128, 256, 512],
     sizes: {
-        avatar: 48,
+        avatar: 120,
     },
     radii: {
         default: 4,
@@ -39,34 +35,25 @@ export const theme: any = {
         small: '0 2px 4px -2px rgba(11, 39, 65, 0.3)',
         heavy: `0px 3px 5px -1px rgba(0, 0, 0, 0.2), 0px 6px 10px 0px rgba(0, 0, 0, 0.14), 0px 1px 18px 0px rgba(0, 0, 0, 0);`,
     },
+    blueGradient: `linear-gradient(90deg, rgb(3, 77, 127) 0%, 23.389%, rgb(3, 141, 206) 46.778%, 73.389%, rgb(109, 195, 234) 100%);`,
+    silverGradient: `linear-gradient(90deg, rgb(245, 248, 249) 0%, 25.4773%, rgb(237, 241, 243) 50.9547%, 75.4773%, rgb(205, 215, 222) 100%)`,
+    breakpoints: ['40em', '56em', '64em'],
 
     // rebass variants
-    text: {
-        heading: {
-            fontFamily: 'heading',
-            lineHeight: 'heading',
-            fontWeight: 'heading',
-        },
-        display: {
-            fontFamily: 'heading',
-            fontWeight: 'heading',
-            lineHeight: 'heading',
-            fontSize: [5, 6, 7],
-        },
-        caps: {
-            textTransform: 'uppercase',
-            letterSpacing: '0.1em',
-        },
-    },
+
     variants: {
+        hr: {
+            height: 0,
+            borderWidth: 1,
+            borderColor: 'secondary',
+            borderStyle: 'solid',
+            backgroundColor: 'secondary',
+        },
         avatar: {
             width: 'avatar',
             height: 'avatar',
             borderRadius: 'circle',
             boxShadow: 'card',
-            ':hover': {
-                cursor: 'pointer',
-            },
         },
         card: {
             p: 2,
@@ -89,10 +76,26 @@ export const theme: any = {
             },
         },
     },
+    text: {
+        heading: {
+            fontFamily: 'heading',
+            lineHeight: 'heading',
+            fontWeight: 'heading',
+        },
+        display: {
+            fontFamily: 'heading',
+            fontWeight: 'heading',
+            lineHeight: 'heading',
+            fontSize: [5, 6, 7],
+        },
+        caps: {
+            textTransform: 'uppercase',
+            letterSpacing: '0.1em',
+        },
+    },
     buttons: {
         primary: {
-            fontSize: 2,
-            fontWeight: 'bold',
+            fontWeight: 'body',
             color: 'background',
             bg: 'primary',
             borderRadius: 'default',
@@ -105,25 +108,19 @@ export const theme: any = {
                 cursor: 'pointer',
             },
         },
+        secondary: {
+            variant: 'buttons.primary',
+            color: 'background',
+            bg: 'secondary',
+        },
         outline: {
             variant: 'buttons.primary',
             color: 'primary',
             bg: 'transparent',
             boxShadow: 'inset 0 0 2px',
         },
-        secondary: {
-            variant: 'buttons.primary',
-            color: 'background',
-            bg: 'orange ',
-        },
     },
-    styles: {
-        root: {
-            fontFamily: 'body',
-            fontWeight: 'body',
-            lineHeight: 'body',
-        },
-    },
+
     forms: {
         input: {
             transition: 'all 0.2s linear',
@@ -151,5 +148,12 @@ export const theme: any = {
         label: {},
         radio: {},
         checkbox: {},
+    },
+    styles: {
+        root: {
+            fontFamily: 'body',
+            fontWeight: 'body',
+            lineHeight: 'body',
+        },
     },
 }

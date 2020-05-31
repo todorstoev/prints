@@ -1,10 +1,13 @@
 import React, { useState } from 'react'
 import { Button, Box, Heading, Text, Flex, Link } from 'rebass'
 import { Input, Label, Checkbox } from '@rebass/forms'
-import { loginUser, loginGoogle, clearAuthErrors } from '../actions'
-import { theme } from '../theme'
-import { RootState } from '../types'
+
 import { connect, ConnectedProps } from 'react-redux'
+import { useTheme } from 'emotion-theming'
+
+import { loginUser, loginGoogle, clearAuthErrors } from '../actions'
+
+import { RootState } from '../types'
 
 const mapState = (state: RootState) => {
     return {
@@ -63,102 +66,89 @@ const SignIn: React.FC<Props> = ({
                 p={20}
                 backgroundColor={'#fff'}
             >
-                <Box
-                    p={1}
-                    sx={{
-                        textAlign: 'center',
-                        borderRadius: 6,
-                        backgroundImage: `linear-gradient(to left, ${theme.colors.text}, ${theme.colors.primary});`,
-                    }}
-                >
-                    <Box
-                        p={4}
-                        backgroundColor={'#fff'}
-                        sx={{ borderRadius: 6 }}
-                    >
-                        <Heading fontSize={[5, 6, 7]}>Log In</Heading>
-                        <Label htmlFor="email">Email</Label>
+                <Box p={4} backgroundColor={'#fff'} sx={{ borderRadius: 6 }}>
+                    <Heading fontSize={[5, 6, 7]}>Log In</Heading>
+                    <Label htmlFor="email">Email</Label>
 
-                        <Input
-                            autoComplete={'on'}
-                            name={'email'}
-                            className={'email'}
-                            mt={2}
-                            onChange={handleEmailChange}
-                        />
-                        <Label htmlFor="password">Password</Label>
-                        <Input
-                            autoComplete={'on'}
-                            name={'password'}
-                            className={'password'}
-                            type={'password'}
-                            mb={2}
-                            onChange={handlePasswordChange}
-                        />
-                        <Box height={50}>
-                            {error && (
-                                <Text color="error" mt={2}>
-                                    {error}
-                                </Text>
-                            )}
-                        </Box>
-                        <Flex>
-                            <Box width={1 / 2}>
-                                <Label>
-                                    <Checkbox
-                                        id="remember"
-                                        name="remember"
-                                        checked={remember}
-                                        onChange={handleRememberMe}
-                                    />
-                                    Remember me
-                                </Label>
-                            </Box>
-                            <Box width={1 / 2}>
-                                <Link href="https://rebassjs.org">
-                                    Forget Your Password ?
-                                </Link>
-                            </Box>
-                        </Flex>
-                        <Box mt={20} width={[1 / 1]}>
-                            <Button
-                                variant="secondary"
-                                onClick={handleSubmit}
-                                width={[1 / 1]}
-                            >
-                                Log In
-                            </Button>
-                        </Box>
-                        <Box mt={15} width={[1 / 1]}>
-                            <Button
-                                width={[1 / 1]}
-                                variant="primary"
-                                backgroundColor={'#cf4332'}
-                                onClick={() => {
-                                    loginGoogle()
-                                }}
-                            >
-                                Login with Google
-                            </Button>
-                        </Box>
-                        <Flex flexWrap="wrap" mt={20} justifyContent={'start'}>
-                            <Text mr={3}>Dont have account ?</Text>
-
-                            <Link
-                                sx={{
-                                    ':hover': {
-                                        cursor: 'pointer',
-                                    },
-                                }}
-                                onClick={() => {
-                                    setIsLogin(false)
-                                    clearAuthErrors()
-                                }}
-                            >
-                                Register
-                            </Link>
-                        </Flex>
+                    <Input
+                        autoComplete={'on'}
+                        name={'email'}
+                        className={'email'}
+                        mt={2}
+                        onChange={handleEmailChange}
+                    />
+                    <Label htmlFor="password">Password</Label>
+                    <Input
+                        autoComplete={'on'}
+                        name={'password'}
+                        className={'password'}
+                        type={'password'}
+                        mb={2}
+                        onChange={handlePasswordChange}
+                    />
+                    <Box height={50}>
+                        {error && (
+                            <Text color="error" mt={2}>
+                                {error}
+                            </Text>
+                        )}
                     </Box>
+                    <Flex>
+                        <Box width={1 / 2}>
+                            <Label>
+                                <Checkbox
+                                    id="remember"
+                                    name="remember"
+                                    checked={remember}
+                                    onChange={handleRememberMe}
+                                />
+                                Remember me
+                            </Label>
+                        </Box>
+                        <Box width={1 / 2}>
+                            <Link href="https://rebassjs.org">
+                                Forget Your Password ?
+                            </Link>
+                        </Box>
+                    </Flex>
+                    <Box mt={20} width={[1 / 1]}>
+                        <Button
+                            variant="secondary"
+                            onClick={handleSubmit}
+                            width={[1 / 1]}
+                        >
+                            Log In
+                        </Button>
+                    </Box>
+                    <Box mt={15} width={[1 / 1]}>
+                        <Button
+                            width={[1 / 1]}
+                            variant="primary"
+                            backgroundColor={'#cf4332'}
+                            onClick={() => {
+                                loginGoogle()
+                            }}
+                        >
+                            Login with Google
+                        </Button>
+                    </Box>
+                    <Flex flexWrap="wrap" mt={20} justifyContent={'start'}>
+                        <Text mr={3}>Dont have account ?</Text>
+
+                        <Link
+                            sx={{
+                                ':hover': {
+                                    cursor: 'pointer',
+                                },
+                            }}
+                            onClick={() => {
+                                setIsLogin(false)
+                                clearAuthErrors()
+                            }}
+                        >
+                            Register
+                        </Link>
+                    </Flex>
                 </Box>
             </Box>
         </Flex>

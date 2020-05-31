@@ -1,20 +1,21 @@
 import React, { useRef } from 'react'
 import { Route, Switch } from 'react-router-dom'
 import { connect, ConnectedProps } from 'react-redux'
-import { Box, Image } from 'rebass'
+import { Box, Flex } from 'rebass'
 import { animated as a, useSpring, config } from 'react-spring'
 
 import ProtectedRoute from './components/ProtectedRoute'
 
 import Home from './pages/Home'
 import Login from './pages/Login'
-import Devices from './pages/Devices'
 import Profile from './pages/Profile'
 
 import { RootState } from './types'
+
 import { NoMatch } from './pages/404'
 
 import NavBar from './components/NavBar'
+
 import { useDrag } from 'react-use-gesture'
 
 const mapState = (state: RootState) => {
@@ -77,6 +78,8 @@ const App: React.FC<PropsFromRedux> = ({
         ),
         opacity: x.to([0, width], [0.4, 1], 'clamp'),
         touchAction: x.to(v => (v > 0 ? 'auto' : 'none')),
+        height: '100vh',
+        overflow: 'auto',
     }
 
     const display = x.to(py => (py < width ? 'block' : 'none'))
@@ -87,76 +90,52 @@ const App: React.FC<PropsFromRedux> = ({
                 onClick={open}
                 bg={'primary'}
                 sx={{
+                    height: 40,
+                    width: 40,
                     position: 'fixed',
                     zIndex: 450,
                     bottom: 50,
                     right: 50,
                     boxShadow: 'heavy',
-
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    flexWrap: 'wrap',
+                    borderRadius: 'circle',
                 }}
-                variant={'avatar'}
             >
-                <a.div
-                    style={{
-                        display: x.to(v => (v > 0 ? 'block' : 'none')),
-                        background: '#fff',
-                        height: '20%',
-                        width: '20%',
-                        borderRadius: '50%',
-                    }}
-                ></a.div>
-                <a.div
-                    style={{
-                        display: x.to(v => (v > 0 ? 'none' : 'block')),
-                        transform: x.to(
-                            [0, width],
-                            [
-                                'rotateY(180deg) scale(1)',
-                                'rotateY(0deg) scale(0)',
-                            ]
-                        ),
-                    }}
+                <Flex
+                    justifyContent={'center'}
+                    flexDirection={'column'}
+                    alignItems={'center'}
+                    height={'100%'}
                 >
-                    <Image
-                        src={user.pic}
-                        alt=""
-                        variant={'avatar'}
-                        bg={'whitesmoke'}
-                        sx={{ position: 'relative', bottom: 0 }}
-                    />
-                </a.div>
+                    <Box
+                        width={7}
+                        height={7}
+                        bg={'background'}
+                        sx={{ borderRadius: 'circle' }}
+                    ></Box>
+                </Flex>
             </Box>
 
             <a.div style={bgStyle} onClick={() => close()}>
-                <Switch>
-                    <ProtectedRoute
-                        exact
-                        path="/"
-                        component={Home}
-                        isAuthenticated={isAuthenticated}
-                        isVerifying={isVerifying}
-                    />
-                    <Route path="/login" component={Login} />
-                    <ProtectedRoute
-                        exact
-                        path="/devices"
-                        component={Devices}
-                        isAuthenticated={isAuthenticated}
-                        isVerifying={isVerifying}
-                    />
-                    <ProtectedRoute
-                        exact
-                        path="/profile"
-                        component={Profile}
-                        isAuthenticated={isAuthenticated}
-                        isVerifying={isVerifying}
-                    />
-                    <Route component={NoMatch} />
-                </Switch>
+                <Box>
+                    <Switch>
+                        <ProtectedRoute
+                            exact
+                            path="/"
+                            component={Home}
+                            isAuthenticated={isAuthenticated}
+                            isVerifying={isVerifying}
+                        />
+                        <Route path="/login" component={Login} />
+                        <ProtectedRoute
+                            exact
+                            path="/profile"
+                            component={Profile}
+                            isAuthenticated={isAuthenticated}
+                            isVerifying={isVerifying}
+                        />
+                        <Route component={NoMatch} />
+                    </Switch>
+                </Box>
             </a.div>
             <a.div
                 {...bind()}
