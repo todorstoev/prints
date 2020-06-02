@@ -2,6 +2,7 @@ import React from 'react'
 
 import { Icon } from 'leaflet'
 import { Popup } from 'react-leaflet'
+import MarkerClusterGroup from 'react-leaflet-markercluster'
 import { Box, Text, Link } from 'rebass'
 
 import { Coords } from '../types'
@@ -76,17 +77,21 @@ export class Home extends React.Component<HomeProps, HomeState> {
         return (
             <div style={{ height: '100vh', width: '100%' }}>
                 <Map center={mapCenter} zoom={mapZoom}>
-                    {mapMarkers.map((marker, index) => {
-                        return (
-                            <MapMarker
-                                key={index}
-                                position={marker.location}
-                                icon={deviceIcon}
-                            >
-                                {marker && <DeviceMarkerPopup {...marker} />}
-                            </MapMarker>
-                        )
-                    })}
+                    <MarkerClusterGroup>
+                        {mapMarkers.map((marker, index) => {
+                            return (
+                                <MapMarker
+                                    key={index}
+                                    position={marker.location}
+                                    icon={deviceIcon}
+                                >
+                                    {marker && (
+                                        <DeviceMarkerPopup {...marker} />
+                                    )}
+                                </MapMarker>
+                            )
+                        })}
+                    </MarkerClusterGroup>
                 </Map>
             </div>
         )
