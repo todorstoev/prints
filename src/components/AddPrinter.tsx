@@ -128,10 +128,7 @@ const AddPrinter: React.FC<Props> = ({ user, toggleModal }) => {
             <form onSubmit={handleSubmit(onSubmit)}>
                 <Flex flexDirection={['column', 'row']}>
                     <Box width={[1 / 1, 1 / 2]} mr={[0, 3]} pr={[0, 3]}>
-                        <Box
-                            width={1 / 1}
-                            sx={{ position: 'relative', zIndex: 12 }}
-                        >
+                        <Box width={1 / 1}>
                             <Select
                                 isClearable={true}
                                 onChange={(selected: ValueType<any>) => {
@@ -323,10 +320,7 @@ const AddPrinter: React.FC<Props> = ({ user, toggleModal }) => {
                                 </Box>
                             </Flex>
                         </Box>
-                        <Box
-                            width={1 / 1}
-                            sx={{ zIndex: 11, position: 'relative' }}
-                        >
+                        <Box width={1 / 1}>
                             <Label htmlFor="type" my={1}>
                                 Type
                             </Label>
@@ -343,6 +337,7 @@ const AddPrinter: React.FC<Props> = ({ user, toggleModal }) => {
                                             ): CSSProperties => {
                                                 return {
                                                     ...e,
+
                                                     borderColor: !errors.type
                                                         ? 'rgb(204, 204, 204)'
                                                         : mainTheme.colors
@@ -350,6 +345,7 @@ const AddPrinter: React.FC<Props> = ({ user, toggleModal }) => {
                                                 }
                                             },
                                         }}
+                                        menuPortalTarget={document.body}
                                         theme={theme => ({
                                             ...theme,
 
@@ -366,10 +362,7 @@ const AddPrinter: React.FC<Props> = ({ user, toggleModal }) => {
                             />
                         </Box>
 
-                        <Box
-                            width={1 / 1}
-                            sx={{ zIndex: 10, position: 'relative' }}
-                        >
+                        <Box width={1 / 1}>
                             <Label htmlFor="materials" my={1}>
                                 Materials
                             </Label>
@@ -385,6 +378,7 @@ const AddPrinter: React.FC<Props> = ({ user, toggleModal }) => {
                                             ): CSSProperties => {
                                                 return {
                                                     ...e,
+                                                    zIndex: 1001,
                                                     borderColor: !errors.materials
                                                         ? 'rgb(204, 204, 204)'
                                                         : mainTheme.colors
@@ -407,6 +401,7 @@ const AddPrinter: React.FC<Props> = ({ user, toggleModal }) => {
                                         placeholder={'Choose materials ...'}
                                         options={materials}
                                         isMulti={true}
+                                        menuPortalTarget={document.body}
                                         components={animatedComponents}
                                     ></Select>
                                 }
