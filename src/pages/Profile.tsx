@@ -4,10 +4,11 @@ import { connect, ConnectedProps } from 'react-redux'
 import { Flex, Box, Heading, Text, Card, Image, Button } from 'rebass'
 import { useTheme } from 'emotion-theming'
 
-import { RootState, AuthState, Device } from '../types'
 import { db } from '../firebase/firebase'
+import { RootState, AuthState, Device } from '../types'
 import { getUserDevices } from '../utils'
 import AddPrinter from '../components/AddPrinter'
+import Modal from '../components/Modal'
 
 const authState = (state: RootState): AuthState => {
     return state.auth
@@ -39,11 +40,11 @@ const Devices: React.FC<PropsFromRedux> = ({ user }) => {
         })
     }, [user.uid])
 
-    // const onDeviceDelete = (device: Device) => {
-    //     db.collection('devices')
-    //         .doc(device.id)
-    //         .delete()
-    // }
+    const onDeviceDelete = (device: Device) => {
+        db.collection('devices')
+            .doc(device.id)
+            .delete()
+    }
 
     return (
         <React.Fragment>
@@ -91,7 +92,7 @@ const Devices: React.FC<PropsFromRedux> = ({ user }) => {
                             </Button>
                         </Flex>
 
-                        <Box marginY={3} variant={'hr'}></Box>
+                        <Box marginBottom={4} variant={'hr'}></Box>
 
                         {devices.length <= 0 && (
                             <Text>You have no devices added</Text>
@@ -112,17 +113,6 @@ const Devices: React.FC<PropsFromRedux> = ({ user }) => {
                                         borderRadius: 7,
                                     }}
                                 >
-                                    {/* <Box
-                                        onClick={e => onDeviceDelete(device)}
-                                        sx={{
-                                            position: 'absolute',
-                                            top: 10,
-                                            right: 10,
-                                        }}
-                                    >
-                                        x
-                                    </Box> */}
-
                                     <Flex
                                         mb={[2]}
                                         justifyContent={'space-between'}
@@ -146,23 +136,50 @@ const Devices: React.FC<PropsFromRedux> = ({ user }) => {
                                         )}
                                     </Text>
                                     <Text>Dimensions</Text>
-                                    <Text variant={'heading'}>
-                                        {device.dimensions.height} /{' '}
-                                        {device.dimensions.width} /{' '}
-                                        {device.dimensions.depth}
-                                    </Text>
+                                    <Flex
+                                        justifyContent={'space-between'}
+                                        alignItems={'center'}
+                                    >
+                                        <Box>
+                                            <Text variant={'heading'}>
+                                                {device.dimensions.height} /{' '}
+                                                {device.dimensions.width} /{' '}
+                                                {device.dimensions.depth}
+                                            </Text>
+                                        </Box>
+                                        <Box
+                                            onClick={e =>
+                                                onDeviceDelete(device)
+                                            }
+                                        >
+                                            <Text
+                                                sx={{
+                                                    textDecoration: 'italic',
+                                                    ':hover': {
+                                                        cursor: 'pointer',
+                                                    },
+                                                }}
+                                                fontSize={1}
+                                                color={'background'}
+                                            >
+                                                remove
+                                            </Text>
+                                        </Box>
+                                    </Flex>
                                 </Card>
                             ))}
                     </Box>
                 </Flex>
             )}
-            {showAddModal && (
+            <Modal
+                {...{ showModal: showAddModal, setShowModal: setShowAddModal }}
+            >
                 <AddPrinter
                     {...{
                         toggleModal: setShowAddModal,
                     }}
                 />
-            )}
+            </Modal>
         </React.Fragment>
     )
 }

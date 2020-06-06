@@ -3,7 +3,6 @@ import { Button, Box, Heading, Text, Flex, Link } from 'rebass'
 import { Input, Label, Checkbox } from '@rebass/forms'
 
 import { connect, ConnectedProps } from 'react-redux'
-import { useTheme } from 'emotion-theming'
 
 import { loginUser, loginGoogle, clearAuthErrors } from '../actions'
 

@@ -4,7 +4,7 @@ export const theme: any = {
         primary: '#037BB6',
         secondary: '#67BFE7',
         error: 'red',
-        muted: '#f6f6f9',
+        muted: 'rgb(204,204,204)',
         highlight: 'hsla(205, 100%, 40%, 0.125)',
     },
     fonts: {
@@ -132,11 +132,11 @@ export const theme: any = {
                 outline: 'none',
             },
 
-            borderColor: 'lightgray',
+            borderColor: 'rgb(204,204,204)',
         },
         select: {
             color: 'text',
-            borderColor: 'lightgray',
+            borderColor: 'rgb(204,204,204)',
             borderRadius: 4,
             ':focus': {
                 borderColor: 'primary',

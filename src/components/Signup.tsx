@@ -3,7 +3,6 @@ import { connect, ConnectedProps } from 'react-redux'
 import { registerUser, clearAuthErrors } from '../actions'
 import { Heading, Box, Text, Button, Flex, Link } from 'rebass'
 import { Input, Label } from '@rebass/forms'
-import { useTheme } from 'emotion-theming'
 import { RootState } from '../types'
 
 const mapState = (state: RootState) => {
