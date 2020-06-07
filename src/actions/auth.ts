@@ -13,17 +13,18 @@ import {
     fbErrorMessages,
     getUserFromDb,
 } from '../utils'
+import { recieveLoginError, clearAuthErrors } from './errors'
 
 export const LOGIN_REQUEST = 'LOGIN_REQUEST'
 export const LOGIN_SUCCESS = 'LOGIN_SUCCESS'
+export const LOGIN_CANCEL = 'LOGIN_CANCEL'
 
 export const REGISTER_REQUEST = 'REGISTER_REQUEST'
 export const REGISTER_SUCCESS = 'REGISTER_SUCCESS'
+export const REGISTER_CANCEL = 'REGISTER_CANCEL'
 
 export const LOGOUT_REQUEST = 'LOGOUT_REQUEST'
 export const LOGOUT_SUCCESS = 'LOGOUT_SUCCESS'
-
-export const ERROR = 'ERROR'
 
 export const VERIFY_REQUEST = 'VERIFY_REQUEST'
 export const VERIFY_SUCCESS = 'VERIFY_SUCCESS'
@@ -41,6 +42,12 @@ const receiveLogin = (user: any) => {
     }
 }
 
+const cancelLogin = () => {
+    return {
+        type: LOGIN_CANCEL,
+    }
+}
+
 const requestRegister = () => {
     return {
         type: REGISTER_REQUEST,
@@ -51,6 +58,12 @@ const recieveRegister = (user: any) => {
     return {
         type: REGISTER_SUCCESS,
         user,
+    }
+}
+
+const cancelRegister = () => {
+    return {
+        type: REGISTER_CANCEL,
     }
 }
 
@@ -78,13 +91,6 @@ const verifySuccess = () => {
     }
 }
 
-const recieveError = (error: string) => {
-    return {
-        type: ERROR,
-        error,
-    }
-}
-
 export const registerUser = (email: string, password: string) => (
     dispatch: Dispatch
 ): void => {
@@ -100,9 +106,11 @@ export const registerUser = (email: string, password: string) => (
                 uid: (user.user as User).uid,
                 username: '',
                 pic: './assets/user-unknown-com.svg',
+                devices: [],
             }
             saveUserToDb(userToInsert)
                 .then(res => {
+                    clearAuthErrors()
                     if (res)
                         dispatch(
                             recieveRegister({
@@ -112,13 +120,14 @@ export const registerUser = (email: string, password: string) => (
                         )
                 })
                 .catch(e => {
-                    dispatch(recieveError(e))
+                    dispatch(cancelRegister())
+                    dispatch(recieveLoginError({ code: 'fbError', message: e }))
                 })
         })
         .catch((e: FirebaseError) => {
             const error: string = fbErrorMessages(e)
-
-            dispatch(recieveError(error))
+            dispatch(cancelRegister())
+            dispatch(recieveLoginError({ code: 'fbError', message: error }))
         })
 }
 
@@ -132,23 +141,37 @@ export const loginGoogle = () => (dispatch: Dispatch) => {
             if (user.additionalUserInfo.isNewUser) {
                 saveUserToDb(userToInsert)
                     .then(res => {
-                        if (res)
-                            dispatch(
-                                receiveLogin({
-                                    ...userToInsert,
-                                    refreshToken: user.user.refreshToken,
-                                } as PrintsUser)
-                            )
+                        clearAuthErrors()
+                        if (res) debugger
+                        dispatch(
+                            receiveLogin({
+                                ...userToInsert,
+                                refreshToken: user.user.refreshToken,
+                            } as PrintsUser)
+                        )
                     })
                     .catch(e => {
-                        dispatch(recieveError(e))
+                        dispatch(cancelLogin())
+                        dispatch(
+                            recieveLoginError({
+                                code: 'fbError',
+                                message: e,
+                            })
+                        )
                     })
             } else {
+                clearAuthErrors()
                 dispatch(receiveLogin(userToInsert))
             }
         })
         .catch(e => {
-            dispatch(recieveError(e))
+            dispatch(cancelLogin())
+            dispatch(
+                recieveLoginError({
+                    code: 'fbError',
+                    message: fbErrorMessages(e),
+                })
+            )
         })
 }
 
@@ -168,13 +191,13 @@ export const loginUser = (
             const uid = (user.user as User).uid
 
             const userToInsert = await getUserFromDb(uid)
-
+            clearAuthErrors()
             dispatch(receiveLogin(userToInsert))
         })
         .catch((e: FirebaseError) => {
             const error = fbErrorMessages(e)
-
-            dispatch(recieveError(error))
+            dispatch(cancelLogin())
+            dispatch(recieveLoginError({ code: 'fbError', message: error }))
         })
 }
 
@@ -184,11 +207,12 @@ export const logoutUser = () => (dispatch: Dispatch) => {
         .auth()
         .signOut()
         .then(() => {
+            clearAuthErrors()
             dispatch(receiveLogout())
         })
         .catch(e => {
             //Do something with the error if you want!
-            dispatch(recieveError(e))
+            dispatch(recieveLoginError({ code: 'fbErrorLogout', message: e }))
         })
 }
 
@@ -201,13 +225,7 @@ export const verifyAuth: any = () => (dispatch: Dispatch) => {
 
             dispatch(receiveLogin(userToInsert))
         }
-        dispatch(verifySuccess())
-    })
-}
 
-export const clearAuthErrors = () => (dispatch: Dispatch) => {
-    dispatch({
-        type: ERROR,
-        error: null,
+        dispatch(verifySuccess())
     })
 }

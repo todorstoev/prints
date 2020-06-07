@@ -12,7 +12,6 @@ import { useSpring, animated as a } from 'react-spring'
 const mapState = (state: RootState) => {
     return {
         isLoggingIn: state.auth.isLoggingIn,
-        error: state.auth.error,
         isAuthenticated: state.auth.isAuthenticated,
     }
 }

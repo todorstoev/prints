@@ -2,13 +2,13 @@ export interface AuthState {
     isLoggingIn: boolean
     isLoggingOut: boolean
     isVerifying: boolean
-    error: string | null
     isAuthenticated: boolean
     user: PrintsUser
 }
 
 export interface RootState {
     auth: AuthState
+    errors: ErrorsState
 }
 
 export interface PrintsUser {
@@ -19,6 +19,7 @@ export interface PrintsUser {
     uid: string | undefined
     username: string
     refreshToken?: string
+    devices: Device[]
 }
 
 export type Coords = {
@@ -40,6 +41,15 @@ export interface Device extends Printer {
     location: Coords
     materials: string[]
     type: string
-    owner: string
     id?: string
+}
+
+export type PrintsGenericError = {
+    message: string
+    code: any
+}
+
+export interface ErrorsState {
+    devicesError?: PrimnsGenericError
+    authError?: PrimnsGenericError
 }

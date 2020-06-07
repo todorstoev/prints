@@ -1,13 +1,15 @@
 import {
     LOGIN_REQUEST,
     LOGIN_SUCCESS,
+    LOGIN_CANCEL,
     REGISTER_SUCCESS,
     REGISTER_REQUEST,
+    REGISTER_CANCEL,
     LOGOUT_REQUEST,
     LOGOUT_SUCCESS,
     VERIFY_REQUEST,
     VERIFY_SUCCESS,
-    ERROR,
+    SUCCESS_DEVICE_ADD,
 } from '../actions/'
 
 import { AuthState } from '../types'
@@ -17,7 +19,7 @@ export default (
         isLoggingIn: false,
         isLoggingOut: false,
         isVerifying: false,
-        error: null,
+
         isAuthenticated: false,
         user: {
             email: '',
@@ -27,6 +29,7 @@ export default (
             pic: '',
             refreshToken: '',
             username: '',
+            devices: [],
         },
     },
     action: any
@@ -36,28 +39,25 @@ export default (
             return {
                 ...state,
                 isLoggingIn: true,
-                error: null,
             }
+
         case LOGIN_SUCCESS:
             return {
                 ...state,
                 isLoggingIn: false,
                 isAuthenticated: true,
                 user: action.user,
-                error: null,
             }
-        case ERROR:
+        case LOGIN_CANCEL:
             return {
                 ...state,
                 isLoggingIn: false,
                 isAuthenticated: false,
-                error: action.error,
             }
         case REGISTER_REQUEST:
             return {
                 ...state,
                 isLoggingIn: true,
-                error: null,
             }
         case REGISTER_SUCCESS:
             return {
@@ -65,33 +65,43 @@ export default (
                 isLoggingIn: false,
                 isAuthenticated: true,
                 user: action.user,
-                error: null,
+            }
+        case REGISTER_CANCEL:
+            return {
+                ...state,
+                isLoggingIn: false,
+                isAuthenticated: false,
             }
         case LOGOUT_REQUEST:
             return {
                 ...state,
                 isLoggingOut: true,
-                error: null,
             }
         case LOGOUT_SUCCESS:
             return {
                 ...state,
                 isLoggingOut: false,
                 isAuthenticated: false,
-                error: null,
+
                 user: {},
             }
         case VERIFY_REQUEST:
             return {
                 ...state,
                 isVerifying: true,
-                error: null,
             }
         case VERIFY_SUCCESS:
             return {
                 ...state,
                 isVerifying: false,
-                error: null,
+            }
+        case SUCCESS_DEVICE_ADD:
+            return {
+                ...state,
+                user: {
+                    ...state.user,
+                    devices: [...state.user.devices, action.device],
+                },
             }
         default:
             return state

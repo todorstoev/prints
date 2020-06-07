@@ -1,7 +1,6 @@
 import { FirebaseError } from 'firebase'
 
 export const fbErrorMessages = (error: FirebaseError): string => {
-    debugger
     switch (error.code) {
         case 'auth/email-already-in-use':
             return 'This email is allready taken'
@@ -11,6 +10,8 @@ export const fbErrorMessages = (error: FirebaseError): string => {
             return 'Wrong password'
         case 'auth/user-not-found':
             return 'No such user'
+        case 'auth/popup-closed-by-user':
+            return 'Google Login was canceled'
         default:
             return error.message
     }

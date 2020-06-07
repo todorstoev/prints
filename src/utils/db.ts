@@ -1,6 +1,7 @@
 import { Device, Printer, PrintsUser } from '../types'
 import { db } from '../firebase/firebase'
 import { FirebaseError } from 'firebase'
+import { resolve } from 'dns'
 
 export const getDevices = (): Promise<Device[]> => {
     return new Promise<Device[]>((resolve, reject) => {
@@ -10,17 +11,6 @@ export const getDevices = (): Promise<Device[]> => {
             resolve(devices)
         })
     })
-}
-
-export const getUserDevices = (
-    userUid: string,
-    onDeviceChanged: (currentData: firebase.firestore.DocumentData) => void,
-    onError?: () => void,
-    onCompletion?: () => void
-) => {
-    db.collection('devices')
-        .where('owner', '==', userUid)
-        .onSnapshot(onDeviceChanged, onError, onCompletion)
 }
 
 export const getPrinters = (): Promise<Printer[]> => {
@@ -60,6 +50,24 @@ export const getUserFromDb = (uid: string): Promise<any> => {
             })
             .catch(e => {
                 throw e
+            })
+    })
+}
+
+export const updateUser = (user: PrintsUser): Promise<any> => {
+    return new Promise((resolve, reject) => {
+        db.collection('users')
+            .where('uid', '==', user.uid)
+            .get()
+            .then(docs => {
+                const [doc] = docs.docs
+                return doc.ref.update(user)
+            })
+            .then(() => {
+                resolve(true)
+            })
+            .catch(e => {
+                reject(e)
             })
     })
 }

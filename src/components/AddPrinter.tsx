@@ -17,17 +17,22 @@ import { connect, ConnectedProps } from 'react-redux'
 import makeAnimated from 'react-select/animated'
 
 import { Coords, Device, Printer, RootState, AuthState } from '../types'
-import { db } from '../firebase/firebase'
+
 import { getUserLocation, getPrinters } from '../utils'
 
 import MapMarker from '../components/MapMarker'
 import Map from '../components/Map'
+import { addDevice } from '../actions'
 
-const authState = (state: RootState): AuthState => {
+const mapState = (state: RootState): AuthState => {
     return state.auth
 }
 
-const connector = connect(authState)
+const mapDispatch = {
+    addDevice,
+}
+
+const connector = connect(mapState, mapDispatch)
 
 type PropsFromRedux = ConnectedProps<typeof connector>
 
@@ -35,7 +40,7 @@ type Props = PropsFromRedux & {
     toggleModal: Dispatch<SetStateAction<boolean>>
 }
 
-const AddPrinter: React.FC<Props> = ({ user, toggleModal }) => {
+const AddPrinter: React.FC<Props> = ({ user, toggleModal, addDevice }) => {
     const mainTheme = useTheme<any>()
 
     const [userLocation, setUserLocation] = useState<Coords>({
@@ -53,8 +58,6 @@ const AddPrinter: React.FC<Props> = ({ user, toggleModal }) => {
     const animatedComponents = makeAnimated()
 
     const { register, handleSubmit, errors, clearError, control } = useForm()
-
-    console.log(errors.lenght)
 
     // Printer State
     const [selectedBrand, setSelectedBrand] = useState<string>('')
@@ -103,19 +106,10 @@ const AddPrinter: React.FC<Props> = ({ user, toggleModal }) => {
             brand: data.brand,
             materials: data.materials.map((mat: any) => mat.label),
             type: data.type.label,
-            owner: user.uid as string,
             model: data.model,
         }
 
-        // TODO: Extract in db util
-        db.collection('devices')
-            .add(device)
-            .then(snapshot => {
-                console.log(snapshot)
-            })
-            .catch(e => {
-                console.log(e)
-            })
+        addDevice(device, user)
 
         toggleModal(false)
     }
