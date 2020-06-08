@@ -4,10 +4,13 @@ import { FirebaseError } from 'firebase'
 
 export const getDevices = (): Promise<Device[]> => {
     return new Promise<Device[]>((resolve, reject) => {
-        db.collection('devices').onSnapshot(snapshot => {
-            const devices = snapshot.docs.map(doc => doc.data() as Device)
+        let devicesList: Device[] = []
 
-            resolve(devices)
+        db.collection('users').onSnapshot(snapshot => {
+            for (let i = 0; snapshot.docs.length > i; i++) {
+                devicesList = [...snapshot.docs[i].data().devices]
+            }
+            resolve(devicesList)
         })
     })
 }
