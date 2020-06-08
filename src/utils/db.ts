@@ -1,7 +1,6 @@
 import { Device, Printer, PrintsUser } from '../types'
 import { db } from '../firebase/firebase'
 import { FirebaseError } from 'firebase'
-import { resolve } from 'dns'
 
 export const getDevices = (): Promise<Device[]> => {
     return new Promise<Device[]>((resolve, reject) => {

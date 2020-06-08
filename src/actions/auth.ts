@@ -110,7 +110,7 @@ export const registerUser = (email: string, password: string) => (
             }
             saveUserToDb(userToInsert)
                 .then(res => {
-                    clearAuthErrors()
+                    dispatch(clearAuthErrors())
                     if (res)
                         dispatch(
                             recieveRegister({
@@ -141,7 +141,7 @@ export const loginGoogle = () => (dispatch: Dispatch) => {
             if (user.additionalUserInfo.isNewUser) {
                 saveUserToDb(userToInsert)
                     .then(res => {
-                        clearAuthErrors()
+                        dispatch(clearAuthErrors())
                         if (res) debugger
                         dispatch(
                             receiveLogin({
@@ -160,7 +160,7 @@ export const loginGoogle = () => (dispatch: Dispatch) => {
                         )
                     })
             } else {
-                clearAuthErrors()
+                dispatch(clearAuthErrors())
                 dispatch(receiveLogin(userToInsert))
             }
         })
@@ -191,7 +191,7 @@ export const loginUser = (
             const uid = (user.user as User).uid
 
             const userToInsert = await getUserFromDb(uid)
-            clearAuthErrors()
+            dispatch(clearAuthErrors())
             dispatch(receiveLogin(userToInsert))
         })
         .catch((e: FirebaseError) => {
@@ -207,7 +207,7 @@ export const logoutUser = () => (dispatch: Dispatch) => {
         .auth()
         .signOut()
         .then(() => {
-            clearAuthErrors()
+            dispatch(clearAuthErrors())
             dispatch(receiveLogout())
         })
         .catch(e => {

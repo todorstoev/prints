@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { connect, ConnectedProps } from 'react-redux'
-import { registerUser, clearAuthErrors } from '../actions'
+import { registerUser } from '../actions'
 import { Heading, Box, Text, Button, Flex, Link } from 'rebass'
 import { Input, Label } from '@rebass/forms'
 import { RootState } from '../types'
@@ -16,7 +16,6 @@ const mapState = (state: RootState) => {
 
 const mapDispatch = {
     registerUser,
-    clearAuthErrors,
 }
 
 const connector = connect(mapState, mapDispatch)
@@ -31,7 +30,7 @@ const SignUp: React.FC<Props> = ({
     registerUser,
     error,
     setIsLogin,
-    clearAuthErrors,
+
     isLoggingIn,
 }) => {
     const [email, setEmail] = useState<string>('')
@@ -127,7 +126,6 @@ const SignUp: React.FC<Props> = ({
                                         }}
                                         onClick={() => {
                                             setIsLogin(true)
-                                            clearAuthErrors()
                                         }}
                                     >
                                         Log In

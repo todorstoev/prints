@@ -1,6 +1,7 @@
 import { Device, PrintsUser } from '../types'
 import { Dispatch } from 'redux'
 import { updateUser } from '../utils'
+import { recieveDeviceError } from './errors'
 
 export const REQUEST_DEVICE_ADD = 'REQUEST_DEVICE_ADD'
 export const SUCCESS_DEVICE_ADD = 'SUCCESS_DEVICE_ADD'
@@ -33,7 +34,6 @@ export const addDevice: any = (device: Device, user: PrintsUser) => (
             if (res) dispatch(successAddDevice(device))
         })
         .catch(e => {
-            //TODO: handle errors
-            debugger
+            dispatch(recieveDeviceError(e))
         })
 }

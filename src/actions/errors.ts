@@ -1,8 +1,8 @@
 import { PrintsGenericError } from '../types'
-import { Dispatch } from 'redux'
 
 export const AUTH_ERROR = 'LOGIN_ERROR'
 export const CLEAR_AUTH_ERRORS = 'CLEAR_AUTH_ERRORS'
+export const DEVICE_ERROR = 'DEVICE_ERROR'
 
 export const recieveLoginError = (error: PrintsGenericError) => {
     return {
@@ -11,9 +11,16 @@ export const recieveLoginError = (error: PrintsGenericError) => {
     }
 }
 
-export const clearAuthErrors = () => (dispatch: Dispatch) => {
-    dispatch({
+export const recieveDeviceError = (error: PrintsGenericError) => {
+    return {
+        type: DEVICE_ERROR,
+        error,
+    }
+}
+
+export const clearAuthErrors = () => {
+    return {
         type: CLEAR_AUTH_ERRORS,
         error: null,
-    })
+    }
 }

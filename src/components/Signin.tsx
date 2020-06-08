@@ -4,7 +4,7 @@ import { Input, Label, Checkbox } from '@rebass/forms'
 
 import { connect, ConnectedProps } from 'react-redux'
 
-import { loginUser, loginGoogle, clearAuthErrors } from '../actions'
+import { loginUser, loginGoogle } from '../actions'
 
 import { RootState } from '../types'
 import { Loader } from './Loader'
@@ -19,7 +19,6 @@ const mapState = (state: RootState) => {
 const mapDispatch = {
     loginUser,
     loginGoogle,
-    clearAuthErrors,
 }
 
 const connector = connect(mapState, mapDispatch)
@@ -35,7 +34,6 @@ const SignIn: React.FC<Props> = ({
     loginUser,
     setIsLogin,
     loginGoogle,
-    clearAuthErrors,
     isLoggingIn,
 }) => {
     const [email, setEmail] = useState<string>('')
@@ -167,7 +165,6 @@ const SignIn: React.FC<Props> = ({
                                     }}
                                     onClick={() => {
                                         setIsLogin(false)
-                                        clearAuthErrors()
                                     }}
                                 >
                                     Register
