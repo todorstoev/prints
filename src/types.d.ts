@@ -9,6 +9,7 @@ export interface AuthState {
 export interface RootState {
     auth: AuthState
     errors: ErrorsState
+    devices: DeviceState
 }
 
 export interface PrintsUser {
@@ -19,7 +20,7 @@ export interface PrintsUser {
     uid: string | undefined
     username: string
     refreshToken?: string
-    devices: Device[]
+    devices?: Device[]
 }
 
 export type Coords = {
@@ -50,6 +51,12 @@ export type PrintsGenericError = {
 }
 
 export interface ErrorsState {
-    devicesError?: PrimnsGenericError
-    authError?: PrimnsGenericError
+    devicesError?: PrintsGenericError | null
+    authError?: PrintsGenericError | null
+}
+
+export interface DeviceState {
+    userDevices: Device[]
+    allDevices: Device[]
+    isLoading: boolean
 }

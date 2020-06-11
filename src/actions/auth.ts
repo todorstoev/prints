@@ -139,16 +139,16 @@ export const loginGoogle = () => (dispatch: Dispatch) => {
         .then((user: any) => {
             const userToInsert: PrintsUser = remapUser(user)
             if (user.additionalUserInfo.isNewUser) {
-                saveUserToDb(userToInsert)
+                saveUserToDb({ ...userToInsert, devices: [] })
                     .then(res => {
                         dispatch(clearAuthErrors())
-                        if (res) debugger
-                        dispatch(
-                            receiveLogin({
-                                ...userToInsert,
-                                refreshToken: user.user.refreshToken,
-                            } as PrintsUser)
-                        )
+                        if (res)
+                            dispatch(
+                                receiveLogin({
+                                    ...userToInsert,
+                                    refreshToken: user.user.refreshToken,
+                                } as PrintsUser)
+                            )
                     })
                     .catch(e => {
                         dispatch(cancelLogin())

@@ -16,7 +16,15 @@ import Select, { ValueType } from 'react-select'
 import { connect, ConnectedProps } from 'react-redux'
 import makeAnimated from 'react-select/animated'
 
-import { Coords, Device, Printer, RootState, AuthState } from '../types'
+import {
+    Coords,
+    Device,
+    Printer,
+    RootState,
+    AuthState,
+    DeviceState,
+    PrintsUser,
+} from '../types'
 
 import { getUserLocation, getPrinters } from '../utils'
 
@@ -24,8 +32,8 @@ import MapMarker from '../components/MapMarker'
 import Map from '../components/Map'
 import { addDevice } from '../actions'
 
-const mapState = (state: RootState): AuthState => {
-    return state.auth
+const mapState = (state: RootState): AuthState & DeviceState => {
+    return { ...state.auth, ...state.devices }
 }
 
 const mapDispatch = {
@@ -92,7 +100,7 @@ const AddPrinter: React.FC<Props> = ({ user, toggleModal, addDevice }) => {
         { value: 'Resin', label: 'Resin' },
     ]
 
-    const onSubmit = (data: any, e: any) => {
+    const onSubmit = async (data: any, e: any) => {
         const device: Device = {
             dimensions: {
                 width: Number(data.width),
@@ -109,7 +117,7 @@ const AddPrinter: React.FC<Props> = ({ user, toggleModal, addDevice }) => {
             model: data.model,
         }
 
-        addDevice(device, user)
+        await addDevice(device, user)
 
         toggleModal(false)
     }

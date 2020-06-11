@@ -8,8 +8,10 @@ export const getDevices = (): Promise<Device[]> => {
 
         db.collection('users').onSnapshot(snapshot => {
             for (let i = 0; snapshot.docs.length > i; i++) {
-                devicesList = [...snapshot.docs[i].data().devices]
+                const currUserDevices = snapshot.docs[i].data().devices
+                devicesList = [...devicesList, ...currUserDevices]
             }
+            console.log(devicesList)
             resolve(devicesList)
         })
     })

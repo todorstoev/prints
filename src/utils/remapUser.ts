@@ -8,6 +8,5 @@ export const remapUser = (user: any): PrintsUser => {
         pic: user.user.photoURL || '',
         username: user.additionalUserInfo.username || '',
         uid: user.user.uid,
-        devices: [],
     }
 }

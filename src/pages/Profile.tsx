@@ -4,29 +4,28 @@ import { connect, ConnectedProps } from 'react-redux'
 import { Flex, Box, Heading, Text, Card, Image, Button } from 'rebass'
 import { useTheme } from 'emotion-theming'
 
-import { db } from '../firebase/firebase'
-import { RootState, AuthState, Device } from '../types'
+import { RootState, AuthState, Device, DeviceState } from '../types'
+
+// import { removeDevice } from '../actions'
 
 import AddPrinter from '../components/AddPrinter'
 import Modal from '../components/Modal'
 
-const authState = (state: RootState): AuthState => {
-    return state.auth
+const mapState = (state: RootState): AuthState & DeviceState => {
+    return { ...state.auth, ...state.devices }
 }
 
-const connector = connect(authState)
+const mapDispatch = {
+    // removeDevice,
+}
+
+const connector = connect(mapState, mapDispatch)
 
 type PropsFromRedux = ConnectedProps<typeof connector>
 
-const Devices: React.FC<PropsFromRedux> = ({ user }) => {
+const Profile: React.FC<PropsFromRedux> = ({ user, userDevices }) => {
     const [showAddModal, setShowAddModal] = useState<boolean>(false)
     const mainTheme = useTheme<any>()
-
-    const onDeviceDelete = (device: Device) => {
-        db.collection('devices')
-            .doc(device.id)
-            .delete()
-    }
 
     return (
         <React.Fragment>
@@ -74,12 +73,12 @@ const Devices: React.FC<PropsFromRedux> = ({ user }) => {
 
                     <Box marginBottom={4} variant={'hr'}></Box>
 
-                    {user.devices.length <= 0 && (
+                    {userDevices.length <= 0 && (
                         <Text>You have no devices added</Text>
                     )}
 
-                    {user.devices.length > 0 &&
-                        user.devices.map((device: Device, i) => (
+                    {userDevices.length > 0 &&
+                        userDevices.map((device: Device, i) => (
                             <Card
                                 key={i}
                                 m={'auto'}
@@ -123,7 +122,11 @@ const Devices: React.FC<PropsFromRedux> = ({ user }) => {
                                             {device.dimensions.depth}
                                         </Text>
                                     </Box>
-                                    <Box onClick={e => onDeviceDelete(device)}>
+                                    <Box
+                                        onClick={e => {
+                                            // removeDevice(i, user)
+                                        }}
+                                    >
                                         <Text
                                             sx={{
                                                 textDecoration: 'italic',
@@ -156,4 +159,4 @@ const Devices: React.FC<PropsFromRedux> = ({ user }) => {
     )
 }
 
-export default connector(Devices)
+export default connector(Profile)

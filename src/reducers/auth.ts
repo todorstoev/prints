@@ -9,7 +9,6 @@ import {
     LOGOUT_SUCCESS,
     VERIFY_REQUEST,
     VERIFY_SUCCESS,
-    SUCCESS_DEVICE_ADD,
 } from '../actions/'
 
 import { AuthState } from '../types'
@@ -29,7 +28,6 @@ export default (
             pic: '',
             refreshToken: '',
             username: '',
-            devices: [],
         },
     },
     action: any
@@ -95,14 +93,7 @@ export default (
                 ...state,
                 isVerifying: false,
             }
-        case SUCCESS_DEVICE_ADD:
-            return {
-                ...state,
-                user: {
-                    ...state.user,
-                    devices: [...state.user.devices, action.device],
-                },
-            }
+
         default:
             return state
     }
