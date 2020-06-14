@@ -6,7 +6,7 @@ import {
 } from '../firebase/firebase'
 import { Dispatch } from 'redux'
 import { FirebaseError, User } from 'firebase'
-import { PrintsUser } from '../types'
+import { PrintsUser, Device } from '../types'
 import {
     remapUser,
     saveUserToDb,
@@ -14,6 +14,7 @@ import {
     getUserFromDb,
 } from '../utils'
 import { recieveLoginError, clearAuthErrors } from './errors'
+import { getDevicesFromLogin } from '.'
 
 export const LOGIN_REQUEST = 'LOGIN_REQUEST'
 export const LOGIN_SUCCESS = 'LOGIN_SUCCESS'
@@ -221,9 +222,11 @@ export const verifyAuth: any = () => (dispatch: Dispatch) => {
 
     myFirebase.auth().onAuthStateChanged(async user => {
         if (user !== null) {
-            const userToInsert = await getUserFromDb(user.uid)
+            const userToInsert: PrintsUser = await getUserFromDb(user.uid)
 
             dispatch(receiveLogin(userToInsert))
+
+            dispatch(getDevicesFromLogin(userToInsert.devices as Device[]))
         }
 
         dispatch(verifySuccess())

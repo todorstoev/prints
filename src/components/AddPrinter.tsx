@@ -23,7 +23,6 @@ import {
     RootState,
     AuthState,
     DeviceState,
-    PrintsUser,
 } from '../types'
 
 import { getUserLocation, getPrinters } from '../utils'
@@ -31,6 +30,7 @@ import { getUserLocation, getPrinters } from '../utils'
 import MapMarker from '../components/MapMarker'
 import Map from '../components/Map'
 import { addDevice } from '../actions'
+import { Loader } from './Loader'
 
 const mapState = (state: RootState): AuthState & DeviceState => {
     return { ...state.auth, ...state.devices }
@@ -48,7 +48,12 @@ type Props = PropsFromRedux & {
     toggleModal: Dispatch<SetStateAction<boolean>>
 }
 
-const AddPrinter: React.FC<Props> = ({ user, toggleModal, addDevice }) => {
+const AddPrinter: React.FC<Props> = ({
+    user,
+    toggleModal,
+    addDevice,
+    isLoading,
+}) => {
     const mainTheme = useTheme<any>()
 
     const [userLocation, setUserLocation] = useState<Coords>({
@@ -123,231 +128,54 @@ const AddPrinter: React.FC<Props> = ({ user, toggleModal, addDevice }) => {
     }
 
     return (
-        <Box>
-            <Heading mb={2} color={'primary'}>
-                Add new device
-            </Heading>
-            <form onSubmit={handleSubmit(onSubmit)}>
-                <Flex flexDirection={['column', 'row']}>
-                    <Box width={[1 / 1, 1 / 2]} mr={[0, 3]} pr={[0, 3]}>
-                        <Box width={1 / 1}>
-                            <Select
-                                isClearable={true}
-                                onChange={(selected: ValueType<any>) => {
-                                    if (selected === null) {
-                                        setSelectedBrand('')
-                                        setSelectedModel('')
-                                        setSelectedWidth(0)
-                                        setSelectedHeight(0)
-                                        setSelectedDepth(0)
-                                    } else {
-                                        const { value } = selected as {
-                                            value: Printer
-                                        }
-
-                                        setSelectedBrand(value.brand)
-                                        setSelectedModel(value.model)
-                                        setSelectedWidth(value.dimensions.width)
-                                        setSelectedHeight(
-                                            value.dimensions.height
-                                        )
-                                        setSelectedDepth(value.dimensions.depth)
-
-                                        clearError('brand')
-
-                                        if (selected.value.model) {
-                                            clearError('model')
-                                        }
-                                    }
-                                }}
-                                placeholder={'Search for printer ...'}
-                                options={printerOptions}
-                                theme={theme => ({
-                                    ...theme,
-
-                                    colors: {
-                                        ...theme.colors,
-                                        primary: mainTheme.colors.primary,
-                                        secondary: mainTheme.colors.secondary,
-                                    },
-                                })}
-                            />
-                        </Box>
-                        <Box width={1 / 1}>
-                            <Label htmlFor="brand" my={1}>
-                                Brand
-                            </Label>
-                            <Input
-                                id="brand"
-                                name="brand"
-                                value={selectedBrand}
-                                onChange={(
-                                    val: ChangeEvent<HTMLInputElement>
-                                ) => {
-                                    setSelectedBrand(val.target.value)
-                                }}
-                                sx={{
-                                    borderColor: errors.brand
-                                        ? 'error'
-                                        : 'muted',
-                                }}
-                                ref={register({
-                                    required: {
-                                        value: true,
-                                        message: 'This fields is required',
-                                    },
-                                })}
-                            />
-                        </Box>
-                        <Box width={1 / 1}>
-                            <Label htmlFor="model" my={1}>
-                                Model
-                            </Label>
-                            <Input
-                                id="model"
-                                name="model"
-                                value={selectedModel}
-                                onChange={(
-                                    val: ChangeEvent<HTMLInputElement>
-                                ) => {
-                                    setSelectedModel(val.target.value)
-                                }}
-                                sx={{
-                                    borderColor: errors.model
-                                        ? 'error'
-                                        : 'muted',
-                                }}
-                                ref={register({
-                                    required: {
-                                        value: true,
-                                        message: 'This fields is required',
-                                    },
-                                })}
-                            />
-                        </Box>
-                        <Box width={1 / 1}>
-                            <Flex>
-                                <Box width={1 / 3} pr={1}>
-                                    <Label htmlFor="width" my={1}>
-                                        Width
-                                    </Label>
-                                    <Input
-                                        id="width"
-                                        name="width"
-                                        type={'number'}
-                                        value={selectedWidth}
-                                        onChange={(
-                                            val: ChangeEvent<HTMLInputElement>
-                                        ) => {
-                                            setSelectedWidth(
-                                                (val.target
-                                                    .value as unknown) as number
-                                            )
-                                        }}
-                                        sx={{
-                                            borderColor: errors.width
-                                                ? 'error'
-                                                : 'muted',
-                                        }}
-                                        ref={register({
-                                            required: {
-                                                value: true,
-                                                message:
-                                                    'This fields is required',
-                                            },
-                                        })}
-                                    />
-                                </Box>
-                                <Box width={1 / 3} pr={1}>
-                                    <Label htmlFor="height" my={1}>
-                                        Height
-                                    </Label>
-                                    <Input
-                                        id="height"
-                                        name="height"
-                                        type={'number'}
-                                        value={selectedHeight}
-                                        onChange={(
-                                            val: ChangeEvent<HTMLInputElement>
-                                        ) => {
-                                            setSelectedHeight(
-                                                (val.target
-                                                    .value as unknown) as number
-                                            )
-                                        }}
-                                        sx={{
-                                            borderColor: errors.height
-                                                ? 'error'
-                                                : 'muted',
-                                        }}
-                                        ref={register({
-                                            required: {
-                                                value: true,
-                                                message:
-                                                    'This fields is required',
-                                            },
-                                        })}
-                                    />
-                                </Box>
-                                <Box width={1 / 3}>
-                                    <Label htmlFor="depth" my={1}>
-                                        Depth
-                                    </Label>
-                                    <Input
-                                        id="depth"
-                                        name="depth"
-                                        type={'number'}
-                                        value={selectedDepth}
-                                        onChange={(
-                                            val: ChangeEvent<HTMLInputElement>
-                                        ) => {
-                                            setSelectedDepth(
-                                                (val.target
-                                                    .value as unknown) as number
-                                            )
-                                        }}
-                                        sx={{
-                                            borderColor: errors.depth
-                                                ? 'error'
-                                                : 'muted',
-                                        }}
-                                        ref={register({
-                                            required: {
-                                                value: true,
-                                                message:
-                                                    'This fields is required',
-                                            },
-                                        })}
-                                    />
-                                </Box>
-                            </Flex>
-                        </Box>
-                        <Box width={1 / 1}>
-                            <Label htmlFor="type" my={1}>
-                                Type
-                            </Label>
-                            <Controller
-                                control={control}
-                                name={'type'}
-                                rules={{ required: true }}
-                                as={
+        <React.Fragment>
+            {isLoading && <Loader></Loader>}
+            {!isLoading && (
+                <Box>
+                    <Heading mb={2} color={'primary'}>
+                        Add new device
+                    </Heading>
+                    <form onSubmit={handleSubmit(onSubmit)}>
+                        <Flex flexDirection={['column', 'row']}>
+                            <Box width={[1 / 1, 1 / 2]} mr={[0, 3]} pr={[0, 3]}>
+                                <Box width={1 / 1}>
                                     <Select
-                                        options={types}
-                                        styles={{
-                                            control: (
-                                                e: CSSProperties
-                                            ): CSSProperties => {
-                                                return {
-                                                    ...e,
-
-                                                    borderColor: !errors.type
-                                                        ? 'rgb(204, 204, 204)'
-                                                        : mainTheme.colors
-                                                              .error,
+                                        isClearable={true}
+                                        onChange={(
+                                            selected: ValueType<any>
+                                        ) => {
+                                            if (selected === null) {
+                                                setSelectedBrand('')
+                                                setSelectedModel('')
+                                                setSelectedWidth(0)
+                                                setSelectedHeight(0)
+                                                setSelectedDepth(0)
+                                            } else {
+                                                const { value } = selected as {
+                                                    value: Printer
                                                 }
-                                            },
+
+                                                setSelectedBrand(value.brand)
+                                                setSelectedModel(value.model)
+                                                setSelectedWidth(
+                                                    value.dimensions.width
+                                                )
+                                                setSelectedHeight(
+                                                    value.dimensions.height
+                                                )
+                                                setSelectedDepth(
+                                                    value.dimensions.depth
+                                                )
+
+                                                clearError('brand')
+
+                                                if (selected.value.model) {
+                                                    clearError('model')
+                                                }
+                                            }
                                         }}
-                                        menuPortalTarget={document.body}
+                                        placeholder={'Search for printer ...'}
+                                        options={printerOptions}
                                         theme={theme => ({
                                             ...theme,
 
@@ -360,95 +188,303 @@ const AddPrinter: React.FC<Props> = ({ user, toggleModal, addDevice }) => {
                                             },
                                         })}
                                     />
-                                }
-                            />
-                        </Box>
-
-                        <Box width={1 / 1}>
-                            <Label htmlFor="materials" my={1}>
-                                Materials
-                            </Label>
-                            <Controller
-                                control={control}
-                                rules={{ required: true }}
-                                name={'materials'}
-                                as={
-                                    <Select
-                                        styles={{
-                                            control: (
-                                                e: CSSProperties
-                                            ): CSSProperties => {
-                                                return {
-                                                    ...e,
-                                                    zIndex: 1001,
-                                                    borderColor: !errors.materials
-                                                        ? 'rgb(204, 204, 204)'
-                                                        : mainTheme.colors
-                                                              .error,
-                                                }
-                                            },
+                                </Box>
+                                <Box width={1 / 1}>
+                                    <Label htmlFor="brand" my={1}>
+                                        Brand
+                                    </Label>
+                                    <Input
+                                        id="brand"
+                                        name="brand"
+                                        value={selectedBrand}
+                                        onChange={(
+                                            val: ChangeEvent<HTMLInputElement>
+                                        ) => {
+                                            setSelectedBrand(val.target.value)
                                         }}
-                                        theme={theme => ({
-                                            ...theme,
-
-                                            colors: {
-                                                ...theme.colors,
-                                                primary:
-                                                    mainTheme.colors.primary,
-                                                secondary:
-                                                    mainTheme.colors.secondary,
+                                        sx={{
+                                            borderColor: errors.brand
+                                                ? 'error'
+                                                : 'muted',
+                                        }}
+                                        ref={register({
+                                            required: {
+                                                value: true,
+                                                message:
+                                                    'This fields is required',
                                             },
                                         })}
-                                        isClearable={false}
-                                        placeholder={'Choose materials ...'}
-                                        options={materials}
-                                        isMulti={true}
-                                        menuPortalTarget={document.body}
-                                        components={animatedComponents}
-                                    ></Select>
-                                }
-                            />
-                        </Box>
-                    </Box>
-                    <Box width={[1 / 1, 1 / 2]} mt={[3, 0]}>
-                        <Box
-                            width={1 / 1}
-                            height={[200, '100%']}
-                            sx={{
-                                zIndex: 0,
-                                position: 'relative',
-                                border: '2px solid',
-                                borderColor: 'primary',
-                                borderRadius: 4,
-                            }}
-                        >
-                            <Map
-                                zoom={13}
-                                center={userLocation}
-                                onClick={e => setPickerCords(e.latlng)}
+                                    />
+                                </Box>
+                                <Box width={1 / 1}>
+                                    <Label htmlFor="model" my={1}>
+                                        Model
+                                    </Label>
+                                    <Input
+                                        id="model"
+                                        name="model"
+                                        value={selectedModel}
+                                        onChange={(
+                                            val: ChangeEvent<HTMLInputElement>
+                                        ) => {
+                                            setSelectedModel(val.target.value)
+                                        }}
+                                        sx={{
+                                            borderColor: errors.model
+                                                ? 'error'
+                                                : 'muted',
+                                        }}
+                                        ref={register({
+                                            required: {
+                                                value: true,
+                                                message:
+                                                    'This fields is required',
+                                            },
+                                        })}
+                                    />
+                                </Box>
+                                <Box width={1 / 1}>
+                                    <Flex>
+                                        <Box width={1 / 3} pr={1}>
+                                            <Label htmlFor="width" my={1}>
+                                                Width
+                                            </Label>
+                                            <Input
+                                                id="width"
+                                                name="width"
+                                                type={'number'}
+                                                value={selectedWidth}
+                                                onChange={(
+                                                    val: ChangeEvent<
+                                                        HTMLInputElement
+                                                    >
+                                                ) => {
+                                                    setSelectedWidth(
+                                                        (val.target
+                                                            .value as unknown) as number
+                                                    )
+                                                }}
+                                                sx={{
+                                                    borderColor: errors.width
+                                                        ? 'error'
+                                                        : 'muted',
+                                                }}
+                                                ref={register({
+                                                    required: {
+                                                        value: true,
+                                                        message:
+                                                            'This fields is required',
+                                                    },
+                                                })}
+                                            />
+                                        </Box>
+                                        <Box width={1 / 3} pr={1}>
+                                            <Label htmlFor="height" my={1}>
+                                                Height
+                                            </Label>
+                                            <Input
+                                                id="height"
+                                                name="height"
+                                                type={'number'}
+                                                value={selectedHeight}
+                                                onChange={(
+                                                    val: ChangeEvent<
+                                                        HTMLInputElement
+                                                    >
+                                                ) => {
+                                                    setSelectedHeight(
+                                                        (val.target
+                                                            .value as unknown) as number
+                                                    )
+                                                }}
+                                                sx={{
+                                                    borderColor: errors.height
+                                                        ? 'error'
+                                                        : 'muted',
+                                                }}
+                                                ref={register({
+                                                    required: {
+                                                        value: true,
+                                                        message:
+                                                            'This fields is required',
+                                                    },
+                                                })}
+                                            />
+                                        </Box>
+                                        <Box width={1 / 3}>
+                                            <Label htmlFor="depth" my={1}>
+                                                Depth
+                                            </Label>
+                                            <Input
+                                                id="depth"
+                                                name="depth"
+                                                type={'number'}
+                                                value={selectedDepth}
+                                                onChange={(
+                                                    val: ChangeEvent<
+                                                        HTMLInputElement
+                                                    >
+                                                ) => {
+                                                    setSelectedDepth(
+                                                        (val.target
+                                                            .value as unknown) as number
+                                                    )
+                                                }}
+                                                sx={{
+                                                    borderColor: errors.depth
+                                                        ? 'error'
+                                                        : 'muted',
+                                                }}
+                                                ref={register({
+                                                    required: {
+                                                        value: true,
+                                                        message:
+                                                            'This fields is required',
+                                                    },
+                                                })}
+                                            />
+                                        </Box>
+                                    </Flex>
+                                </Box>
+                                <Box width={1 / 1}>
+                                    <Label htmlFor="type" my={1}>
+                                        Type
+                                    </Label>
+                                    <Controller
+                                        control={control}
+                                        name={'type'}
+                                        rules={{ required: true }}
+                                        as={
+                                            <Select
+                                                options={types}
+                                                styles={{
+                                                    control: (
+                                                        e: CSSProperties
+                                                    ): CSSProperties => {
+                                                        return {
+                                                            ...e,
+
+                                                            borderColor: !errors.type
+                                                                ? 'rgb(204, 204, 204)'
+                                                                : mainTheme
+                                                                      .colors
+                                                                      .error,
+                                                        }
+                                                    },
+                                                }}
+                                                menuPortalTarget={document.body}
+                                                theme={theme => ({
+                                                    ...theme,
+
+                                                    colors: {
+                                                        ...theme.colors,
+                                                        primary:
+                                                            mainTheme.colors
+                                                                .primary,
+                                                        secondary:
+                                                            mainTheme.colors
+                                                                .secondary,
+                                                    },
+                                                })}
+                                            />
+                                        }
+                                    />
+                                </Box>
+
+                                <Box width={1 / 1}>
+                                    <Label htmlFor="materials" my={1}>
+                                        Materials
+                                    </Label>
+                                    <Controller
+                                        control={control}
+                                        rules={{ required: true }}
+                                        name={'materials'}
+                                        as={
+                                            <Select
+                                                styles={{
+                                                    control: (
+                                                        e: CSSProperties
+                                                    ): CSSProperties => {
+                                                        return {
+                                                            ...e,
+                                                            zIndex: 1001,
+                                                            borderColor: !errors.materials
+                                                                ? 'rgb(204, 204, 204)'
+                                                                : mainTheme
+                                                                      .colors
+                                                                      .error,
+                                                        }
+                                                    },
+                                                }}
+                                                theme={theme => ({
+                                                    ...theme,
+
+                                                    colors: {
+                                                        ...theme.colors,
+                                                        primary:
+                                                            mainTheme.colors
+                                                                .primary,
+                                                        secondary:
+                                                            mainTheme.colors
+                                                                .secondary,
+                                                    },
+                                                })}
+                                                isClearable={false}
+                                                placeholder={
+                                                    'Choose materials ...'
+                                                }
+                                                options={materials}
+                                                isMulti={true}
+                                                menuPortalTarget={document.body}
+                                                components={animatedComponents}
+                                            ></Select>
+                                        }
+                                    />
+                                </Box>
+                            </Box>
+                            <Box width={[1 / 1, 1 / 2]} mt={[3, 0]}>
+                                <Box
+                                    width={1 / 1}
+                                    height={[200, '100%']}
+                                    sx={{
+                                        zIndex: 0,
+                                        position: 'relative',
+                                        border: '2px solid',
+                                        borderColor: 'primary',
+                                        borderRadius: 4,
+                                    }}
+                                >
+                                    <Map
+                                        zoom={13}
+                                        center={userLocation}
+                                        onClick={e => setPickerCords(e.latlng)}
+                                    >
+                                        <MapMarker
+                                            position={pickerCords}
+                                        ></MapMarker>
+                                    </Map>
+                                </Box>
+                            </Box>
+                        </Flex>
+                        <Text color={'error'} mt={2}>
+                            {Object.keys(errors).length > 0 &&
+                                'Please fill all required fields.'}
+                        </Text>
+                        <Box width={1 / 1} mt={3}>
+                            <Button variant="primary" mr={2} type={'submit'}>
+                                Add Device
+                            </Button>
+                            <Button
+                                variant="secondary"
+                                onClick={() => toggleModal(false)}
                             >
-                                <MapMarker position={pickerCords}></MapMarker>
-                            </Map>
+                                Cancel
+                            </Button>
                         </Box>
-                    </Box>
-                </Flex>
-                <Text color={'error'} mt={2}>
-                    {Object.keys(errors).length > 0 &&
-                        'Please fill all required fields.'}
-                </Text>
-                <Box width={1 / 1} mt={3}>
-                    <Button variant="primary" mr={2} type={'submit'}>
-                        Add Device
-                    </Button>
-                    <Button
-                        variant="secondary"
-                        onClick={() => toggleModal(false)}
-                    >
-                        Cancel
-                    </Button>
+                    </form>
                 </Box>
-            </form>
-        </Box>
+            )}
+        </React.Fragment>
     )
 }
 

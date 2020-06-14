@@ -6,7 +6,7 @@ import { useTheme } from 'emotion-theming'
 
 import { RootState, AuthState, Device, DeviceState } from '../types'
 
-// import { removeDevice } from '../actions'
+import { removeDevice } from '../actions'
 
 import AddPrinter from '../components/AddPrinter'
 import Modal from '../components/Modal'
@@ -16,14 +16,18 @@ const mapState = (state: RootState): AuthState & DeviceState => {
 }
 
 const mapDispatch = {
-    // removeDevice,
+    removeDevice,
 }
 
 const connector = connect(mapState, mapDispatch)
 
 type PropsFromRedux = ConnectedProps<typeof connector>
 
-const Profile: React.FC<PropsFromRedux> = ({ user, userDevices }) => {
+const Profile: React.FC<PropsFromRedux> = ({
+    user,
+    userDevices,
+    removeDevice,
+}) => {
     const [showAddModal, setShowAddModal] = useState<boolean>(false)
     const mainTheme = useTheme<any>()
 
@@ -64,6 +68,7 @@ const Profile: React.FC<PropsFromRedux> = ({ user, userDevices }) => {
                         <Button
                             variant="primary"
                             onClick={e => {
+                                e.preventDefault()
                                 setShowAddModal(true)
                             }}
                         >
@@ -124,7 +129,8 @@ const Profile: React.FC<PropsFromRedux> = ({ user, userDevices }) => {
                                     </Box>
                                     <Box
                                         onClick={e => {
-                                            // removeDevice(i, user)
+                                            e.preventDefault()
+                                            removeDevice(i, userDevices, user)
                                         }}
                                     >
                                         <Text

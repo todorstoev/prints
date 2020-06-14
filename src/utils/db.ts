@@ -11,7 +11,7 @@ export const getDevices = (): Promise<Device[]> => {
                 const currUserDevices = snapshot.docs[i].data().devices
                 devicesList = [...devicesList, ...currUserDevices]
             }
-            console.log(devicesList)
+
             resolve(devicesList)
         })
     })

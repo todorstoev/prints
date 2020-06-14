@@ -3,7 +3,9 @@ import {
     SUCCESS_DEVICE_REMOVE,
     REQUEST_DEVICE_ADD,
     REQUEST_DEVICE_REMOVE,
+    DEVICES_FROM_LOGIN,
 } from '../actions'
+
 import { DeviceState } from '../types'
 
 export default (
@@ -20,7 +22,7 @@ export default (
             return {
                 ...state,
                 isLoading: false,
-                userDevices: action.devices,
+                userDevices: [...state.userDevices, action.device],
             }
         case REQUEST_DEVICE_REMOVE:
             return {
@@ -31,6 +33,11 @@ export default (
             return {
                 ...state,
                 isLoading: false,
+                userDevices: action.devices,
+            }
+        case DEVICES_FROM_LOGIN:
+            return {
+                ...state,
                 userDevices: action.devices,
             }
         default:
