@@ -3,6 +3,7 @@ import { connect, ConnectedProps } from 'react-redux'
 
 import { Flex, Box, Heading, Text, Card, Image, Button } from 'rebass'
 import { useTheme } from 'emotion-theming'
+import { MdModeEdit } from 'react-icons/md'
 
 import { RootState, AuthState, Device, DeviceState } from '../types'
 
@@ -47,17 +48,37 @@ const Profile: React.FC<PropsFromRedux> = ({
 
                     <Box
                         variant={'avatar'}
-                        overflow={'hidden'}
                         m={'auto'}
                         my={3}
+                        sx={{ position: 'relative' }}
                     >
                         <Image src={user.pic} alt="" variant={'avatar'} />
+                        <Flex
+                            backgroundColor="primary"
+                            color={'background'}
+                            p={'.3em'}
+                            sx={{
+                                position: 'absolute',
+                                right: 0,
+                                bottom: 0,
+                                borderRadius: 360,
+                                boxShadow: 'small',
+                                transition: 'all 0.2s linear',
+                                ':hover': {
+                                    cursor: 'pointer',
+                                    transform: 'scale(1.2)',
+                                },
+                            }}
+                        >
+                            <MdModeEdit size={'1.2em'}></MdModeEdit>
+                        </Flex>
                     </Box>
 
-                    <Text color={'gray'} textAlign={'center'}>
+                    <Text color={'gray'} py={1} textAlign={'center'}>
                         {user.email}
                     </Text>
 
+                    <Text textAlign={'center'}>Rating: 1000</Text>
                     <Flex
                         justifyContent={'space-between'}
                         alignItems={'center'}

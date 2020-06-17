@@ -53,7 +53,7 @@ export const theme: any = {
             width: 'avatar',
             height: 'avatar',
             borderRadius: 'circle',
-            boxShadow: 'card',
+            boxShadow: 'small',
         },
         card: {
             p: 2,
