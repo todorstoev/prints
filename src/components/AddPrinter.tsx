@@ -449,9 +449,7 @@ const AddPrinter: React.FC<Props> = ({
                                     sx={{
                                         zIndex: 0,
                                         position: 'relative',
-                                        border: '2px solid',
-                                        borderColor: 'primary',
-                                        borderRadius: 4,
+                                        overflow: 'hidden',
                                     }}
                                 >
                                     <Map

@@ -2,7 +2,7 @@ export const theme: any = {
     colors: {
         background: '#fff',
         primary: '#037BB6',
-        secondary: '#67BFE7',
+        secondary: '#6dc3ea',
         error: 'red',
         muted: 'rgb(204,204,204)',
         highlight: 'hsla(205, 100%, 40%, 0.125)',
@@ -99,12 +99,12 @@ export const theme: any = {
             color: 'background',
             bg: 'primary',
             borderRadius: 'default',
-            transition: 'all .1s linear',
+            transition: 'all 0.2s linear',
             ':focus': {
                 outline: 'none',
             },
             ':hover': {
-                bg: 'secondary',
+                filter: 'brightness(110%)',
                 cursor: 'pointer',
             },
         },
@@ -119,23 +119,30 @@ export const theme: any = {
             bg: 'transparent',
             boxShadow: 'inset 0 0 2px',
         },
+        clear: {
+            variant: 'buttons.primary',
+            bg: 'transparent',
+            padding: 0,
+        },
     },
 
     forms: {
+        inputAuto: {
+            variant: 'forms.input',
+            width: 'auto',
+            textAlign: 'center',
+            margin: 'auto',
+            border: 'none',
+        },
         input: {
             transition: 'all 0.2s linear',
-            borderWidth: '1px',
-            color: 'text',
+            outline: 'none',
             ':focus': {
+                boxShadow: '0 0 0 1px #037BB6',
                 borderColor: 'primary',
-                boxShadow: '0 0 0 1px #030E9C',
-                outline: 'none',
             },
-
-            borderColor: 'rgb(204,204,204)',
         },
         select: {
-            color: 'text',
             borderColor: 'rgb(204,204,204)',
             borderRadius: 4,
             ':focus': {
