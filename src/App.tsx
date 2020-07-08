@@ -1,8 +1,7 @@
-import React, { useRef } from 'react'
+import React from 'react'
 import { Route, Switch } from 'react-router-dom'
 import { connect, ConnectedProps } from 'react-redux'
-import { Box, Flex } from 'rebass'
-import { animated as a, useSpring, config } from 'react-spring'
+import { Box } from 'rebass'
 
 import ProtectedRoute from './components/ProtectedRoute'
 

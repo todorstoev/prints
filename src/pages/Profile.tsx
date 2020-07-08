@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, RefObject } from 'react'
 import { connect, ConnectedProps } from 'react-redux'
 
 import { Flex, Box, Heading, Text, Card, Image, Button } from 'rebass'
@@ -12,7 +12,13 @@ import AddPrinter from '../components/AddPrinter'
 import Modal from '../components/Modal'
 import { Input } from '@rebass/forms'
 import { UserControl } from '../components/UserControl'
-import { useTransition, useChain, animated } from 'react-spring'
+import {
+    useTransition,
+    animated,
+    useChain,
+    ReactSpringHook,
+    config,
+} from 'react-spring'
 
 const mapState = (state: RootState): AuthState & DeviceState => {
     return { ...state.auth, ...state.devices }
@@ -35,83 +41,202 @@ const Profile: React.FC<PropsFromRedux> = ({
     const [edit, setEdit] = useState<boolean>(false)
     const mainTheme = useTheme<any>()
 
-    const transitions = useTransition(edit, null, {
-        from: { opacity: 0 },
-        enter: { opacity: 1 },
-        leave: { opacity: 0 },
+    const nameTrsRef = useRef() as RefObject<ReactSpringHook>
+
+    const unameTrsRef = useRef() as RefObject<ReactSpringHook>
+
+    const emailTrsRef = useRef() as RefObject<ReactSpringHook>
+
+    const sbmBtnTrRef = useRef() as RefObject<ReactSpringHook>
+
+    const nameTrs = useTransition(edit, null, {
+        initial: null,
+        from: { position: 'absolute', opacity: 0, transform: 'scale(0)' },
+        enter: { opacity: 1, transform: 'scale(1)' },
+        leave: { opacity: 0, transform: 'scale(0)' },
+        config: config.stiff,
+        ref: nameTrsRef,
     })
+
+    const unameTrs = useTransition(edit, null, {
+        initial: null,
+        from: { position: 'absolute', opacity: 0, transform: 'rotateX(90deg)' },
+        enter: { opacity: 1, transform: 'rotateX(0deg)' },
+        leave: { opacity: 0, transform: 'rotateX(90deg)' },
+        config: config.stiff,
+        ref: unameTrsRef,
+    })
+
+    const emailTrs = useTransition(edit, null, {
+        initial: null,
+        from: { position: 'absolute', opacity: 0, transform: 'rotateX(90deg)' },
+        enter: { opacity: 1, transform: 'rotateX(0deg)' },
+        leave: { opacity: 0, transform: 'rotateX(90deg)' },
+        config: config.stiff,
+        ref: emailTrsRef,
+    })
+
+    useChain(
+        edit
+            ? [nameTrsRef, unameTrsRef, emailTrsRef, sbmBtnTrRef]
+            : [sbmBtnTrRef, emailTrsRef, unameTrsRef, nameTrsRef],
+        [0, 0.4, 0.6, 0.8]
+    )
 
     return (
         <React.Fragment>
             <Flex p={'1rem'} pt={'3%'} justifyContent={'center'}>
                 <Box width={[1 / 1, 1 / 2, 1 / 2, 1 / 4]}>
                     <form>
-                        <Box minHeight={36}>
-                            {transitions.map(({ item, key, props }) =>
-                                item ? (
-                                    <animated.div key={key} style={props}>
-                                        <Input
-                                            variant={'inputAuto'}
-                                            placeholder={`${user.firstName} ${user.lastName}`}
-                                        ></Input>
-                                    </animated.div>
-                                ) : (
-                                    <animated.div key={key} style={props}>
-                                        <Heading
-                                            color={'primary'}
-                                            textAlign={'center'}
-                                            fontSize={24}
+                        <Flex
+                            justifyContent={'center'}
+                            alignItems={'center'}
+                            flexDirection={'column'}
+                        >
+                            <Flex
+                                sx={{
+                                    position: 'relative',
+                                    height: 90,
+                                    width: '100%',
+                                }}
+                                justifyContent={'center'}
+                                alignItems={'center'}
+                            >
+                                {nameTrs.map(({ item, key, props }) =>
+                                    item ? (
+                                        <animated.div
+                                            key={key}
+                                            style={{
+                                                opacity: props.opacity,
+                                                position: props.position,
+                                                transform: props.transform,
+                                            }}
                                         >
-                                            {user.firstName} {user.lastName}
-                                        </Heading>
-                                    </animated.div>
-                                )
-                            )}
-                        </Box>
-                        <Box minHeight={36}>
-                            {transitions.map(({ item, key, props }) =>
-                                item ? (
-                                    <animated.div key={key} style={props}>
-                                        <Input
-                                            variant={'inputAuto'}
-                                            placeholder={
-                                                user.username || 'username'
-                                            }
-                                        ></Input>
-                                    </animated.div>
-                                ) : (
-                                    <animated.div key={key} style={props}>
-                                        <Text
-                                            color={'gray'}
-                                            py={1}
-                                            textAlign={'center'}
+                                            <Box mb={2}>
+                                                <Input
+                                                    variant={'inputAuto'}
+                                                    placeholder={user.firstName}
+                                                ></Input>
+                                            </Box>
+                                            <Box>
+                                                <Input
+                                                    variant={'inputAuto'}
+                                                    placeholder={user.lastName}
+                                                ></Input>
+                                            </Box>
+                                        </animated.div>
+                                    ) : (
+                                        <animated.div
+                                            style={{
+                                                opacity: props.opacity,
+                                                position: props.position,
+                                            }}
                                         >
-                                            {user.username}
-                                        </Text>
-                                    </animated.div>
-                                )
-                            )}
-                        </Box>
+                                            <Heading
+                                                color={'primary'}
+                                                textAlign={'center'}
+                                                fontSize={24}
+                                            >
+                                                {user.firstName} {user.lastName}
+                                            </Heading>
+                                        </animated.div>
+                                    )
+                                )}
+                            </Flex>
+
+                            <Flex
+                                justifyContent={'center'}
+                                alignItems={'center'}
+                                sx={{
+                                    position: 'relative',
+                                    width: '100%',
+                                    height: '50px',
+                                }}
+                            >
+                                {unameTrs.map(({ item, key, props }) =>
+                                    item ? (
+                                        <animated.div
+                                            key={key}
+                                            style={{
+                                                opacity: props.opacity,
+                                                position: props.position,
+                                                transform: props.transform,
+                                            }}
+                                        >
+                                            <Input
+                                                variant={'inputAuto'}
+                                                placeholder={
+                                                    user.username || 'username'
+                                                }
+                                            ></Input>
+                                        </animated.div>
+                                    ) : (
+                                        <animated.div
+                                            style={{
+                                                opacity: props.opacity,
+                                                position: props.position,
+                                            }}
+                                        >
+                                            <Text
+                                                color={'gray'}
+                                                py={1}
+                                                textAlign={'center'}
+                                            >
+                                                {user.username}
+                                            </Text>
+                                        </animated.div>
+                                    )
+                                )}
+                            </Flex>
+                        </Flex>
+
                         <Box
                             variant={'avatar'}
                             m={'auto'}
                             my={3}
-                            sx={{ position: 'relative' }}
+                            sx={{
+                                position: 'relative',
+                                boxShadow:
+                                    '20px 20px 60px #d9d9d9,  -20px -20px 60px #ffffff',
+                            }}
                         >
                             <Image src={user.pic} alt="" variant={'avatar'} />
-                            <UserControl {...{ setEdit, edit }}></UserControl>
+                            <UserControl
+                                {...{ setEdit, edit, sbmBtnTrRef }}
+                            ></UserControl>
                         </Box>
-                        <Box minHeight={36}>
-                            {transitions.map(({ item, key, props }) =>
+                        <Flex
+                            mt={4}
+                            mb={2}
+                            minHeight={36}
+                            justifyContent={'center'}
+                            alignItems={'center'}
+                            flexDirection={'column'}
+                        >
+                            {emailTrs.map(({ item, key, props }) =>
                                 item ? (
-                                    <animated.div key={key} style={props}>
+                                    <animated.div
+                                        key={key}
+                                        style={{
+                                            opacity: props.opacity,
+                                            position: props.position,
+                                            transform: props.transform,
+                                        }}
+                                    >
                                         <Input
                                             variant={'inputAuto'}
                                             placeholder={user.email}
                                         ></Input>
                                     </animated.div>
                                 ) : (
-                                    <animated.div key={key} style={props}>
+                                    <animated.div
+                                        key={key}
+                                        style={{
+                                            opacity: props.opacity,
+                                            position: props.position,
+                                            transform: props.transform,
+                                        }}
+                                    >
                                         <Text
                                             color={'gray'}
                                             py={1}
@@ -122,7 +247,7 @@ const Profile: React.FC<PropsFromRedux> = ({
                                     </animated.div>
                                 )
                             )}
-                        </Box>
+                        </Flex>
                         <Text textAlign={'center'}>Rating: 1000</Text>
                         <Flex
                             justifyContent={'space-between'}

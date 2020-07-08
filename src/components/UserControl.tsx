@@ -1,4 +1,4 @@
-import React, { useRef } from 'react'
+import React from 'react'
 import { Flex, Button } from 'rebass'
 import { MdModeEdit, MdSave } from 'react-icons/md'
 import { config, useTransition, animated } from 'react-spring'
@@ -6,15 +6,18 @@ import { config, useTransition, animated } from 'react-spring'
 type Props = {
     edit: boolean
     setEdit: (edit: boolean) => void
+    sbmBtnTrRef: any
 }
 
-export const UserControl: React.FC<Props> = ({ edit, setEdit }) => {
-    const transRef = useRef()
-
+export const UserControl: React.FC<Props> = ({
+    edit,
+    setEdit,
+    sbmBtnTrRef,
+}) => {
     const transitions = useTransition(edit, null, {
         config: config.stiff,
-        ref: transRef.current,
-        unique: true,
+        ref: sbmBtnTrRef,
+
         trail: 100,
         from: { opacity: 0, transform: 'scale(0)', left: 70 },
         enter: { opacity: 1, transform: 'scale(1)', left: 0 },
@@ -24,7 +27,7 @@ export const UserControl: React.FC<Props> = ({ edit, setEdit }) => {
     return (
         <>
             <Flex
-                backgroundColor="primary"
+                backgroundColor={edit ? 'gray' : 'primary'}
                 color={'background'}
                 p={'.3em'}
                 onClick={e => {

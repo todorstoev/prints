@@ -141,6 +141,18 @@ const AddPrinter: React.FC<Props> = ({
                                 <Box width={1 / 1}>
                                     <Select
                                         isClearable={true}
+                                        styles={{
+                                            control: (
+                                                e: CSSProperties
+                                            ): CSSProperties => {
+                                                return {
+                                                    ...e,
+                                                    borderColor:
+                                                        mainTheme.colors
+                                                            .secondary,
+                                                }
+                                            },
+                                        }}
                                         onChange={(
                                             selected: ValueType<any>
                                         ) => {
@@ -205,7 +217,7 @@ const AddPrinter: React.FC<Props> = ({
                                         sx={{
                                             borderColor: errors.brand
                                                 ? 'error'
-                                                : 'muted',
+                                                : 'secondary',
                                         }}
                                         ref={register({
                                             required: {
@@ -232,7 +244,7 @@ const AddPrinter: React.FC<Props> = ({
                                         sx={{
                                             borderColor: errors.model
                                                 ? 'error'
-                                                : 'muted',
+                                                : 'secondary',
                                         }}
                                         ref={register({
                                             required: {
@@ -267,7 +279,7 @@ const AddPrinter: React.FC<Props> = ({
                                                 sx={{
                                                     borderColor: errors.width
                                                         ? 'error'
-                                                        : 'muted',
+                                                        : 'secondary',
                                                 }}
                                                 ref={register({
                                                     required: {
@@ -300,7 +312,7 @@ const AddPrinter: React.FC<Props> = ({
                                                 sx={{
                                                     borderColor: errors.height
                                                         ? 'error'
-                                                        : 'muted',
+                                                        : 'secondary',
                                                 }}
                                                 ref={register({
                                                     required: {
@@ -333,7 +345,7 @@ const AddPrinter: React.FC<Props> = ({
                                                 sx={{
                                                     borderColor: errors.depth
                                                         ? 'error'
-                                                        : 'muted',
+                                                        : 'secondary',
                                                 }}
                                                 ref={register({
                                                     required: {
@@ -365,7 +377,9 @@ const AddPrinter: React.FC<Props> = ({
                                                             ...e,
 
                                                             borderColor: !errors.type
-                                                                ? 'rgb(204, 204, 204)'
+                                                                ? mainTheme
+                                                                      .colors
+                                                                      .secondary
                                                                 : mainTheme
                                                                       .colors
                                                                       .error,
@@ -409,7 +423,9 @@ const AddPrinter: React.FC<Props> = ({
                                                             ...e,
                                                             zIndex: 1001,
                                                             borderColor: !errors.materials
-                                                                ? 'rgb(204, 204, 204)'
+                                                                ? mainTheme
+                                                                      .colors
+                                                                      .secondary
                                                                 : mainTheme
                                                                       .colors
                                                                       .error,

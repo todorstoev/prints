@@ -132,9 +132,11 @@ export const theme: any = {
             width: 'auto',
             textAlign: 'center',
             margin: 'auto',
-            border: 'none',
+            bg: 'transparent',
         },
         input: {
+            bg: '#fff',
+            borderColor: 'secondary',
             transition: 'all 0.2s linear',
             outline: 'none',
             ':focus': {
