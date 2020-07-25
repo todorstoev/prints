@@ -22,6 +22,7 @@ import Modal from '../components/Modal'
 import { Input } from '@rebass/forms'
 import { UserControl } from '../components/UserControl'
 import { MessageHub } from '../components/MessageHub'
+import { fbErrorMessages } from '../utils'
 
 const mapState = (state: RootState): AuthState & DeviceState => {
     return { ...state.auth, ...state.devices }
@@ -102,8 +103,7 @@ const Profile: React.FC<PropsFromRedux> = ({
             )
             setEdit(false)
         } catch (e) {
-            debugger
-            console.log(e)
+            ;(msgRef as MutableRefObject<any>).current(`${fbErrorMessages(e)}`)
         }
     }
 
@@ -336,85 +336,94 @@ const Profile: React.FC<PropsFromRedux> = ({
                             </Button>
                         </Flex>
                         <Box marginBottom={4} variant={'hr'}></Box>
-                        {userDevices.length <= 0 && (
-                            <Text>You have no devices added</Text>
-                        )}
-                        {userDevices.length > 0 &&
-                            userDevices.map((device: Device, i) => (
-                                <Card
-                                    key={i}
-                                    m={'auto'}
-                                    mb={3}
-                                    p={3}
-                                    color="white"
-                                    sx={{
-                                        position: 'relative',
-                                        background: mainTheme.blueGradient,
-                                        boxShadow: 'card',
-                                        lineHeight: 'body',
-                                        borderRadius: 7,
-                                    }}
-                                >
-                                    <Flex
-                                        mb={[2]}
-                                        justifyContent={'space-between'}
-                                        fontSize={3}
+                        <Box sx={{ overflowY: 'auto' }}>
+                            {userDevices.length <= 0 && (
+                                <Text>You have no devices added</Text>
+                            )}
+                            {userDevices.length > 0 &&
+                                userDevices.map((device: Device, i) => (
+                                    <Card
+                                        key={i}
+                                        m={'auto'}
+                                        mb={3}
+                                        p={3}
+                                        color="white"
+                                        sx={{
+                                            position: 'relative',
+                                            background: mainTheme.blueGradient,
+                                            boxShadow: 'card',
+                                            lineHeight: 'body',
+                                            borderRadius: 7,
+                                        }}
                                     >
-                                        <Text variant={'heading'}>
-                                            {device.brand}
-                                        </Text>
-                                        <Box>{device.model}</Box>
-                                    </Flex>
-                                    <Text>Type</Text>
-                                    <Text variant={'heading'}>
-                                        {device.type}
-                                    </Text>
-                                    <Text>Materials</Text>
-                                    <Text variant={'heading'}>
-                                        {device.materials.map((material, i) =>
-                                            i === 0
-                                                ? material
-                                                : `, ${material} `
-                                        )}
-                                    </Text>
-                                    <Text>Dimensions</Text>
-                                    <Flex
-                                        justifyContent={'space-between'}
-                                        alignItems={'center'}
-                                    >
-                                        <Box>
-                                            <Text variant={'heading'}>
-                                                {device.dimensions.height} /{' '}
-                                                {device.dimensions.width} /{' '}
-                                                {device.dimensions.depth}
-                                            </Text>
-                                        </Box>
-                                        <Box
-                                            onClick={e => {
-                                                e.preventDefault()
-                                                removeDevice(
-                                                    i,
-                                                    userDevices,
-                                                    user
-                                                )
-                                            }}
+                                        <Flex
+                                            mb={[2]}
+                                            justifyContent={'space-between'}
+                                            fontSize={3}
                                         >
-                                            <Text
-                                                sx={{
-                                                    textDecoration: 'italic',
-                                                    ':hover': {
-                                                        cursor: 'pointer',
-                                                    },
-                                                }}
-                                                fontSize={1}
-                                                color={'background'}
-                                            >
-                                                remove
+                                            <Text variant={'heading'}>
+                                                {device.brand}
                                             </Text>
-                                        </Box>
-                                    </Flex>
-                                </Card>
-                            ))}
+                                            <Box>{device.model}</Box>
+                                        </Flex>
+                                        <Text>Type</Text>
+                                        <Text variant={'heading'}>
+                                            {device.type}
+                                        </Text>
+                                        <Text>Materials</Text>
+                                        <Text variant={'heading'}>
+                                            {device.materials.map(
+                                                (material, i) =>
+                                                    i === 0
+                                                        ? material
+                                                        : `, ${material} `
+                                            )}
+                                        </Text>
+                                        <Text>Dimensions</Text>
+                                        <Flex
+                                            justifyContent={'space-between'}
+                                            alignItems={'center'}
+                                        >
+                                            <Box>
+                                                <Text variant={'heading'}>
+                                                    {device.dimensions.height} /{' '}
+                                                    {device.dimensions.width} /{' '}
+                                                    {device.dimensions.depth}
+                                                </Text>
+                                            </Box>
+                                            <Box
+                                                onClick={e => {
+                                                    e.preventDefault()
+                                                    removeDevice(
+                                                        i,
+                                                        userDevices,
+                                                        user
+                                                    )
+                                                    ;(msgRef as MutableRefObject<
+                                                        any
+                                                    >).current(
+                                                        `${device.brand} ${device.model} removed`
+                                                    )
+                                                }}
+                                            >
+                                                <Text
+                                                    sx={{
+                                                        textDecoration:
+                                                            'italic',
+                                                        ':hover': {
+                                                            cursor: 'pointer',
+                                                        },
+                                                    }}
+                                                    fontSize={1}
+                                                    color={'background'}
+                                                >
+                                                    remove
+                                                </Text>
+                                            </Box>
+                                        </Flex>
+                                    </Card>
+                                ))}
+                        </Box>
                     </form>
                 </Box>
             </Flex>

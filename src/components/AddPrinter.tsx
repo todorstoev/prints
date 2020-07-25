@@ -5,6 +5,8 @@ import React, {
     useEffect,
     Dispatch,
     SetStateAction,
+    useRef,
+    MutableRefObject,
 } from 'react'
 
 import { useForm, Controller } from 'react-hook-form'
@@ -31,6 +33,7 @@ import MapMarker from '../components/MapMarker'
 import Map from '../components/Map'
 import { addDevice } from '../actions'
 import { Loader } from './Loader'
+import { MessageHub } from './MessageHub'
 
 const mapState = (state: RootState): AuthState & DeviceState => {
     return { ...state.auth, ...state.devices }

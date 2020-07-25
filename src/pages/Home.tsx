@@ -75,7 +75,7 @@ export class Home extends React.Component<HomeProps, HomeState> {
         })
 
         return (
-            <div style={{ height: '100vh', width: '100%' }}>
+            <Box height={'100%'}>
                 <Map center={mapCenter} zoom={mapZoom}>
                     <MarkerClusterGroup>
                         {mapMarkers.map((marker, index) => {
@@ -93,7 +93,7 @@ export class Home extends React.Component<HomeProps, HomeState> {
                         })}
                     </MarkerClusterGroup>
                 </Map>
-            </div>
+            </Box>
         )
     }
 }

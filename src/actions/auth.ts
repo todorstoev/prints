@@ -15,7 +15,7 @@ import {
     updateEmail,
     updateUserDB,
 } from '../utils'
-import { recieveLoginError, clearAuthErrors } from './errors'
+import { recieveAuthError, clearAuthErrors } from './errors'
 import { getDevicesFromLogin } from '.'
 
 export const LOGIN_REQUEST = 'LOGIN_REQUEST'
@@ -140,13 +140,13 @@ export const registerUser = (email: string, password: string) => (
                 })
                 .catch(e => {
                     dispatch(cancelRegister())
-                    dispatch(recieveLoginError({ code: 'fbError', message: e }))
+                    dispatch(recieveAuthError({ code: 'fbError', message: e }))
                 })
         })
         .catch((e: FirebaseError) => {
             const error: string = fbErrorMessages(e)
             dispatch(cancelRegister())
-            dispatch(recieveLoginError({ code: 'fbError', message: error }))
+            dispatch(recieveAuthError({ code: 'fbError', message: error }))
         })
 }
 
@@ -172,7 +172,7 @@ export const loginGoogle = () => (dispatch: Dispatch) => {
                     .catch(e => {
                         dispatch(cancelLogin())
                         dispatch(
-                            recieveLoginError({
+                            recieveAuthError({
                                 code: 'fbError',
                                 message: e,
                             })
@@ -186,7 +186,7 @@ export const loginGoogle = () => (dispatch: Dispatch) => {
         .catch(e => {
             dispatch(cancelLogin())
             dispatch(
-                recieveLoginError({
+                recieveAuthError({
                     code: 'fbError',
                     message: fbErrorMessages(e),
                 })
@@ -216,7 +216,7 @@ export const loginUser = (
         .catch((e: FirebaseError) => {
             const error = fbErrorMessages(e)
             dispatch(cancelLogin())
-            dispatch(recieveLoginError({ code: 'fbError', message: error }))
+            dispatch(recieveAuthError({ code: 'fbError', message: error }))
         })
 }
 
@@ -231,7 +231,7 @@ export const logoutUser = () => (dispatch: Dispatch) => {
         })
         .catch(e => {
             //Do something with the error if you want!
-            dispatch(recieveLoginError({ code: 'fbErrorLogout', message: e }))
+            dispatch(recieveAuthError({ code: 'fbErrorLogout', message: e }))
         })
 }
 
@@ -268,6 +268,6 @@ export const updateUser = (user: PrintsUser, newData: any) => async (
 
         dispatch(updateUserSuccess(user))
     } catch (e) {
-        console.log(fbErrorMessages(e))
+        throw e
     }
 }

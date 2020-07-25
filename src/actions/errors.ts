@@ -4,7 +4,7 @@ export const AUTH_ERROR = 'LOGIN_ERROR'
 export const CLEAR_AUTH_ERRORS = 'CLEAR_AUTH_ERRORS'
 export const DEVICE_ERROR = 'DEVICE_ERROR'
 
-export const recieveLoginError = (error: PrintsGenericError) => {
+export const recieveAuthError = (error: PrintsGenericError) => {
     return {
         type: AUTH_ERROR,
         error,

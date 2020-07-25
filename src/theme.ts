@@ -25,6 +25,7 @@ export const theme: any = {
     space: [0, 4, 8, 16, 32, 64, 128, 256, 512],
     sizes: {
         avatar: 120,
+        navAvatar: 70,
     },
     radii: {
         default: 4,
@@ -54,6 +55,17 @@ export const theme: any = {
             height: 'avatar',
             borderRadius: 'circle',
             boxShadow: 'small',
+        },
+        navAvatar: {
+            width: 'navAvatar',
+            height: 'navAvatar',
+            borderRadius: 'circle',
+            transition: 'all linear 0.2s',
+            transform: 'scale(0.8)',
+            ':hover': {
+                cursor: 'pointer',
+                transform: 'scale(0.9)',
+            },
         },
         card: {
             p: 2,
