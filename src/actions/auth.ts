@@ -12,6 +12,8 @@ import {
     saveUserToDb,
     fbErrorMessages,
     getUserFromDb,
+    updateEmail,
+    updateUserDB,
 } from '../utils'
 import { recieveLoginError, clearAuthErrors } from './errors'
 import { getDevicesFromLogin } from '.'
@@ -27,6 +29,9 @@ export const REGISTER_CANCEL = 'REGISTER_CANCEL'
 export const LOGOUT_REQUEST = 'LOGOUT_REQUEST'
 export const LOGOUT_SUCCESS = 'LOGOUT_SUCCESS'
 
+export const UPDATE_USER_REQUEST = 'UPDATE_USER_REQUEST'
+export const UPDATE_USER_SUCCESS = 'UPDATE_USER_SUCCESS'
+
 export const VERIFY_REQUEST = 'VERIFY_REQUEST'
 export const VERIFY_SUCCESS = 'VERIFY_SUCCESS'
 
@@ -36,7 +41,7 @@ const requestLogin = () => {
     }
 }
 
-const receiveLogin = (user: any) => {
+const receiveLogin = (user: PrintsUser) => {
     return {
         type: LOGIN_SUCCESS,
         user,
@@ -55,7 +60,7 @@ const requestRegister = () => {
     }
 }
 
-const recieveRegister = (user: any) => {
+const recieveRegister = (user: PrintsUser) => {
     return {
         type: REGISTER_SUCCESS,
         user,
@@ -89,6 +94,19 @@ const verifyRequest = () => {
 const verifySuccess = () => {
     return {
         type: VERIFY_SUCCESS,
+    }
+}
+
+const updateUserRequest = () => {
+    return {
+        type: UPDATE_USER_REQUEST,
+    }
+}
+
+const updateUserSuccess = (user: PrintsUser) => {
+    return {
+        type: UPDATE_USER_SUCCESS,
+        user,
     }
 }
 
@@ -231,4 +249,25 @@ export const verifyAuth: any = () => (dispatch: Dispatch) => {
 
         dispatch(verifySuccess())
     })
+}
+
+export const updateUser = (user: PrintsUser, newData: any) => async (
+    dispatch: Dispatch
+) => {
+    dispatch(updateUserRequest())
+
+    try {
+        if (newData.email !== user.email) await updateEmail(newData.email, user)
+
+        user.email = newData.email
+        user.firstName = newData.firstName
+        user.lastName = newData.lastName
+        user.username = newData.username
+
+        await updateUserDB(user)
+
+        dispatch(updateUserSuccess(user))
+    } catch (e) {
+        console.log(fbErrorMessages(e))
+    }
 }

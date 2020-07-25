@@ -1,6 +1,6 @@
 import React from 'react'
 import { Flex, Button } from 'rebass'
-import { MdModeEdit, MdSave } from 'react-icons/md'
+import { Edit2, Save } from 'react-feather'
 import { config, useTransition, animated } from 'react-spring'
 
 type Props = {
@@ -47,7 +47,7 @@ export const UserControl: React.FC<Props> = ({
                     },
                 }}
             >
-                <MdModeEdit size={'1.2em'}></MdModeEdit>
+                <Edit2 size={18} />
             </Flex>
 
             {transitions.map(
@@ -74,7 +74,7 @@ export const UserControl: React.FC<Props> = ({
                                     // fontSize="1.2em"
                                     p={'.3em'}
                                 >
-                                    <MdSave size={'1.2em'} />
+                                    <Save size={18} />
                                 </Flex>
                             </Button>
                         </animated.div>

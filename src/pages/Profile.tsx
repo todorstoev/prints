@@ -1,17 +1,8 @@
-import React, { useState, useRef, RefObject } from 'react'
+import React, { useState, useRef, RefObject, MutableRefObject } from 'react'
 import { connect, ConnectedProps } from 'react-redux'
 
 import { Flex, Box, Heading, Text, Card, Image, Button } from 'rebass'
 import { useTheme } from 'emotion-theming'
-
-import { RootState, AuthState, Device, DeviceState } from '../types'
-
-import { removeDevice } from '../actions'
-
-import AddPrinter from '../components/AddPrinter'
-import Modal from '../components/Modal'
-import { Input } from '@rebass/forms'
-import { UserControl } from '../components/UserControl'
 import {
     useTransition,
     animated,
@@ -20,12 +11,25 @@ import {
     config,
 } from 'react-spring'
 
+import { useForm } from 'react-hook-form'
+
+import { RootState, AuthState, Device, DeviceState } from '../types'
+
+import { removeDevice, updateUser } from '../actions'
+
+import AddPrinter from '../components/AddPrinter'
+import Modal from '../components/Modal'
+import { Input } from '@rebass/forms'
+import { UserControl } from '../components/UserControl'
+import { MessageHub } from '../components/MessageHub'
+
 const mapState = (state: RootState): AuthState & DeviceState => {
     return { ...state.auth, ...state.devices }
 }
 
 const mapDispatch = {
     removeDevice,
+    updateUser,
 }
 
 const connector = connect(mapState, mapDispatch)
@@ -36,9 +40,14 @@ const Profile: React.FC<PropsFromRedux> = ({
     user,
     userDevices,
     removeDevice,
+    updateUser,
 }) => {
     const [showAddModal, setShowAddModal] = useState<boolean>(false)
+
     const [edit, setEdit] = useState<boolean>(false)
+
+    const { handleSubmit, register, errors } = useForm()
+
     const mainTheme = useTheme<any>()
 
     const nameTrsRef = useRef() as RefObject<ReactSpringHook>
@@ -48,6 +57,8 @@ const Profile: React.FC<PropsFromRedux> = ({
     const emailTrsRef = useRef() as RefObject<ReactSpringHook>
 
     const sbmBtnTrRef = useRef() as RefObject<ReactSpringHook>
+
+    const msgRef = useRef(null)
 
     const nameTrs = useTransition(edit, null, {
         initial: null,
@@ -83,11 +94,32 @@ const Profile: React.FC<PropsFromRedux> = ({
         [0, 0.4, 0.6, 0.8]
     )
 
+    const onSubmit = async (data: any, e: any) => {
+        try {
+            await updateUser(user, data)
+            ;(msgRef as MutableRefObject<any>).current(
+                `User ${user.email} updated`
+            )
+            setEdit(false)
+        } catch (e) {
+            debugger
+            console.log(e)
+        }
+    }
+
+    for (const error in errors) {
+        if (errors[`${error}`].message) {
+            ;(msgRef as MutableRefObject<any>).current(
+                errors[`${error}`].message
+            )
+        }
+    }
+
     return (
         <React.Fragment>
             <Flex p={'1rem'} pt={'3%'} justifyContent={'center'}>
                 <Box width={[1 / 1, 1 / 2, 1 / 2, 1 / 4]}>
-                    <form>
+                    <form onSubmit={handleSubmit(onSubmit)}>
                         <Flex
                             justifyContent={'center'}
                             alignItems={'center'}
@@ -114,19 +146,36 @@ const Profile: React.FC<PropsFromRedux> = ({
                                         >
                                             <Box mb={2}>
                                                 <Input
+                                                    ref={register({
+                                                        validate: value =>
+                                                            value !== 'admin' ||
+                                                            'Nice try!',
+                                                    })}
                                                     variant={'inputAuto'}
-                                                    placeholder={user.firstName}
+                                                    name={'firstName'}
+                                                    placeholder={'first name'}
+                                                    defaultValue={
+                                                        user.firstName
+                                                    }
                                                 ></Input>
                                             </Box>
                                             <Box>
                                                 <Input
+                                                    ref={register({
+                                                        validate: value =>
+                                                            value !== 'admin' ||
+                                                            'Nice try!',
+                                                    })}
                                                     variant={'inputAuto'}
-                                                    placeholder={user.lastName}
+                                                    name={'lastName'}
+                                                    placeholder={'last name'}
+                                                    defaultValue={user.lastName}
                                                 ></Input>
                                             </Box>
                                         </animated.div>
                                     ) : (
                                         <animated.div
+                                            key={key}
                                             style={{
                                                 opacity: props.opacity,
                                                 position: props.position,
@@ -164,14 +213,20 @@ const Profile: React.FC<PropsFromRedux> = ({
                                             }}
                                         >
                                             <Input
+                                                ref={register({
+                                                    validate: value =>
+                                                        value !== 'admin' ||
+                                                        'Nice try!',
+                                                })}
                                                 variant={'inputAuto'}
-                                                placeholder={
-                                                    user.username || 'username'
-                                                }
+                                                placeholder={'username'}
+                                                defaultValue={user.username}
+                                                name={'username'}
                                             ></Input>
                                         </animated.div>
                                     ) : (
                                         <animated.div
+                                            key={key}
                                             style={{
                                                 opacity: props.opacity,
                                                 position: props.position,
@@ -224,8 +279,22 @@ const Profile: React.FC<PropsFromRedux> = ({
                                         }}
                                     >
                                         <Input
+                                            ref={register({
+                                                required: 'Email is Required',
+                                                pattern: {
+                                                    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                                                    message:
+                                                        'Invalid email address',
+                                                },
+                                            })}
+                                            sx={{
+                                                borderColor: errors.email
+                                                    ? 'error'
+                                                    : 'secondary',
+                                            }}
+                                            name={'email'}
                                             variant={'inputAuto'}
-                                            placeholder={user.email}
+                                            defaultValue={user.email}
                                         ></Input>
                                     </animated.div>
                                 ) : (
@@ -349,7 +418,7 @@ const Profile: React.FC<PropsFromRedux> = ({
                     </form>
                 </Box>
             </Flex>
-
+            <MessageHub children={(add: any) => (msgRef.current = add)} />
             <Modal
                 {...{ showModal: showAddModal, setShowModal: setShowAddModal }}
             >

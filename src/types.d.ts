@@ -3,6 +3,7 @@ export interface AuthState {
     isLoggingOut: boolean
     isVerifying: boolean
     isAuthenticated: boolean
+    isLoading: boolean
     user: PrintsUser
 }
 
@@ -57,6 +58,6 @@ export interface ErrorsState {
 
 export interface DeviceState {
     userDevices: Device[]
-    allDevices: Device[]
+    allDevices: Device[]       
     isLoading: boolean
 }

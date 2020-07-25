@@ -1,5 +1,5 @@
 import { Device, Printer, PrintsUser } from '../types'
-import { db } from '../firebase/firebase'
+import { db, myFirebase } from '../firebase/firebase'
 import { FirebaseError } from 'firebase'
 
 export const getDevices = (): Promise<Device[]> => {
@@ -58,7 +58,7 @@ export const getUserFromDb = (uid: string): Promise<any> => {
     })
 }
 
-export const updateUser = (user: PrintsUser): Promise<any> => {
+export const updateUserDB = (user: PrintsUser): Promise<any> => {
     return new Promise((resolve, reject) => {
         db.collection('users')
             .where('uid', '==', user.uid)
@@ -69,6 +69,20 @@ export const updateUser = (user: PrintsUser): Promise<any> => {
             })
             .then(() => {
                 resolve(true)
+            })
+            .catch(e => {
+                reject(e)
+            })
+    })
+}
+
+export const updateEmail = (email: string, user: PrintsUser): Promise<any> => {
+    return new Promise((resolve, reject) => {
+        myFirebase
+            .auth()
+            .currentUser?.updateEmail(email)
+            .then(res => {
+                resolve(res)
             })
             .catch(e => {
                 reject(e)

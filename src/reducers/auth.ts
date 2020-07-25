@@ -9,6 +9,8 @@ import {
     LOGOUT_SUCCESS,
     VERIFY_REQUEST,
     VERIFY_SUCCESS,
+    UPDATE_USER_REQUEST,
+    UPDATE_USER_SUCCESS,
 } from '../actions/'
 
 import { AuthState } from '../types'
@@ -18,7 +20,7 @@ export default (
         isLoggingIn: false,
         isLoggingOut: false,
         isVerifying: false,
-
+        isLoading: false,
         isAuthenticated: false,
         user: {
             email: '',
@@ -92,6 +94,19 @@ export default (
             return {
                 ...state,
                 isVerifying: false,
+            }
+
+        case UPDATE_USER_REQUEST:
+            return {
+                ...state,
+                isLoading: true,
+            }
+
+        case UPDATE_USER_SUCCESS:
+            return {
+                ...state,
+                isLoading: false,
+                user: action.user,
             }
 
         default:
