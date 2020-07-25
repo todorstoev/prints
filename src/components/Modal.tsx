@@ -49,7 +49,7 @@ const Modal: React.FC<Props> = ({ children, showModal, setShowModal }) => {
                                 }}
                             >
                                 <Box
-                                    marginX={[3, 'auto']}
+                                    marginX={'auto'}
                                     maxHeight={'90vh'}
                                     overflow={'auto'}
                                     padding={'2rem'}
