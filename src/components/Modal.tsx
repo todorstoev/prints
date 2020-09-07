@@ -54,10 +54,8 @@ const Modal: React.FC<Props> = ({ children, showModal, setShowModal }) => {
                                     overflow={'auto'}
                                     padding={'2rem'}
                                     sx={{
-                                        background:
-                                            'linear-gradient(225deg, #ffffff, #e6e6e6)',
-                                        boxShadow:
-                                            '-20px 20px 60px #d9d9d9,  20px -20px 60px #ffffff;',
+                                        bg: 'background',
+                                        boxShadow: 'heavy',
                                         borderRadius: 10,
                                     }}
                                 >

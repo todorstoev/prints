@@ -2,6 +2,7 @@ import React from 'react'
 import { Route, Switch, useLocation, Link } from 'react-router-dom'
 import { connect, ConnectedProps } from 'react-redux'
 import { Box, Image } from 'rebass'
+import { Map } from 'react-feather'
 
 import ProtectedRoute from './components/ProtectedRoute'
 
@@ -83,6 +84,29 @@ const App: React.FC<PropsFromRedux> = ({
                 sx={{
                     position: 'absolute',
                     top: 0,
+                    left: '2em',
+                    bg: 'transperent',
+                    '@media screen and (max-width: 64em)': {
+                        left: '0.2em',
+                        top: '-1em',
+                    },
+                }}
+            >
+                <Link to={'/'}>
+                    <Image
+                        backgroundColor={'transparent'}
+                        src={'./assets/orb.png'}
+                        variant={'navAvatar'}
+                    />
+                </Link>
+            </Box>
+            <Box
+                variant={'navAvatar'}
+                m={'auto'}
+                my={3}
+                sx={{
+                    position: 'absolute',
+                    top: 0,
                     right: '2em',
                     background: 'transparent',
                     '@media screen and (max-width: 64em)': {
@@ -103,11 +127,18 @@ const App: React.FC<PropsFromRedux> = ({
 
                 {location.pathname === '/profile' && (
                     <Link to={'/'}>
-                        <Image
-                            backgroundColor={'transparent'}
-                            src={'./assets/orb.png'}
+                        <Box
+                            color="primary"
                             variant={'navAvatar'}
-                        />
+                            sx={{
+                                display: 'flex',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                boxShadow: 'small',
+                            }}
+                        >
+                            <Map size={42}></Map>
+                        </Box>
                     </Link>
                 )}
             </Box>
