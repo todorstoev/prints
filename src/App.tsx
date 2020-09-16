@@ -1,19 +1,20 @@
 import React from 'react'
-import { Route, Switch, useLocation, Link } from 'react-router-dom'
+import { Route, Switch, useLocation } from 'react-router-dom'
 import { connect, ConnectedProps } from 'react-redux'
-import { Box, Image } from 'rebass'
-import { Map } from 'react-feather'
+import { Box } from 'rebass'
+
+import { useTransition, animated } from 'react-spring'
 
 import ProtectedRoute from './components/ProtectedRoute'
+import Navigation from './components/Navigation'
 
 import Home from './pages/Home'
 import Login from './pages/Login'
 import Profile from './pages/Profile'
 
 import { RootState } from './types'
-
 import { NoMatch } from './pages/404'
-import { useTransition, animated } from 'react-spring'
+import { Messages } from './pages/Messages'
 
 const mapState = (state: RootState) => {
     return {
@@ -35,9 +36,9 @@ const App: React.FC<PropsFromRedux> = ({
     const location = useLocation()
 
     const transitions = useTransition(location, location => location.pathname, {
-        from: { opacity: 0, transform: 'translate3d(100%,0,0)' },
+        from: { opacity: 0, transform: 'translate3d(2%,0,0)' },
         enter: { opacity: 1, transform: 'translate3d(0%,0,0)' },
-        leave: { opacity: 0, transform: 'translate3d(-50%,0,0)' },
+        leave: { opacity: 0, transform: 'translate3d(-2%,0,0)' },
     })
 
     return (
@@ -73,75 +74,18 @@ const App: React.FC<PropsFromRedux> = ({
                             isAuthenticated={isAuthenticated}
                             isVerifying={isVerifying}
                         />
+                        <ProtectedRoute
+                            exact
+                            path="/messages"
+                            component={Messages}
+                            isAuthenticated={isAuthenticated}
+                            isVerifying={isVerifying}
+                        />
                         <Route component={NoMatch} />
                     </Switch>
                 </animated.div>
             ))}
-            <Box
-                variant={'navAvatar'}
-                m={'auto'}
-                my={3}
-                sx={{
-                    position: 'absolute',
-                    top: 0,
-                    left: '2em',
-                    bg: 'transperent',
-                    '@media screen and (max-width: 64em)': {
-                        left: '0.2em',
-                        top: '-1em',
-                    },
-                }}
-            >
-                <Link to={'/'}>
-                    <Image
-                        backgroundColor={'transparent'}
-                        src={'./assets/orb.png'}
-                        variant={'navAvatar'}
-                    />
-                </Link>
-            </Box>
-            <Box
-                variant={'navAvatar'}
-                m={'auto'}
-                my={3}
-                sx={{
-                    position: 'absolute',
-                    top: 0,
-                    right: '2em',
-                    background: 'transparent',
-                    '@media screen and (max-width: 64em)': {
-                        right: '0.2em',
-                        top: '-1em',
-                    },
-                }}
-            >
-                {location.pathname === '/' && (
-                    <Link to={'/profile'}>
-                        <Image
-                            backgroundColor={'#fff'}
-                            src={user.pic}
-                            variant={'navAvatar'}
-                        />
-                    </Link>
-                )}
-
-                {location.pathname === '/profile' && (
-                    <Link to={'/'}>
-                        <Box
-                            color="primary"
-                            variant={'navAvatar'}
-                            sx={{
-                                display: 'flex',
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                                boxShadow: 'small',
-                            }}
-                        >
-                            <Map size={42}></Map>
-                        </Box>
-                    </Link>
-                )}
-            </Box>
+            <Navigation location={location} />
         </Box>
     )
 }
