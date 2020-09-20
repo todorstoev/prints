@@ -21,7 +21,7 @@ import AddPrinter from '../components/AddPrinter'
 import Modal from '../components/Modal'
 import { Input } from '@rebass/forms'
 import { UserControl } from '../components/UserControl'
-import { MessageHub } from '../components/MessageHub'
+import { NotificationsHub } from '../components/NotificationsHub'
 import { fbErrorMessages } from '../utils'
 
 const mapState = (state: RootState): AuthState & DeviceState => {
@@ -427,7 +427,7 @@ const Profile: React.FC<PropsFromRedux> = ({
                     </form>
                 </Box>
             </Flex>
-            <MessageHub children={(add: any) => (msgRef.current = add)} />
+            <NotificationsHub children={(add: any) => (msgRef.current = add)} />
             <Modal
                 {...{ showModal: showAddModal, setShowModal: setShowAddModal }}
             >

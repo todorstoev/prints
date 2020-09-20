@@ -1,4 +1,4 @@
-export interface AuthState {
+export type AuthState = {
     isLoggingIn: boolean
     isLoggingOut: boolean
     isVerifying: boolean
@@ -7,13 +7,13 @@ export interface AuthState {
     user: PrintsUser
 }
 
-export interface RootState {
+export type RootState = {
     auth: AuthState
     errors: ErrorsState
     devices: DeviceState
 }
 
-export interface PrintsUser {
+export type PrintsUser = {
     firstName: string
     lastName: string
     email: string
@@ -22,6 +22,17 @@ export interface PrintsUser {
     username: string
     refreshToken?: string
     devices?: Device[]
+}
+
+export type ChatData = {
+    messages: Message[]
+    users: string[]
+    recieverHasRed: boolean
+}
+
+type Message = {
+    message: string
+    author: string
 }
 
 export type Coords = {
@@ -58,6 +69,6 @@ export interface ErrorsState {
 
 export interface DeviceState {
     userDevices: Device[]
-    allDevices: Device[]       
+    allDevices: Device[]
     isLoading: boolean
 }

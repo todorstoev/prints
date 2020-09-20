@@ -15,7 +15,7 @@ type Props = {
 
 type Msg = { key: number; msg: string }
 
-export const MessageHub: React.FC<Props> = ({
+export const NotificationsHub: React.FC<Props> = ({
     config = { tension: 125, friction: 20, precision: 0.1 },
     timeout = 3000,
     children,

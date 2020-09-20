@@ -11,10 +11,10 @@ import Navigation from './components/Navigation'
 import Home from './pages/Home'
 import Login from './pages/Login'
 import Profile from './pages/Profile'
+import Messages from './pages/Messages'
 
 import { RootState } from './types'
 import { NoMatch } from './pages/404'
-import { Messages } from './pages/Messages'
 
 const mapState = (state: RootState) => {
     return {

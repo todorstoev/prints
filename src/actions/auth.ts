@@ -257,7 +257,7 @@ export const updateUser = (user: PrintsUser, newData: any) => async (
     dispatch(updateUserRequest())
 
     try {
-        if (newData.email !== user.email) await updateEmail(newData.email, user)
+        if (newData.email !== user.email) await updateEmail(newData.email)
 
         user.email = newData.email
         user.firstName = newData.firstName

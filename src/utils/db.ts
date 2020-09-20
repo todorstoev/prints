@@ -76,7 +76,7 @@ export const updateUserDB = (user: PrintsUser): Promise<any> => {
     })
 }
 
-export const updateEmail = (email: string, user: PrintsUser): Promise<any> => {
+export const updateEmail = (email: string): Promise<any> => {
     return new Promise((resolve, reject) => {
         myFirebase
             .auth()
@@ -88,4 +88,12 @@ export const updateEmail = (email: string, user: PrintsUser): Promise<any> => {
                 reject(e)
             })
     })
+}
+
+export const getUserChats = (user: PrintsUser) => {
+    const doc = db
+        .collection('chats')
+        .where('users', 'array-contains', user.email)
+
+    return doc.onSnapshot
 }
