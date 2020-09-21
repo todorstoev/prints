@@ -5,10 +5,11 @@ import { Popup } from 'react-leaflet'
 import MarkerClusterGroup from 'react-leaflet-markercluster'
 import { Box, Text, Link } from 'rebass'
 
-import { Coords } from '../types'
+import { Coords, Device } from '../types'
 import { getUserLocation, getDevices } from '../utils'
 import Map from '../components/Map'
 import MapMarker from '../components/MapMarker'
+import { Observable, observable, Subscription } from 'rxjs'
 
 type DeviceMarker = {
     brand: string
@@ -48,19 +49,25 @@ export class Home extends React.Component<HomeProps, HomeState> {
         mapMarkers: [],
     }
 
+    subscription: Subscription | undefined
+
     componentDidMount() {
         getUserLocation().then(location => {
             this.setState({ mapCenter: location })
         })
 
-        getDevices().then(devices => {
-            const mapMarkers = devices.map(device => {
-                const { brand, model, type, materials, location } = device
+        const observable = getDevices()
 
-                return { brand, model, type, materials, location }
-            })
+        this.subscription = observable.subscribe({
+            next: res => {
+                const mapMarkers = res.map(device => {
+                    const { brand, model, type, materials, location } = device
 
-            this.setState({ mapMarkers })
+                    return { brand, model, type, materials, location }
+                })
+
+                this.setState({ mapMarkers })
+            },
         })
     }
 

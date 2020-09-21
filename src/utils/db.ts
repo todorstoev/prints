@@ -1,18 +1,23 @@
-import { Device, Printer, PrintsUser } from '../types'
+import { ChatData, Device, Printer, PrintsUser } from '../types'
 import { db, myFirebase } from '../firebase/firebase'
 import { FirebaseError } from 'firebase'
+import { Observable } from 'rxjs'
 
-export const getDevices = (): Promise<Device[]> => {
-    return new Promise<Device[]>((resolve, reject) => {
-        let devicesList: Device[] = []
+export const getDevices = (): Observable<Device[]> => {
+    return new Observable<Device[]>(subscriber => {
+        db.collection('users').onSnapshot({
+            next: snapshot => {
+                let devicesList: Device[] = []
 
-        db.collection('users').onSnapshot(snapshot => {
-            for (let i = 0; snapshot.docs.length > i; i++) {
-                const currUserDevices = snapshot.docs[i].data().devices
-                devicesList = [...devicesList, ...currUserDevices]
-            }
+                for (let i = 0; snapshot.docs.length > i; i++) {
+                    const currUserDevices = snapshot.docs[i].data().devices
+                    devicesList = [...devicesList, ...currUserDevices]
+                }
 
-            resolve(devicesList)
+                subscriber.next(devicesList)
+            },
+            error: error => subscriber.error(error.message),
+            complete: () => subscriber.complete(),
         })
     })
 }
@@ -90,10 +95,19 @@ export const updateEmail = (email: string): Promise<any> => {
     })
 }
 
-export const getUserChats = (user: PrintsUser) => {
+export const getUserChats = (user: PrintsUser): Observable<ChatData[]> => {
     const doc = db
         .collection('chats')
         .where('users', 'array-contains', user.email)
 
-    return doc.onSnapshot
+    return new Observable(subscriber => {
+        doc.onSnapshot({
+            next: snapshot =>
+                subscriber.next(
+                    snapshot.docs.map(doc => doc.data() as ChatData)
+                ),
+            error: error => subscriber.error(error.message),
+            complete: () => subscriber.complete(),
+        })
+    })
 }
