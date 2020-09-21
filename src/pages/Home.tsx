@@ -5,11 +5,11 @@ import { Popup } from 'react-leaflet'
 import MarkerClusterGroup from 'react-leaflet-markercluster'
 import { Box, Text, Link } from 'rebass'
 
-import { Coords, Device } from '../types'
+import { Coords } from '../types'
 import { getUserLocation, getDevices } from '../utils'
 import Map from '../components/Map'
 import MapMarker from '../components/MapMarker'
-import { Observable, observable, Subscription } from 'rxjs'
+import { Subscription } from 'rxjs'
 
 type DeviceMarker = {
     brand: string
