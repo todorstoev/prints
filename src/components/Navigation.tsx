@@ -22,7 +22,7 @@ type Props = PropsFromRedux & {
     location: any
 }
 
-const Navigation: React.FC<Props> = ({ user, location }) => (
+const Navigation: React.FC<Props> = ({ user, location, isAuthenticated }) => (
     <>
         <Box
             variant={'navAvatar'}
@@ -72,7 +72,7 @@ const Navigation: React.FC<Props> = ({ user, location }) => (
                 </Link>
             )}
 
-            {location.pathname === '/profile' && (
+            {location.pathname !== '/' && (
                 <Link to={'/'}>
                     <Box
                         color="primary"
@@ -104,21 +104,23 @@ const Navigation: React.FC<Props> = ({ user, location }) => (
                 },
             }}
         >
-            <Link to={'/messages'}>
-                <Box
-                    bg="#fff"
-                    color="primary"
-                    variant={'navAvatar'}
-                    sx={{
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        boxShadow: 'small',
-                    }}
-                >
-                    <MessageCircle size={42}></MessageCircle>
-                </Box>
-            </Link>
+            {isAuthenticated && (
+                <Link to={'/messages'}>
+                    <Box
+                        bg="#fff"
+                        color="primary"
+                        variant={'navAvatar'}
+                        sx={{
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            boxShadow: 'small',
+                        }}
+                    >
+                        <MessageCircle size={42}></MessageCircle>
+                    </Box>
+                </Link>
+            )}
         </Box>
     </>
 )

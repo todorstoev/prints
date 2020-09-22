@@ -25,11 +25,12 @@ import {
     DeviceState,
 } from '../types'
 
-import { getUserLocation, getPrinters } from '../utils'
+import { getUserLocation } from '../shared/helpers'
+import { getPrinters } from '../shared/services'
 
 import MapMarker from '../components/MapMarker'
 import Map from '../components/Map'
-import { addDevice } from '../actions'
+import { addDevice } from '../shared/store/epics'
 import { Loader } from './Loader'
 
 const mapState = (state: RootState): AuthState & DeviceState => {

@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react'
-import { connect, ConnectedProps } from 'react-redux'
+import { connect, ConnectedProps, useStore } from 'react-redux'
 import { Observable } from 'rxjs'
 import { ChatData, RootState } from '../types'
-import { getUserChats } from '../utils'
+import { getUserChats } from '../shared/services'
 
 const mapState = (state: RootState) => {
     return {
@@ -19,6 +19,8 @@ type PropsFromRedux = ConnectedProps<typeof connector>
 const MessagesHub: React.FC<PropsFromRedux> = ({ user }) => {
     const [userChats, setUserChats] = useState<ChatData[]>([])
 
+    const store = useStore<RootState>()
+    debugger
     useEffect(() => {
         const observable: Observable<ChatData[]> = getUserChats(user)
 

@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { connect, ConnectedProps } from 'react-redux'
 import { Redirect } from 'react-router-dom'
-import { loginUser, registerUser, loginGoogle } from '../actions'
+import { loginUser, registerUser, loginGoogle } from '../shared/store/epics'
 import { RootState } from '../types'
 import SignUp from '../components/Signup'
 import SignIn from '../components/Signin'

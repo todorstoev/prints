@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { connect, ConnectedProps } from 'react-redux'
-import { registerUser } from '../actions'
+import { registerUser } from '../shared/store/epics'
 import { Heading, Box, Text, Button, Flex, Link } from 'rebass'
 import { Input, Label } from '@rebass/forms'
 import { RootState } from '../types'

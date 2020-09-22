@@ -3,117 +3,35 @@ import {
     googleProvider,
     localPersistance,
     nonePersistance,
-} from '../firebase/firebase'
+} from '../../../firebase/firebase'
+
 import { Dispatch } from 'redux'
+
 import { FirebaseError, User } from 'firebase'
-import { PrintsUser, Device } from '../types'
+
+import { Device, PrintsUser } from '../../../types'
+
+import { remapUser, fbErrorMessages } from '../../helpers'
+
 import {
-    remapUser,
-    saveUserToDb,
-    fbErrorMessages,
     getUserFromDb,
+    saveUserToDb,
     updateEmail,
     updateUserDB,
-} from '../utils'
-import { recieveAuthError, clearAuthErrors } from './errors'
-import { getDevicesFromLogin } from '.'
+} from '../../services'
 
-export const LOGIN_REQUEST = 'LOGIN_REQUEST'
-export const LOGIN_SUCCESS = 'LOGIN_SUCCESS'
-export const LOGIN_CANCEL = 'LOGIN_CANCEL'
+import {
+    recieveAuthError,
+    clearAuthErrors,
+    getDevicesFromLogin,
+} from '../actions'
 
-export const REGISTER_REQUEST = 'REGISTER_REQUEST'
-export const REGISTER_SUCCESS = 'REGISTER_SUCCESS'
-export const REGISTER_CANCEL = 'REGISTER_CANCEL'
-
-export const LOGOUT_REQUEST = 'LOGOUT_REQUEST'
-export const LOGOUT_SUCCESS = 'LOGOUT_SUCCESS'
-
-export const UPDATE_USER_REQUEST = 'UPDATE_USER_REQUEST'
-export const UPDATE_USER_SUCCESS = 'UPDATE_USER_SUCCESS'
-
-export const VERIFY_REQUEST = 'VERIFY_REQUEST'
-export const VERIFY_SUCCESS = 'VERIFY_SUCCESS'
-
-const requestLogin = () => {
-    return {
-        type: LOGIN_REQUEST,
-    }
-}
-
-const receiveLogin = (user: PrintsUser) => {
-    return {
-        type: LOGIN_SUCCESS,
-        user,
-    }
-}
-
-const cancelLogin = () => {
-    return {
-        type: LOGIN_CANCEL,
-    }
-}
-
-const requestRegister = () => {
-    return {
-        type: REGISTER_REQUEST,
-    }
-}
-
-const recieveRegister = (user: PrintsUser) => {
-    return {
-        type: REGISTER_SUCCESS,
-        user,
-    }
-}
-
-const cancelRegister = () => {
-    return {
-        type: REGISTER_CANCEL,
-    }
-}
-
-const requestLogout = () => {
-    return {
-        type: LOGOUT_REQUEST,
-    }
-}
-
-const receiveLogout = () => {
-    return {
-        type: LOGOUT_SUCCESS,
-    }
-}
-
-const verifyRequest = () => {
-    return {
-        type: VERIFY_REQUEST,
-    }
-}
-
-const verifySuccess = () => {
-    return {
-        type: VERIFY_SUCCESS,
-    }
-}
-
-const updateUserRequest = () => {
-    return {
-        type: UPDATE_USER_REQUEST,
-    }
-}
-
-const updateUserSuccess = (user: PrintsUser) => {
-    return {
-        type: UPDATE_USER_SUCCESS,
-        user,
-    }
-}
+import { actions } from '..'
 
 export const registerUser = (email: string, password: string) => (
     dispatch: Dispatch
 ): void => {
-    dispatch(requestRegister())
+    dispatch(actions.requestRegister())
     myFirebase
         .auth()
         .createUserWithEmailAndPassword(email, password)
@@ -129,29 +47,29 @@ export const registerUser = (email: string, password: string) => (
             }
             saveUserToDb(userToInsert)
                 .then(res => {
-                    dispatch(clearAuthErrors())
+                    dispatch(actions.clearAuthErrors())
                     if (res)
                         dispatch(
-                            recieveRegister({
+                            actions.recieveRegister({
                                 ...userToInsert,
                                 refreshToken: (user.user as User).refreshToken,
                             } as PrintsUser)
                         )
                 })
                 .catch(e => {
-                    dispatch(cancelRegister())
+                    dispatch(actions.cancelRegister())
                     dispatch(recieveAuthError({ code: 'fbError', message: e }))
                 })
         })
         .catch((e: FirebaseError) => {
             const error: string = fbErrorMessages(e)
-            dispatch(cancelRegister())
+            dispatch(actions.cancelRegister())
             dispatch(recieveAuthError({ code: 'fbError', message: error }))
         })
 }
 
 export const loginGoogle = () => (dispatch: Dispatch) => {
-    dispatch(requestLogin())
+    dispatch(actions.requestLogin())
     myFirebase
         .auth()
         .signInWithPopup(googleProvider)
@@ -160,17 +78,17 @@ export const loginGoogle = () => (dispatch: Dispatch) => {
             if (user.additionalUserInfo.isNewUser) {
                 saveUserToDb({ ...userToInsert, devices: [] })
                     .then(res => {
-                        dispatch(clearAuthErrors())
+                        dispatch(actions.clearAuthErrors())
                         if (res)
                             dispatch(
-                                receiveLogin({
+                                actions.receiveLogin({
                                     ...userToInsert,
                                     refreshToken: user.user.refreshToken,
                                 } as PrintsUser)
                             )
                     })
                     .catch(e => {
-                        dispatch(cancelLogin())
+                        dispatch(actions.cancelLogin())
                         dispatch(
                             recieveAuthError({
                                 code: 'fbError',
@@ -180,11 +98,11 @@ export const loginGoogle = () => (dispatch: Dispatch) => {
                     })
             } else {
                 dispatch(clearAuthErrors())
-                dispatch(receiveLogin(userToInsert))
+                dispatch(actions.receiveLogin(userToInsert))
             }
         })
         .catch(e => {
-            dispatch(cancelLogin())
+            dispatch(actions.cancelLogin())
             dispatch(
                 recieveAuthError({
                     code: 'fbError',
@@ -199,7 +117,7 @@ export const loginUser = (
     password: string,
     remember: boolean
 ) => (dispatch: Dispatch): void => {
-    dispatch(requestLogin())
+    dispatch(actions.requestLogin())
     myFirebase
         .auth()
         .setPersistence(remember ? localPersistance : nonePersistance)
@@ -211,23 +129,23 @@ export const loginUser = (
 
             const userToInsert = await getUserFromDb(uid)
             dispatch(clearAuthErrors())
-            dispatch(receiveLogin(userToInsert))
+            dispatch(actions.receiveLogin(userToInsert))
         })
         .catch((e: FirebaseError) => {
             const error = fbErrorMessages(e)
-            dispatch(cancelLogin())
+            dispatch(actions.cancelLogin())
             dispatch(recieveAuthError({ code: 'fbError', message: error }))
         })
 }
 
 export const logoutUser = () => (dispatch: Dispatch) => {
-    dispatch(requestLogout())
+    dispatch(actions.requestLogout())
     myFirebase
         .auth()
         .signOut()
         .then(() => {
             dispatch(clearAuthErrors())
-            dispatch(receiveLogout())
+            dispatch(actions.receiveLogout())
         })
         .catch(e => {
             //Do something with the error if you want!
@@ -236,25 +154,25 @@ export const logoutUser = () => (dispatch: Dispatch) => {
 }
 
 export const verifyAuth: any = () => (dispatch: Dispatch) => {
-    dispatch(verifyRequest())
+    dispatch(actions.verifyRequest())
 
     myFirebase.auth().onAuthStateChanged(async user => {
         if (user !== null) {
             const userToInsert: PrintsUser = await getUserFromDb(user.uid)
 
-            dispatch(receiveLogin(userToInsert))
+            dispatch(actions.receiveLogin(userToInsert))
 
             dispatch(getDevicesFromLogin(userToInsert.devices as Device[]))
         }
 
-        dispatch(verifySuccess())
+        dispatch(actions.verifySuccess())
     })
 }
 
 export const updateUser = (user: PrintsUser, newData: any) => async (
     dispatch: Dispatch
 ) => {
-    dispatch(updateUserRequest())
+    dispatch(actions.updateUserRequest())
 
     try {
         if (newData.email !== user.email) await updateEmail(newData.email)
@@ -266,7 +184,7 @@ export const updateUser = (user: PrintsUser, newData: any) => async (
 
         await updateUserDB(user)
 
-        dispatch(updateUserSuccess(user))
+        dispatch(actions.updateUserSuccess(user))
     } catch (e) {
         throw e
     }

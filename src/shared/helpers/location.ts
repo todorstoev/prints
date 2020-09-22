@@ -1,4 +1,4 @@
-import { Coords } from '../types'
+import { Coords } from '../../types'
 
 const getLocationByIpAddress = (): Promise<Coords> => {
     return new Promise<Coords>(resolve => {

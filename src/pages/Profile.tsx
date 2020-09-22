@@ -15,14 +15,14 @@ import { useForm } from 'react-hook-form'
 
 import { RootState, AuthState, Device, DeviceState } from '../types'
 
-import { removeDevice, updateUser } from '../actions'
+import { removeDevice, updateUser } from '../shared/store/epics'
 
 import AddPrinter from '../components/AddPrinter'
 import Modal from '../components/Modal'
 import { Input } from '@rebass/forms'
 import { UserControl } from '../components/UserControl'
 import { NotificationsHub } from '../components/NotificationsHub'
-import { fbErrorMessages } from '../utils'
+import { fbErrorMessages } from '../shared/helpers'
 
 const mapState = (state: RootState): AuthState & DeviceState => {
     return { ...state.auth, ...state.devices }

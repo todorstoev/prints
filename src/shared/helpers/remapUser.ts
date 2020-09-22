@@ -1,4 +1,4 @@
-import { PrintsUser } from '../types'
+import { PrintsUser } from '../../types'
 
 export const remapUser = (user: any): PrintsUser => {
     return {

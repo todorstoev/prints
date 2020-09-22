@@ -4,7 +4,7 @@ import { Input, Label, Checkbox } from '@rebass/forms'
 
 import { connect, ConnectedProps } from 'react-redux'
 
-import { loginUser, loginGoogle } from '../actions'
+import { loginUser, loginGoogle } from '../shared/store/epics'
 
 import { RootState } from '../types'
 import { Loader } from './Loader'

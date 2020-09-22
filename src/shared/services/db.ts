@@ -1,5 +1,5 @@
-import { ChatData, Device, Printer, PrintsUser } from '../types'
-import { db, myFirebase } from '../firebase/firebase'
+import { ChatData, Device, Printer, PrintsUser } from '../../types'
+import { db, myFirebase } from '../../firebase/firebase'
 import { FirebaseError } from 'firebase'
 import { Observable } from 'rxjs'
 
