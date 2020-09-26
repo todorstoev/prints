@@ -1,7 +1,37 @@
 import { ChatData, Device, Printer, PrintsUser } from '../../types'
-import { db, myFirebase } from '../../firebase/firebase'
+import { db, myFirebase } from './firebase'
 import { FirebaseError } from 'firebase'
 import { Observable } from 'rxjs'
+import { fbErrorMessages } from '../helpers'
+
+export const registerWithEmail = async (
+    email: string,
+    password: string
+): Promise<PrintsUser> => {
+    return new Promise((resolve, reject) => {
+        myFirebase
+            .auth()
+            .createUserWithEmailAndPassword(email, password)
+            .then(res => {
+                const userToInsert: PrintsUser = {
+                    email,
+                    firstName: '',
+                    lastName: '',
+                    uid: '',
+                    username: '',
+                    pic: './assets/user-unknown-com.svg',
+                    devices: [],
+                }
+
+                userToInsert.uid = res.user?.uid
+
+                resolve(userToInsert)
+            })
+            .catch(e => {
+                reject(fbErrorMessages(e))
+            })
+    })
+}
 
 export const getDevices = (): Observable<Device[]> => {
     return new Observable<Device[]>(subscriber => {
@@ -34,12 +64,12 @@ export const getPrinters = (): Promise<Printer[]> => {
 
 export const saveUserToDb = (
     user: PrintsUser
-): Promise<boolean | FirebaseError> => {
+): Promise<PrintsUser | FirebaseError> => {
     return new Promise((resolve, reject) => {
         db.collection('users')
             .add(user)
             .then(_snapshot => {
-                resolve(true)
+                resolve(user)
             })
             .catch(e => {
                 reject(e)

@@ -5,10 +5,12 @@ import { ErrorsState } from '../../../types'
 const initialState: ErrorsState = { authError: null, devicesError: null }
 
 export const errorReducer = createReducer<ErrorsState, RootAction>(initialState)
-    .handleAction(actions.recieveAuthError, (state, action) => ({
-        ...state,
-        authError: action.payload,
-    }))
+    .handleAction(actions.recieveAuthError, (state, action) => {
+        return {
+            ...state,
+            authError: action.payload,
+        }
+    })
     .handleAction(actions.recieveDeviceError, (state, action) => ({
         ...state,
         devicesError: action.payload,

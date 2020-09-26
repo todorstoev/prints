@@ -4,10 +4,13 @@ import { Input, Label, Checkbox } from '@rebass/forms'
 
 import { connect, ConnectedProps } from 'react-redux'
 
+import { RootState } from '../types'
+
+import { Loader } from './Loader'
+
 import { loginUser, loginGoogle } from '../shared/store/epics'
 
-import { RootState } from '../types'
-import { Loader } from './Loader'
+import { actions } from '../shared/store'
 
 const mapState = (state: RootState) => {
     return {
@@ -52,7 +55,9 @@ const SignIn: React.FC<Props> = ({
         setRemember(e.currentTarget.checked)
     }
 
-    const handleSubmit = () => loginUser(email, password, remember)
+    const handleSubmit = () => {
+        loginUser(email, password, remember)
+    }
 
     return (
         <React.Fragment>

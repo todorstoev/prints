@@ -23,7 +23,10 @@ export const receiveLogin = createAction(LOGIN_SUCCESS)<PrintsUser>()
 
 export const cancelLogin = createAction(LOGIN_CANCEL)()
 
-export const requestRegister = createAction(REGISTER_REQUEST)()
+export const requestRegister = createAction(REGISTER_REQUEST)<{
+    email: string
+    password: string
+}>()
 
 export const recieveRegister = createAction(REGISTER_SUCCESS)<PrintsUser>()
 

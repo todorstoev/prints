@@ -1,40 +1,26 @@
 import React, { useState } from 'react'
-import { connect, ConnectedProps } from 'react-redux'
-import { registerUser } from '../shared/store/epics'
+import { useSelector, useDispatch } from 'react-redux'
+
 import { Heading, Box, Text, Button, Flex, Link } from 'rebass'
 import { Input, Label } from '@rebass/forms'
 import { RootState } from '../types'
 import { Loader } from './Loader'
+import { actions } from '../shared/store'
 
-const mapState = (state: RootState) => {
-    return {
-        isLoggingIn: state.auth.isLoggingIn,
-        error: state.errors.authError,
-        isAuthenticated: state.auth.isAuthenticated,
-    }
-}
-
-const mapDispatch = {
-    registerUser,
-}
-
-const connector = connect(mapState, mapDispatch)
-
-type PropsFromRedux = ConnectedProps<typeof connector>
-
-type Props = PropsFromRedux & {
+type Props = {
     setIsLogin: (login: boolean) => void
 }
 
-const SignUp: React.FC<Props> = ({
-    registerUser,
-    error,
-    setIsLogin,
-
-    isLoggingIn,
-}) => {
+const SignUp: React.FC<Props> = ({ setIsLogin }) => {
     const [email, setEmail] = useState<string>('')
     const [password, setPassword] = useState<string>('')
+
+    const dispatch = useDispatch()
+    const { error, isLoggingIn } = useSelector((state: RootState) => ({
+        isLoggingIn: state.auth.isLoggingIn,
+        error: state.errors.authError,
+        isAuthenticated: state.auth.isAuthenticated,
+    }))
 
     const handleEmailChange = ({
         currentTarget,
@@ -44,7 +30,9 @@ const SignUp: React.FC<Props> = ({
         currentTarget,
     }: React.FormEvent<HTMLInputElement>) => setPassword(currentTarget.value)
 
-    const handleSubmit = () => registerUser(email, password)
+    const handleSubmit = () =>
+        dispatch(actions.requestRegister({ email, password }))
+
     return (
         <React.Fragment>
             {isLoggingIn && (
@@ -140,4 +128,4 @@ const SignUp: React.FC<Props> = ({
     )
 }
 
-export default connector(SignUp)
+export default SignUp

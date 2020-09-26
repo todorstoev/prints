@@ -11,7 +11,7 @@
         "@types/react-dom": "16.9.3",
         "@types/react-leaflet-markercluster": "^2.0.0",
         "emotion-theming": "^10.0.27",
-        "firebase": "^7.5.2",
+        "firebase": "^7.21.0",
         "leaflet": "^1.6.0",
         "react": "^16.13.1",
         "react-dom": "^16.13.1",

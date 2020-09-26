@@ -3,15 +3,17 @@ import {
     googleProvider,
     localPersistance,
     nonePersistance,
-} from '../../../firebase/firebase'
+} from '../../services/firebase'
 
 import { Dispatch } from 'redux'
 
 import { FirebaseError, User } from 'firebase'
 
-import { Device, PrintsUser } from '../../../types'
+import { Device, PrintsUser, RootState } from '../../../types'
 
 import { remapUser, fbErrorMessages } from '../../helpers'
+
+import * as API from '../../services'
 
 import {
     getUserFromDb,
@@ -26,47 +28,11 @@ import {
     getDevicesFromLogin,
 } from '../actions'
 
-import { actions } from '..'
-
-export const registerUser = (email: string, password: string) => (
-    dispatch: Dispatch
-): void => {
-    dispatch(actions.requestRegister())
-    myFirebase
-        .auth()
-        .createUserWithEmailAndPassword(email, password)
-        .then(user => {
-            const userToInsert: PrintsUser = {
-                email,
-                firstName: '',
-                lastName: '',
-                uid: (user.user as User).uid,
-                username: '',
-                pic: './assets/user-unknown-com.svg',
-                devices: [],
-            }
-            saveUserToDb(userToInsert)
-                .then(res => {
-                    dispatch(actions.clearAuthErrors())
-                    if (res)
-                        dispatch(
-                            actions.recieveRegister({
-                                ...userToInsert,
-                                refreshToken: (user.user as User).refreshToken,
-                            } as PrintsUser)
-                        )
-                })
-                .catch(e => {
-                    dispatch(actions.cancelRegister())
-                    dispatch(recieveAuthError({ code: 'fbError', message: e }))
-                })
-        })
-        .catch((e: FirebaseError) => {
-            const error: string = fbErrorMessages(e)
-            dispatch(actions.cancelRegister())
-            dispatch(recieveAuthError({ code: 'fbError', message: error }))
-        })
-}
+import { actions, RootAction } from '..'
+import { from, of } from 'rxjs'
+import { catchError, filter, mergeMap } from 'rxjs/operators'
+import { Epic } from 'redux-observable'
+import { isActionOf } from 'typesafe-actions'
 
 export const loginGoogle = () => (dispatch: Dispatch) => {
     dispatch(actions.requestLogin())
@@ -189,3 +155,39 @@ export const updateUser = (user: PrintsUser, newData: any) => async (
         throw e
     }
 }
+
+export const registerUserEpic: Epic<
+    RootAction,
+    RootAction,
+    RootState,
+    typeof API
+> = (action$, _state$, { registerWithEmail, saveUserToDb }) =>
+    action$.pipe(
+        filter(isActionOf(actions.requestRegister)),
+
+        mergeMap(action => {
+            const { email, password } = action.payload
+
+            return from(registerWithEmail(email, password)).pipe(
+                mergeMap(user => {
+                    return from(saveUserToDb(user)).pipe(
+                        mergeMap(res => {
+                            return of(
+                                actions.recieveRegister(res as PrintsUser),
+                                actions.clearAuthErrors()
+                            )
+                        })
+                    )
+                }),
+                catchError((error: string) => {
+                    return of(
+                        actions.recieveAuthError({
+                            code: 'FbError',
+                            message: error,
+                        }),
+                        actions.cancelRegister()
+                    )
+                })
+            )
+        })
+    )
