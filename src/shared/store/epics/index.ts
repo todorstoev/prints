@@ -1,7 +1,17 @@
 import { combineEpics } from 'redux-observable'
-import { registerUserEpic } from './auth'
+import {
+    registerUserEpic,
+    loginSSOEpic,
+    loginUserEpic,
+    logoutUserEpic,
+} from './auth'
 
 export * from './auth'
 export * from './devices'
 
-export default combineEpics(registerUserEpic)
+export default combineEpics(
+    registerUserEpic,
+    loginSSOEpic,
+    loginUserEpic,
+    logoutUserEpic
+)

@@ -1,35 +1,105 @@
 import { ChatData, Device, Printer, PrintsUser } from '../../types'
-import { db, myFirebase } from './firebase'
-import { FirebaseError } from 'firebase'
+import {
+    db,
+    googleProvider,
+    myFirebase,
+    localPersistance,
+    nonePersistance,
+} from './firebase'
+import { FirebaseError, User } from 'firebase'
 import { Observable } from 'rxjs'
-import { fbErrorMessages } from '../helpers'
+import { fbErrorMessages, remapUser } from '../helpers'
 
 export const registerWithEmail = async (
     email: string,
     password: string
 ): Promise<PrintsUser> => {
     return new Promise((resolve, reject) => {
+        const userToInsert: PrintsUser = {
+            email,
+            firstName: '',
+            lastName: '',
+            uid: '',
+            username: '',
+            pic: './assets/user-unknown-com.svg',
+            devices: [],
+        }
+
         myFirebase
             .auth()
             .createUserWithEmailAndPassword(email, password)
             .then(res => {
-                const userToInsert: PrintsUser = {
-                    email,
-                    firstName: '',
-                    lastName: '',
-                    uid: '',
-                    username: '',
-                    pic: './assets/user-unknown-com.svg',
-                    devices: [],
-                }
-
                 userToInsert.uid = res.user?.uid
 
-                resolve(userToInsert)
+                return saveUserToDb(userToInsert)
             })
-            .catch(e => {
-                reject(fbErrorMessages(e))
+            .then(res => {
+                if (res) resolve(userToInsert)
             })
+            .catch(e => reject(fbErrorMessages(e)))
+    })
+}
+
+export const loginWithGoogleStart = (): boolean => {
+    sessionStorage.setItem('3dreact:sso', 'logging')
+    myFirebase.auth().signInWithRedirect(googleProvider)
+
+    return true
+}
+
+export const loginWithSsoFinish = (): Promise<PrintsUser> => {
+    return new Promise((resolve, reject) => {
+        myFirebase
+            .auth()
+            .getRedirectResult()
+            .then(res => {
+                const userToInsert = remapUser(res)
+
+                if (res.additionalUserInfo?.isNewUser) {
+                    saveUserToDb(userToInsert)
+                        .then(() => resolve(userToInsert))
+                        .catch(e => reject(fbErrorMessages(e)))
+                } else {
+                    resolve(userToInsert)
+                }
+            })
+            .catch(e => reject(fbErrorMessages(e)))
+    })
+}
+
+export const loginWithEmail = (
+    email: string,
+    password: string,
+    remember: boolean
+): Promise<PrintsUser> => {
+    return new Promise((resolve, reject) => {
+        myFirebase
+            .auth()
+            .setPersistence(remember ? localPersistance : nonePersistance)
+            .then(() =>
+                myFirebase.auth().signInWithEmailAndPassword(email, password)
+            )
+            .then(res => {
+                const uid = (res.user as User).uid
+
+                return getUserFromDb(uid)
+            })
+            .then(res => {
+                resolve(res)
+            })
+            .catch(e => reject(fbErrorMessages(e)))
+    })
+}
+
+export const logoutUser = (): Promise<boolean> => {
+    return new Promise((resolve, reject) => {
+        myFirebase
+            .auth()
+            .signOut()
+            .then(() => {
+                resolve(true)
+            })
+            .catch(e => reject(fbErrorMessages(e)))
     })
 }
 
@@ -64,12 +134,12 @@ export const getPrinters = (): Promise<Printer[]> => {
 
 export const saveUserToDb = (
     user: PrintsUser
-): Promise<PrintsUser | FirebaseError> => {
+): Promise<boolean | FirebaseError> => {
     return new Promise((resolve, reject) => {
         db.collection('users')
             .add(user)
             .then(_snapshot => {
-                resolve(user)
+                resolve(true)
             })
             .catch(e => {
                 reject(e)

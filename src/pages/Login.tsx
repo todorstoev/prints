@@ -1,32 +1,15 @@
 import React, { useState } from 'react'
-import { connect, ConnectedProps } from 'react-redux'
 import { Redirect } from 'react-router-dom'
-import { loginUser, loginGoogle } from '../shared/store/epics'
-import { RootState } from '../types'
-import SignUp from '../components/Signup'
-import SignIn from '../components/Signin'
+import { useSelector } from 'react-redux'
 import { Box } from 'rebass'
-
 import { useSpring, animated as a } from 'react-spring'
 
-const mapState = (state: RootState) => {
-    return {
-        isLoggingIn: state.auth.isLoggingIn,
-        isAuthenticated: state.auth.isAuthenticated,
-    }
-}
+import { RootState } from '../types'
 
-const mapDispatch = {
-    loginUser,
+import SignUp from '../components/Signup'
+import SignIn from '../components/Signin'
 
-    loginGoogle,
-}
-
-const connector = connect(mapState, mapDispatch)
-
-export type PropsFromRedux = ConnectedProps<typeof connector>
-
-const Login: React.FC<PropsFromRedux> = ({ isAuthenticated }) => {
+const Login: React.FC = () => {
     const [isLogin, setIsLogin] = useState<boolean>(true)
 
     const { transform, opacity } = useSpring({
@@ -34,6 +17,8 @@ const Login: React.FC<PropsFromRedux> = ({ isAuthenticated }) => {
         transform: `perspective(600px) rotateX(${!isLogin ? 180 : 0}deg)`,
         config: { mass: 5, tension: 500, friction: 80 },
     })
+
+    const { isAuthenticated } = useSelector((state: RootState) => state.auth)
 
     if (isAuthenticated) return <Redirect to="/" />
     return (
@@ -68,4 +53,4 @@ const Login: React.FC<PropsFromRedux> = ({ isAuthenticated }) => {
     )
 }
 
-export default connector(Login)
+export default Login

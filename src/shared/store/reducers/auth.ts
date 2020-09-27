@@ -22,6 +22,16 @@ const initialState: AuthState = {
 }
 
 export const authReducer = createReducer<AuthState, RootAction>(initialState)
+    .handleAction(actions.requestSsoLogin, state => ({
+        ...state,
+        isLoggingIn: true,
+    }))
+    .handleAction(actions.recieveSsoLogin, (state, action) => ({
+        ...state,
+        isLoggingIn: false,
+        isAuthenticated: true,
+        user: action.payload,
+    }))
     .handleAction(actions.requestLogin, state => ({
         ...state,
         isLoggingIn: true,

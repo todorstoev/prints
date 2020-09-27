@@ -20,7 +20,7 @@ const MessagesHub: React.FC<PropsFromRedux> = ({ user }) => {
     const [userChats, setUserChats] = useState<ChatData[]>([])
 
     const store = useStore<RootState>()
-    debugger
+
     useEffect(() => {
         const observable: Observable<ChatData[]> = getUserChats(user)
 

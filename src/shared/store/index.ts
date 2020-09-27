@@ -13,7 +13,7 @@ import rootReducer from './reducers'
 
 import * as API from '../services'
 
-import Epics, { verifyAuth } from './epics'
+import rootEpic, { verifyAuth } from './epics'
 
 export type RootAction = ActionType<typeof actions>
 
@@ -27,10 +27,15 @@ const configureStore = (initialState?: RootState) => {
         initialState,
         applyMiddleware(epicMiddleware, thunkMiddleware, logger)
     )
+    
+    epicMiddleware.run(rootEpic)
 
-    epicMiddleware.run(Epics)
-
-    store.dispatch(verifyAuth())
+    if (sessionStorage.getItem('3dreact:sso')) {
+        store.dispatch(actions.requestSsoLogin())
+        sessionStorage.removeItem('3dreact:sso')
+    } else {
+        store.dispatch(verifyAuth())
+    }
 
     return store
 }

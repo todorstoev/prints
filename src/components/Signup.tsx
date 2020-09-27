@@ -16,6 +16,7 @@ const SignUp: React.FC<Props> = ({ setIsLogin }) => {
     const [password, setPassword] = useState<string>('')
 
     const dispatch = useDispatch()
+
     const { error, isLoggingIn } = useSelector((state: RootState) => ({
         isLoggingIn: state.auth.isLoggingIn,
         error: state.errors.authError,
@@ -114,6 +115,7 @@ const SignUp: React.FC<Props> = ({ setIsLogin }) => {
                                         }}
                                         onClick={() => {
                                             setIsLogin(true)
+                                            dispatch(actions.clearAuthErrors())
                                         }}
                                     >
                                         Log In

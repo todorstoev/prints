@@ -72,7 +72,7 @@ const Navigation: React.FC<Props> = ({ user, location, isAuthenticated }) => (
                 </Link>
             )}
 
-            {location.pathname !== '/' && (
+            {location.pathname !== '/' && isAuthenticated && (
                 <Link to={'/'}>
                     <Box
                         color="primary"

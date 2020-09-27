@@ -1,47 +1,33 @@
 import React, { useState } from 'react'
+
 import { Button, Box, Heading, Text, Flex, Link } from 'rebass'
+
 import { Input, Label, Checkbox } from '@rebass/forms'
 
-import { connect, ConnectedProps } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 
 import { RootState } from '../types'
 
+import { loginWithGoogleStart } from '../shared/services'
+
 import { Loader } from './Loader'
-
-import { loginUser, loginGoogle } from '../shared/store/epics'
-
 import { actions } from '../shared/store'
 
-const mapState = (state: RootState) => {
-    return {
-        isLoggingIn: state.auth.isLoggingIn,
-        error: state.errors.authError,
-    }
-}
-
-const mapDispatch = {
-    loginUser,
-    loginGoogle,
-}
-
-const connector = connect(mapState, mapDispatch)
-
-type PropsFromRedux = ConnectedProps<typeof connector>
-
-type Props = PropsFromRedux & {
+type Props = {
     setIsLogin: (login: boolean) => void
 }
 
-const SignIn: React.FC<Props> = ({
-    error,
-    loginUser,
-    setIsLogin,
-    loginGoogle,
-    isLoggingIn,
-}) => {
+const SignIn: React.FC<Props> = ({ setIsLogin }) => {
     const [email, setEmail] = useState<string>('')
     const [password, setPassword] = useState<string>('')
     const [remember, setRemember] = useState<boolean>(true)
+
+    const { isLoggingIn, error } = useSelector((state: RootState) => ({
+        isLoggingIn: state.auth.isLoggingIn,
+        error: state.errors.authError,
+    }))
+
+    const dispatch = useDispatch()
 
     const handleEmailChange = ({
         currentTarget,
@@ -55,9 +41,8 @@ const SignIn: React.FC<Props> = ({
         setRemember(e.currentTarget.checked)
     }
 
-    const handleSubmit = () => {
-        loginUser(email, password, remember)
-    }
+    const handleSubmit = () =>
+        dispatch(actions.requestLogin({ email, password, remember }))
 
     return (
         <React.Fragment>
@@ -148,9 +133,7 @@ const SignIn: React.FC<Props> = ({
                                     width={[1 / 1]}
                                     variant="primary"
                                     backgroundColor={'#cf4332'}
-                                    onClick={() => {
-                                        loginGoogle()
-                                    }}
+                                    onClick={() => loginWithGoogleStart()}
                                 >
                                     Login with Google
                                 </Button>
@@ -170,6 +153,7 @@ const SignIn: React.FC<Props> = ({
                                     }}
                                     onClick={() => {
                                         setIsLogin(false)
+                                        dispatch(actions.clearAuthErrors())
                                     }}
                                 >
                                     Register
@@ -183,4 +167,4 @@ const SignIn: React.FC<Props> = ({
     )
 }
 
-export default connector(SignIn)
+export default SignIn

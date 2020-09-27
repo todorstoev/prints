@@ -2,6 +2,9 @@ export const LOGIN_REQUEST = '@@auth/LOGIN_REQUEST'
 export const LOGIN_SUCCESS = '@@auth/LOGIN_SUCCESS'
 export const LOGIN_CANCEL = '@@auth/LOGIN_CANCEL'
 
+export const SSO_LOGIN_REQUEST = '@@auth/SSO_LOGIN_REQUEST'
+export const SSO_LOGIN_SUCCESS = '@@auth/SSO_LOGIN_SUCCESS'
+
 export const REGISTER_REQUEST = '@@auth/REGISTER_REQUEST'
 export const REGISTER_SUCCESS = '@@auth/REGISTER_SUCCESS'
 export const REGISTER_CANCEL = '@@auth/REGISTER_CANCEL'

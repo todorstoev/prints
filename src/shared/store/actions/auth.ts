@@ -15,13 +15,23 @@ import {
     VERIFY_SUCCESS,
     UPDATE_USER_REQUEST,
     UPDATE_USER_SUCCESS,
+    SSO_LOGIN_REQUEST,
+    SSO_LOGIN_SUCCESS,
 } from '../constants'
 
-export const requestLogin = createAction(LOGIN_REQUEST)()
+export const requestLogin = createAction(LOGIN_REQUEST)<{
+    email: string
+    password: string
+    remember: boolean
+}>()
 
 export const receiveLogin = createAction(LOGIN_SUCCESS)<PrintsUser>()
 
 export const cancelLogin = createAction(LOGIN_CANCEL)()
+
+export const requestSsoLogin = createAction(SSO_LOGIN_REQUEST)()
+
+export const recieveSsoLogin = createAction(SSO_LOGIN_SUCCESS)<PrintsUser>()
 
 export const requestRegister = createAction(REGISTER_REQUEST)<{
     email: string
