@@ -91,6 +91,18 @@ export const loginWithEmail = (
     })
 }
 
+export const getCurrentUser = (): Promise<firebase.User> => {
+    return new Promise((resolve, reject) => {
+        var user = myFirebase.auth().currentUser
+
+        if (user) {
+            resolve(user)
+        } else {
+            reject(null)
+        }
+    })
+}
+
 export const logoutUser = (): Promise<boolean> => {
     return new Promise((resolve, reject) => {
         myFirebase
@@ -178,6 +190,27 @@ export const updateUserDB = (user: PrintsUser): Promise<any> => {
             .catch(e => {
                 reject(e)
             })
+    })
+}
+
+export const updateUser = (
+    user: PrintsUser,
+    newData: any
+): Promise<PrintsUser> => {
+    return new Promise((resolve, reject) => {
+        if (newData.email === user.email) reject(null)
+
+        updateEmail(newData.email)
+            .then(() => {
+                user.email = newData.email
+                user.firstName = newData.firstName
+                user.lastName = newData.lastName
+                user.username = newData.username
+
+                return updateUserDB(user)
+            })
+            .then(() => resolve(user))
+            .catch(e => reject(fbErrorMessages(e)))
     })
 }
 

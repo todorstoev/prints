@@ -1,5 +1,5 @@
 import { applyMiddleware, createStore } from 'redux'
-import thunkMiddleware from 'redux-thunk'
+
 import { createEpicMiddleware } from 'redux-observable'
 import { logger } from 'redux-logger'
 
@@ -13,7 +13,7 @@ import rootReducer from './reducers'
 
 import * as API from '../services'
 
-import rootEpic, { verifyAuth } from './epics'
+import { rootEpics } from './epics'
 
 export type RootAction = ActionType<typeof actions>
 
@@ -25,16 +25,16 @@ const configureStore = (initialState?: RootState) => {
     const store = createStore(
         rootReducer,
         initialState,
-        applyMiddleware(epicMiddleware, thunkMiddleware, logger)
+        applyMiddleware(epicMiddleware, logger)
     )
-    
-    epicMiddleware.run(rootEpic)
+
+    epicMiddleware.run(rootEpics)
 
     if (sessionStorage.getItem('3dreact:sso')) {
         store.dispatch(actions.requestSsoLogin())
         sessionStorage.removeItem('3dreact:sso')
     } else {
-        store.dispatch(verifyAuth())
+        store.dispatch(actions.verifyRequest())
     }
 
     return store

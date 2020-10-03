@@ -1,6 +1,6 @@
 import React from 'react'
 import { Route, Switch, useLocation } from 'react-router-dom'
-import { connect, ConnectedProps } from 'react-redux'
+import { useSelector } from 'react-redux'
 import { Box } from 'rebass'
 
 import { useTransition, animated } from 'react-spring'
@@ -16,23 +16,7 @@ import Messages from './pages/Messages'
 import { RootState } from './types'
 import { NoMatch } from './pages/404'
 
-const mapState = (state: RootState) => {
-    return {
-        isAuthenticated: state.auth.isAuthenticated,
-        isVerifying: state.auth.isVerifying,
-        user: state.auth.user,
-    }
-}
-
-const connector = connect(mapState)
-
-type PropsFromRedux = ConnectedProps<typeof connector>
-
-const App: React.FC<PropsFromRedux> = ({
-    isAuthenticated,
-    isVerifying,
-    user,
-}) => {
+const App: React.FC = () => {
     const location = useLocation()
 
     const transitions = useTransition(location, location => location.pathname, {
@@ -40,6 +24,13 @@ const App: React.FC<PropsFromRedux> = ({
         enter: { opacity: 1, transform: 'translate3d(0%,0,0)' },
         leave: { opacity: 0, transform: 'translate3d(-2%,0,0)' },
     })
+
+    const { isAuthenticated, isVerifying } = useSelector(
+        (state: RootState) => ({
+            isAuthenticated: state.auth.isAuthenticated,
+            isVerifying: state.auth.isVerifying,
+        })
+    )
 
     return (
         <Box
@@ -90,4 +81,4 @@ const App: React.FC<PropsFromRedux> = ({
     )
 }
 
-export default connector(App)
+export default App

@@ -8,7 +8,6 @@ const mapState = (state: RootState) => {
     return {
         user: state.auth.user,
         isAuthenticated: state.auth.isAuthenticated,
-        isVerifying: state.auth.isVerifying,
     }
 }
 

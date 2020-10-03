@@ -9,7 +9,6 @@ import { RootState } from '../types'
 const mapState = (state: RootState) => {
     return {
         isAuthenticated: state.auth.isAuthenticated,
-        isVerifying: state.auth.isVerifying,
         user: state.auth.user,
     }
 }

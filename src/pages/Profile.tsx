@@ -1,5 +1,5 @@
 import React, { useState, useRef, RefObject, MutableRefObject } from 'react'
-import { connect, ConnectedProps } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 
 import { Flex, Box, Heading, Text, Card, Image, Button } from 'rebass'
 import { useTheme } from 'emotion-theming'
@@ -13,39 +13,28 @@ import {
 
 import { useForm } from 'react-hook-form'
 
-import { RootState, AuthState, Device, DeviceState } from '../types'
+import { RootState, Device } from '../types'
 
-import { removeDevice, updateUser } from '../shared/store/epics'
+import { removeDevice } from '../shared/store/epics'
 
 import AddPrinter from '../components/AddPrinter'
 import Modal from '../components/Modal'
 import { Input } from '@rebass/forms'
 import { UserControl } from '../components/UserControl'
 import { NotificationsHub } from '../components/NotificationsHub'
-import { fbErrorMessages } from '../shared/helpers'
+import { actions } from '../shared/store'
 
-const mapState = (state: RootState): AuthState & DeviceState => {
-    return { ...state.auth, ...state.devices }
-}
+const Profile: React.FC = () => {
+    const { user, userDevices } = useSelector((state: RootState) => ({
+        ...state.auth,
+        ...state.devices,
+    }))
 
-const mapDispatch = {
-    removeDevice,
-    updateUser,
-}
-
-const connector = connect(mapState, mapDispatch)
-
-type PropsFromRedux = ConnectedProps<typeof connector>
-
-const Profile: React.FC<PropsFromRedux> = ({
-    user,
-    userDevices,
-    removeDevice,
-    updateUser,
-}) => {
     const [showAddModal, setShowAddModal] = useState<boolean>(false)
 
     const [edit, setEdit] = useState<boolean>(false)
+
+    const dispatch = useDispatch()
 
     const { handleSubmit, register, errors } = useForm()
 
@@ -95,16 +84,8 @@ const Profile: React.FC<PropsFromRedux> = ({
         [0, 0.4, 0.6, 0.8]
     )
 
-    const onSubmit = async (data: any, e: any) => {
-        try {
-            await updateUser(user, data)
-            ;(msgRef as MutableRefObject<any>).current(
-                `User ${user.email} updated`
-            )
-            setEdit(false)
-        } catch (e) {
-            ;(msgRef as MutableRefObject<any>).current(`${fbErrorMessages(e)}`)
-        }
+    const onSubmit = (data: any) => {
+        dispatch(actions.updateUserRequest({ user, data }))
     }
 
     for (const error in errors) {
@@ -441,4 +422,4 @@ const Profile: React.FC<PropsFromRedux> = ({
     )
 }
 
-export default connector(Profile)
+export default Profile
