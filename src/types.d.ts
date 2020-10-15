@@ -33,6 +33,7 @@ export type ChatData = {
 type Message = {
     message: string
     author: string
+    time: string
 }
 
 export type Coords = {

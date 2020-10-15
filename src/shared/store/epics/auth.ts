@@ -9,22 +9,6 @@ import * as API from '../../services'
 
 import { actions, RootAction } from '..'
 
-// export const verifyAuth: any = () => (dispatch: Dispatch) => {
-//     dispatch(actions.verifyRequest())
-
-//     myFirebase.auth().onAuthStateChanged(async user => {
-//         if (user !== null) {
-//             const userToInsert: PrintsUser = await getUserFromDb(user.uid)
-
-//             dispatch(actions.receiveLogin(userToInsert))
-
-//             dispatch(getDevicesFromLogin(userToInsert.devices as Device[]))
-//         }
-
-//         dispatch(actions.verifySuccess())
-//     })
-// }
-
 // export const updateUser = (user: PrintsUser, newData: any) => async (
 //     dispatch: Dispatch
 // ) => {
@@ -56,9 +40,13 @@ export const updateUserEpic: Epic<
         filter(isActionOf(actions.updateUserRequest)),
         mergeMap(action => {
             const { user, data } = action.payload
-
+            debugger
             return from(updateUser(user, data)).pipe(
-                mergeMap(res => of(actions.updateUserSuccess(res)))
+                mergeMap(res => of(actions.updateUserSuccess(res))),
+                catchError(e => {
+                    debugger
+                    return of(actions.recieveAuthError(e))
+                })
             )
         })
     )
@@ -68,15 +56,24 @@ export const verifyRequestEpic: Epic<
     RootAction,
     RootState,
     typeof API
-> = (action$, _state$, { getCurrentUser }) =>
+> = (action$, _state$, { getCurrentUser, getUserFromDb }) =>
     action$.pipe(
         filter(isActionOf(actions.verifyRequest)),
 
         mergeMap(() => {
-            return from(getCurrentUser()).pipe(
-                mapTo(actions.verifySuccess()),
-                catchError(() => {
-                    return of(actions.receiveLogout())
+            return getCurrentUser().pipe(
+                mergeMap(user => {
+                    return from(getUserFromDb(user.uid)).pipe(
+                        mergeMap(userFromDb =>
+                            of(
+                                actions.receiveLogin(userFromDb),
+                                actions.verifySuccess()
+                            )
+                        )
+                    )
+                }),
+                catchError(e => {
+                    return of(actions.verifySuccess(), actions.receiveLogout())
                 })
             )
         })

@@ -1,6 +1,6 @@
 import { Device, PrintsUser } from '../../../types'
 import { Dispatch } from 'redux'
-import { updateUserDB } from '../../services'
+import { updatePrintsUserDB } from '../../services'
 
 import { actions } from '..'
 
@@ -16,7 +16,7 @@ export const addDevice: any = (
             devices: [...(user.devices as Device[]), device],
         }
 
-        updateUserDB(userWithDevice)
+        updatePrintsUserDB(userWithDevice)
             .then(res => {
                 if (res) {
                     dispatch(actions.successAddDevice(device))
@@ -40,7 +40,7 @@ export const removeDevice = (
 
     user.devices = userDevices
 
-    updateUserDB(user)
+    updatePrintsUserDB(user)
         .then(res => {
             if (res) dispatch(actions.successDeleteDevice(userDevices))
         })

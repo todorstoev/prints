@@ -91,15 +91,15 @@ export const loginWithEmail = (
     })
 }
 
-export const getCurrentUser = (): Promise<firebase.User> => {
-    return new Promise((resolve, reject) => {
-        var user = myFirebase.auth().currentUser
-
-        if (user) {
-            resolve(user)
-        } else {
-            reject(null)
-        }
+export const getCurrentUser = (): Observable<firebase.User> => {
+    return new Observable(subscriber => {
+        myFirebase.auth().onAuthStateChanged({
+            next: user => {
+                subscriber.next(user)
+            },
+            error: error => subscriber.error(error.message),
+            complete: () => subscriber.complete(),
+        })
     })
 }
 
@@ -175,7 +175,7 @@ export const getUserFromDb = (uid: string): Promise<any> => {
     })
 }
 
-export const updateUserDB = (user: PrintsUser): Promise<any> => {
+export const updatePrintsUserDB = (user: PrintsUser): Promise<any> => {
     return new Promise((resolve, reject) => {
         db.collection('users')
             .where('uid', '==', user.uid)
@@ -198,16 +198,19 @@ export const updateUser = (
     newData: any
 ): Promise<PrintsUser> => {
     return new Promise((resolve, reject) => {
-        if (newData.email === user.email) reject(null)
+        const updatedUser = {
+            ...user,
+            email: newData.email,
+            firstName: newData.firstName,
+            lastName: newData.lastName,
+            username: newData.username,
+        }
+
+        if (newData.email === user.email) return updatePrintsUserDB(updatedUser)
 
         updateEmail(newData.email)
             .then(() => {
-                user.email = newData.email
-                user.firstName = newData.firstName
-                user.lastName = newData.lastName
-                user.username = newData.username
-
-                return updateUserDB(user)
+                return updatePrintsUserDB(user)
             })
             .then(() => resolve(user))
             .catch(e => reject(fbErrorMessages(e)))
