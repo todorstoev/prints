@@ -1,3 +1,10 @@
+export type RootState = {
+    auth: AuthState
+    errors: ErrorsState
+    devices: DeviceState
+    notifications: NotificationState
+}
+
 export type AuthState = {
     isLoggingIn: boolean
     isLoggingOut: boolean
@@ -7,10 +14,19 @@ export type AuthState = {
     user: PrintsUser
 }
 
-export type RootState = {
-    auth: AuthState
-    errors: ErrorsState
-    devices: DeviceState
+export interface ErrorsState {
+    devicesError?: PrintsGenericError | null
+    authError?: PrintsGenericError | null
+}
+
+export interface DeviceState {
+    userDevices: Device[]
+    allDevices: Device[]
+    isLoading: boolean
+}
+
+export interface NotificationState {
+    items: NotificationItem[]
 }
 
 export type PrintsUser = {
@@ -29,6 +45,8 @@ export type ChatData = {
     users: string[]
     recieverHasRed: boolean
 }
+
+type NotificationItem = { key: number; msg: string }
 
 type Message = {
     message: string
@@ -61,15 +79,4 @@ export interface Device extends Printer {
 export type PrintsGenericError = {
     message: string
     code: any
-}
-
-export interface ErrorsState {
-    devicesError?: PrintsGenericError | null
-    authError?: PrintsGenericError | null
-}
-
-export interface DeviceState {
-    userDevices: Device[]
-    allDevices: Device[]
-    isLoading: boolean
 }

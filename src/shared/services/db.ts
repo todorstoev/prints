@@ -175,7 +175,7 @@ export const getUserFromDb = (uid: string): Promise<any> => {
     })
 }
 
-export const updatePrintsUserDB = (user: PrintsUser): Promise<any> => {
+export const updatePrintsUserDB = (user: PrintsUser): Promise<PrintsUser> => {
     return new Promise((resolve, reject) => {
         db.collection('users')
             .where('uid', '==', user.uid)
@@ -185,7 +185,7 @@ export const updatePrintsUserDB = (user: PrintsUser): Promise<any> => {
                 return doc.ref.update(user)
             })
             .then(() => {
-                resolve(true)
+                resolve(user)
             })
             .catch(e => {
                 reject(e)
@@ -197,17 +197,17 @@ export const updateUser = (
     user: PrintsUser,
     newData: any
 ): Promise<PrintsUser> => {
+    const updatedUser = {
+        ...user,
+        email: newData.email,
+        firstName: newData.firstName,
+        lastName: newData.lastName,
+        username: newData.username,
+    }
+
+    if (newData.email === user.email) return updatePrintsUserDB(updatedUser)
+
     return new Promise((resolve, reject) => {
-        const updatedUser = {
-            ...user,
-            email: newData.email,
-            firstName: newData.firstName,
-            lastName: newData.lastName,
-            username: newData.username,
-        }
-
-        if (newData.email === user.email) return updatePrintsUserDB(updatedUser)
-
         updateEmail(newData.email)
             .then(() => {
                 return updatePrintsUserDB(user)

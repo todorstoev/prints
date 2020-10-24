@@ -15,6 +15,7 @@ import Messages from './pages/Messages'
 
 import { RootState } from './types'
 import { NoMatch } from './pages/404'
+import { NotificationsHub } from './components/NotificationsHub'
 
 const App: React.FC = () => {
     const location = useLocation()
@@ -77,6 +78,7 @@ const App: React.FC = () => {
                 </animated.div>
             ))}
             <Navigation location={location} />
+            <NotificationsHub />
         </Box>
     )
 }

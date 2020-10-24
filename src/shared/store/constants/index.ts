@@ -29,3 +29,6 @@ export const DEVICES_FROM_LOGIN = '@@devices/DEVICES_FROM_LOGIN'
 export const AUTH_ERROR = '@@errors/LOGIN_ERROR'
 export const CLEAR_AUTH_ERRORS = '@@errors/CLEAR_AUTH_ERRORS'
 export const DEVICE_ERROR = '@@errors/DEVICE_ERROR'
+
+export const ADD_NOTIFICATION = '@@notifcations/add'
+export const REMOVE_NOTIFICATION = '@@notifications/remove'

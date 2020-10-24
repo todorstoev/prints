@@ -9,76 +9,6 @@ import * as API from '../../services'
 
 import { actions, RootAction } from '..'
 
-// export const updateUser = (user: PrintsUser, newData: any) => async (
-//     dispatch: Dispatch
-// ) => {
-//     dispatch(actions.updateUserRequest())
-
-//     try {
-//         if (newData.email !== user.email) await updateEmail(newData.email)
-
-//         user.email = newData.email
-//         user.firstName = newData.firstName
-//         user.lastName = newData.lastName
-//         user.username = newData.username
-
-//         await updateUserDB(user)
-
-//         dispatch(actions.updateUserSuccess(user))
-//     } catch (e) {
-//         throw e
-//     }
-// }
-
-export const updateUserEpic: Epic<
-    RootAction,
-    RootAction,
-    RootState,
-    typeof API
-> = (action$, _state$, { updateUser }) =>
-    action$.pipe(
-        filter(isActionOf(actions.updateUserRequest)),
-        mergeMap(action => {
-            const { user, data } = action.payload
-            debugger
-            return from(updateUser(user, data)).pipe(
-                mergeMap(res => of(actions.updateUserSuccess(res))),
-                catchError(e => {
-                    debugger
-                    return of(actions.recieveAuthError(e))
-                })
-            )
-        })
-    )
-
-export const verifyRequestEpic: Epic<
-    RootAction,
-    RootAction,
-    RootState,
-    typeof API
-> = (action$, _state$, { getCurrentUser, getUserFromDb }) =>
-    action$.pipe(
-        filter(isActionOf(actions.verifyRequest)),
-
-        mergeMap(() => {
-            return getCurrentUser().pipe(
-                mergeMap(user => {
-                    return from(getUserFromDb(user.uid)).pipe(
-                        mergeMap(userFromDb =>
-                            of(
-                                actions.receiveLogin(userFromDb),
-                                actions.verifySuccess()
-                            )
-                        )
-                    )
-                }),
-                catchError(e => {
-                    return of(actions.verifySuccess(), actions.receiveLogout())
-                })
-            )
-        })
-    )
-
 export const registerUserEpic: Epic<
     RootAction,
     RootAction,
@@ -144,6 +74,34 @@ export const loginUserEpic: Epic<
         })
     )
 
+export const updateUserEpic: Epic<
+    RootAction,
+    RootAction,
+    RootState,
+    typeof API
+> = (action$, _state$, { updateUser }) =>
+    action$.pipe(
+        filter(isActionOf(actions.updateUserRequest)),
+        mergeMap(action => {
+            const { user, data } = action.payload
+
+            return from(updateUser(user, data)).pipe(
+                mergeMap(res => {
+                    return of(
+                        actions.updateUserSuccess(res),
+                        actions.addNotification('User Updated')
+                    )
+                }),
+                catchError(e => {
+                    return of(
+                        actions.recieveAuthError(e),
+                        actions.addNotification(e)
+                    )
+                })
+            )
+        })
+    )
+
 export const loginSSOEpic: Epic<
     RootAction,
     RootAction,
@@ -191,4 +149,32 @@ export const logoutUserEpic: Epic<
                 )
             )
         )
+    )
+
+export const verifyRequestEpic: Epic<
+    RootAction,
+    RootAction,
+    RootState,
+    typeof API
+> = (action$, _state$, { getCurrentUser, getUserFromDb }) =>
+    action$.pipe(
+        filter(isActionOf(actions.verifyRequest)),
+
+        mergeMap(() => {
+            return getCurrentUser().pipe(
+                mergeMap(user => {
+                    return from(getUserFromDb(user.uid)).pipe(
+                        mergeMap(userFromDb =>
+                            of(
+                                actions.receiveLogin(userFromDb),
+                                actions.verifySuccess()
+                            )
+                        )
+                    )
+                }),
+                catchError(e => {
+                    return of(actions.verifySuccess(), actions.receiveLogout())
+                })
+            )
+        })
     )

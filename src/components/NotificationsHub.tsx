@@ -1,57 +1,54 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import ReactDOM from 'react-dom'
+import { useSelector, useDispatch } from 'react-redux'
 
 import styled from '@emotion/styled'
 
 import { SpringConfig, useTransition, animated } from 'react-spring'
 import { X } from 'react-feather'
-
-let id = 0
+import { NotificationState, RootState } from '../types'
+import { actions } from '../shared/store'
 
 type Props = {
     config?: SpringConfig
     timeout?: number
 }
 
-type Msg = { key: number; msg: string }
-
 export const NotificationsHub: React.FC<Props> = ({
     config = { tension: 125, friction: 20, precision: 0.1 },
     timeout = 3000,
-    children,
 }: any) => {
     const [refMap] = useState(() => new WeakMap())
 
     const [cancelMap] = useState(() => new WeakMap())
 
-    const [items, setItems] = useState<Msg[]>([])
+    const { items } = useSelector<RootState, NotificationState>(
+        state => state.notifications
+    )
+
+    const dispatch = useDispatch()
 
     const transitions = useTransition(items, item => item.key, {
         from: { opacity: 0, height: 0, life: '100%' },
         enter: (item: any) => async (next: any) =>
-            await next({ opacity: 1, height: refMap.get(item).offsetHeight }),
+            await next({
+                opacity: 1,
+                height: refMap.get(item) ? refMap.get(item).offsetHeight : 0,
+            }),
         leave: (item: any) => async (next: any, cancel: any) => {
             cancelMap.set(item, cancel)
             await next({ life: '0%' })
             await next({ opacity: 0 })
             await next({ height: 0 })
         },
-        onRest: (item: any) =>
-            setItems(state => state.filter(i => i.key !== item.key)),
-        config: (item: any, state: any) =>
+        onRest: (item: any) => {
+            dispatch(actions.removeNotification(item.key))
+        },
+        config: (_item: any, state: any) =>
             state === 'leave'
                 ? [{ duration: timeout }, config, config]
                 : config,
     } as any)
-
-    useEffect(
-        () =>
-            void children((msg: any) => {
-                setItems(prevState => {
-                    return [...prevState, { key: id++, msg }]
-                })
-            })
-    )
 
     return ReactDOM.createPortal(
         <Container>

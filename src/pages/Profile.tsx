@@ -1,4 +1,4 @@
-import React, { useState, useRef, RefObject, MutableRefObject } from 'react'
+import React, { useState, useRef, RefObject, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { Flex, Box, Heading, Text, Card, Image, Button } from 'rebass'
@@ -21,7 +21,6 @@ import AddPrinter from '../components/AddPrinter'
 import Modal from '../components/Modal'
 import { Input } from '@rebass/forms'
 import { UserControl } from '../components/UserControl'
-import { NotificationsHub } from '../components/NotificationsHub'
 import { actions } from '../shared/store'
 
 const Profile: React.FC = () => {
@@ -47,8 +46,6 @@ const Profile: React.FC = () => {
     const emailTrsRef = useRef() as RefObject<ReactSpringHook>
 
     const sbmBtnTrRef = useRef() as RefObject<ReactSpringHook>
-
-    const msgRef = useRef(null)
 
     const nameTrs = useTransition(edit, null, {
         initial: null,
@@ -77,6 +74,14 @@ const Profile: React.FC = () => {
         ref: emailTrsRef,
     })
 
+    useEffect(() => {
+        if (errors) {
+            for (const error in errors) {
+                dispatch(actions.addNotification(errors[`${error}`].message))
+            }
+        }
+    }, [errors])
+
     useChain(
         edit
             ? [nameTrsRef, unameTrsRef, emailTrsRef, sbmBtnTrRef]
@@ -86,14 +91,6 @@ const Profile: React.FC = () => {
 
     const onSubmit = (data: any) => {
         dispatch(actions.updateUserRequest({ user, data }))
-    }
-
-    for (const error in errors) {
-        if (errors[`${error}`].message) {
-            ;(msgRef as MutableRefObject<any>).current(
-                errors[`${error}`].message
-            )
-        }
     }
 
     return (
@@ -380,10 +377,10 @@ const Profile: React.FC = () => {
                                                         userDevices,
                                                         user
                                                     )
-                                                    ;(msgRef as MutableRefObject<
-                                                        any
-                                                    >).current(
-                                                        `${device.brand} ${device.model} removed`
+                                                    dispatch(
+                                                        actions.addNotification(
+                                                            `${device.brand} ${device.model} removed`
+                                                        )
                                                     )
                                                 }}
                                             >
@@ -408,7 +405,7 @@ const Profile: React.FC = () => {
                     </form>
                 </Box>
             </Flex>
-            <NotificationsHub children={(add: any) => (msgRef.current = add)} />
+
             <Modal
                 {...{ showModal: showAddModal, setShowModal: setShowAddModal }}
             >
