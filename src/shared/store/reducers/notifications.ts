@@ -1,4 +1,4 @@
-import { action, createReducer } from 'typesafe-actions'
+import { createReducer } from 'typesafe-actions'
 import { RootAction, actions } from '..'
 
 import { NotificationState } from '../../../types'
@@ -18,7 +18,7 @@ export const notificationsReducer = createReducer<
         }
     })
     .handleAction(actions.removeNotification, (state, action) => {
-        const newItems = state.items.filter(i => i.key !== action.payload)
+        // const newItems = state.items.filter(i => i.key !== action.payload)
         return {
             ...state,
             items: [],

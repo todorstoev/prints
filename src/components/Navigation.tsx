@@ -24,7 +24,6 @@ type Props = PropsFromRedux & {
 const Navigation: React.FC<Props> = ({ user, location, isAuthenticated }) => (
     <>
         <Box
-            variant={'navAvatar'}
             m={'auto'}
             my={3}
             sx={{
@@ -42,7 +41,7 @@ const Navigation: React.FC<Props> = ({ user, location, isAuthenticated }) => (
                 <Image
                     backgroundColor={'transparent'}
                     src={'./assets/orb.png'}
-                    variant={'navAvatar'}
+                    size={50}
                 />
             </Link>
         </Box>

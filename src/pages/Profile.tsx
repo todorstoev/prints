@@ -15,8 +15,6 @@ import { useForm } from 'react-hook-form'
 
 import { RootState, Device } from '../types'
 
-import { removeDevice } from '../shared/store/epics'
-
 import AddPrinter from '../components/AddPrinter'
 import Modal from '../components/Modal'
 import { Input } from '@rebass/forms'
@@ -80,7 +78,7 @@ const Profile: React.FC = () => {
                 dispatch(actions.addNotification(errors[`${error}`].message))
             }
         }
-    }, [errors])
+    }, [errors, dispatch])
 
     useChain(
         edit
@@ -372,14 +370,9 @@ const Profile: React.FC = () => {
                                             <Box
                                                 onClick={e => {
                                                     e.preventDefault()
-                                                    removeDevice(
-                                                        i,
-                                                        userDevices,
-                                                        user
-                                                    )
                                                     dispatch(
-                                                        actions.addNotification(
-                                                            `${device.brand} ${device.model} removed`
+                                                        actions.requestDeleteDevice(
+                                                            i
                                                         )
                                                     )
                                                 }}

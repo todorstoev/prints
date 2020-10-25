@@ -10,11 +10,11 @@ import {
     SUCCESS_DEVICE_REMOVE,
 } from '../constants'
 
-export const requestAddDevice = createAction(REQUEST_DEVICE_ADD)()
+export const requestAddDevice = createAction(REQUEST_DEVICE_ADD)<Device>()
 
 export const successAddDevice = createAction(SUCCESS_DEVICE_ADD)<Device>()
 
-export const requestDeleteDevice = createAction(REQUEST_DEVICE_REMOVE)()
+export const requestDeleteDevice = createAction(REQUEST_DEVICE_REMOVE)<number>()
 
 export const successDeleteDevice = createAction(SUCCESS_DEVICE_REMOVE)<
     Device[]

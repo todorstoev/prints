@@ -7,7 +7,7 @@ import { Box, Text, Link } from 'rebass'
 
 import { Coords } from '../types'
 import { getUserLocation } from '../shared/helpers'
-import { getDevices } from '../shared/services'
+import { getDevicesService } from '../shared/services'
 import Map from '../components/Map'
 import MapMarker from '../components/MapMarker'
 import { Subscription } from 'rxjs'
@@ -57,8 +57,8 @@ export class Home extends React.Component<HomeProps, HomeState> {
             this.setState({ mapCenter: location })
         })
 
-        const observable = getDevices()
-
+        const observable = getDevicesService()
+        
         this.subscription = observable.subscribe({
             next: res => {
                 const mapMarkers = res.map(device => {
@@ -66,7 +66,7 @@ export class Home extends React.Component<HomeProps, HomeState> {
 
                     return { brand, model, type, materials, location }
                 })
-
+                debugger
                 this.setState({ mapMarkers })
             },
         })

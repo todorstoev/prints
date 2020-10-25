@@ -115,12 +115,12 @@ export const logoutUser = (): Promise<boolean> => {
     })
 }
 
-export const getDevices = (): Observable<Device[]> => {
+export const getDevicesService = (): Observable<Device[]> => {
     return new Observable<Device[]>(subscriber => {
         db.collection('users').onSnapshot({
             next: snapshot => {
                 let devicesList: Device[] = []
-
+                debugger
                 for (let i = 0; snapshot.docs.length > i; i++) {
                     const currUserDevices = snapshot.docs[i].data().devices
                     devicesList = [...devicesList, ...currUserDevices]

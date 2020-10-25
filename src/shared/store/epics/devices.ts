@@ -1,50 +1,68 @@
-import { Device, PrintsUser } from '../../../types'
-import { Dispatch } from 'redux'
-import { updatePrintsUserDB } from '../../services'
+import { Epic } from 'redux-observable'
+import { catchError, exhaustMap, filter, mergeMap } from 'rxjs/operators'
+import { isActionOf } from 'typesafe-actions'
 
-import { actions } from '..'
+import { Device, PrintsUser, RootState } from '../../../types'
+import * as API from '../../services'
 
-export const addDevice: any = (
-    device: Device,
-    user: PrintsUser
-): ((dispatch: Dispatch) => Promise<boolean>) => (dispatch: Dispatch) => {
-    return new Promise(resolve => {
-        dispatch(actions.requestAddDevice())
+import { actions, RootAction } from '..'
+import { from, of } from 'rxjs'
 
-        const userWithDevice: PrintsUser = {
-            ...user,
-            devices: [...(user.devices as Device[]), device],
-        }
+export const addDeviceEpic: Epic<
+    RootAction,
+    RootAction,
+    RootState,
+    typeof API
+> = (action$, state$, { updatePrintsUserDB }) =>
+    action$.pipe(
+        filter(isActionOf(actions.requestAddDevice)),
+        exhaustMap(action => {
+            const { auth } = state$.value
 
-        updatePrintsUserDB(userWithDevice)
-            .then(res => {
-                if (res) {
-                    dispatch(actions.successAddDevice(device))
-                    resolve(true)
-                }
-            })
-            .catch(e => {
-                dispatch(actions.recieveDeviceError(e))
-            })
-    })
-}
+            const userWithNewPritner: PrintsUser = {
+                ...auth.user,
+                devices: [...(auth.user.devices as Device[]), action.payload],
+            }
 
-export const removeDevice = (
-    deviceIndex: number,
-    userDevices: Device[],
-    user: PrintsUser
-): ((dispatch: Dispatch) => void) => (dispatch: Dispatch): void => {
-    dispatch(actions.requestDeleteDevice())
-
-    userDevices.splice(deviceIndex, 1)
-
-    user.devices = userDevices
-
-    updatePrintsUserDB(user)
-        .then(res => {
-            if (res) dispatch(actions.successDeleteDevice(userDevices))
+            return from(updatePrintsUserDB(userWithNewPritner)).pipe(
+                exhaustMap(_updatedUserWithPrinter => {
+                    return of(
+                        actions.successAddDevice(action.payload),
+                        actions.addNotification(
+                            `Device ${action.payload.brand} added`
+                        )
+                    )
+                }),
+                catchError(error => of(actions.recieveDeviceError(error)))
+            )
         })
-        .catch(e => {
-            dispatch(actions.recieveDeviceError(e))
-        })
-}
+    )
+
+export const remmoveDeviceEpic: Epic<
+    RootAction,
+    RootAction,
+    RootState,
+    typeof API
+> = (action$, state$, { updatePrintsUserDB }) =>
+    action$.pipe(
+        filter(isActionOf(actions.requestDeleteDevice)),
+        mergeMap(action => {
+            const { devices, auth } = state$.value
+
+            const removedDevice = devices.userDevices.splice(action.payload, 1)
+
+            auth.user.devices = devices.userDevices
+
+            return from(updatePrintsUserDB(auth.user)).pipe(
+                mergeMap(() =>
+                    of(
+                        actions.successDeleteDevice(devices.userDevices),
+                        actions.addNotification(
+                            `Removed ${removedDevice[0].brand}`
+                        )
+                    )
+                )
+            )
+        }),
+        catchError(e => of(actions.recieveDeviceError(e)))
+    )

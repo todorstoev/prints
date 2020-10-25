@@ -1,28 +1,21 @@
-import React, {
-    useState,
-    ChangeEvent,
-    CSSProperties,
-    useEffect,
-    Dispatch,
-    SetStateAction,
-} from 'react'
-
+import React, { useState, ChangeEvent, CSSProperties, useEffect } from 'react'
+import { useSelector, useDispatch } from 'react-redux'
 import { useForm, Controller } from 'react-hook-form'
 import { Flex, Box, Heading, Button, Text } from 'rebass'
 import { useTheme } from 'emotion-theming'
 
 import { Label, Input } from '@rebass/forms'
 import Select, { ValueType } from 'react-select'
-import { connect, ConnectedProps } from 'react-redux'
+
 import makeAnimated from 'react-select/animated'
 
 import {
     Coords,
     Device,
-    Printer,
-    RootState,
-    AuthState,
     DeviceState,
+    Printer,
+    PrintsUser,
+    RootState,
 } from '../types'
 
 import { getUserLocation } from '../shared/helpers'
@@ -30,33 +23,15 @@ import { getPrinters } from '../shared/services'
 
 import MapMarker from '../components/MapMarker'
 import Map from '../components/Map'
-import { addDevice } from '../shared/store/epics'
+
 import { Loader } from './Loader'
+import { actions } from '../shared/store'
 
-const mapState = (state: RootState): AuthState & DeviceState => {
-    return { ...state.auth, ...state.devices }
+type Props = {
+    toggleModal: any
 }
 
-const mapDispatch = {
-    addDevice,
-}
-
-const connector = connect(mapState, mapDispatch)
-
-type PropsFromRedux = ConnectedProps<typeof connector>
-
-type Props = PropsFromRedux & {
-    toggleModal: Dispatch<SetStateAction<boolean>>
-}
-
-const AddPrinter: React.FC<Props> = ({
-    user,
-    toggleModal,
-    addDevice,
-    isLoading,
-}) => {
-    const mainTheme = useTheme<any>()
-
+const AddPrinter: React.FC<Props> = ({ toggleModal }) => {
     const [userLocation, setUserLocation] = useState<Coords>({
         lat: 0,
         lng: 0,
@@ -66,6 +41,18 @@ const AddPrinter: React.FC<Props> = ({
         lat: 0,
         lng: 0,
     })
+
+    const { isLoading, userDevices } = useSelector<
+        RootState,
+        PrintsUser & DeviceState
+    >(state => ({
+        ...state.auth.user,
+        ...state.devices,
+    }))
+
+    const mainTheme = useTheme<any>()
+
+    const dispatch = useDispatch()
 
     const [printerOptions, setPrinterOptions] = useState<any[]>([])
 
@@ -93,6 +80,11 @@ const AddPrinter: React.FC<Props> = ({
             setPrinterOptions(printerOptions)
         })
     }, [])
+
+    useEffect(() => {
+
+        
+    }, [userDevices, isLoading])
 
     const materials: Array<any> = [
         { value: 'pla', label: 'PLA' },
@@ -123,9 +115,7 @@ const AddPrinter: React.FC<Props> = ({
             model: data.model,
         }
 
-        await addDevice(device, user)
-
-        toggleModal(false)
+        dispatch(actions.requestAddDevice(device))
     }
 
     return (
@@ -503,4 +493,4 @@ const AddPrinter: React.FC<Props> = ({
     )
 }
 
-export default connector(AddPrinter)
+export default AddPrinter

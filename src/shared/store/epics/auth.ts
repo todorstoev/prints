@@ -1,5 +1,5 @@
 import { from, of } from 'rxjs'
-import { catchError, exhaustMap, filter, mapTo, mergeMap } from 'rxjs/operators'
+import { catchError, exhaustMap, filter, mergeMap } from 'rxjs/operators'
 import { isActionOf } from 'typesafe-actions'
 import { Epic } from 'redux-observable'
 
@@ -25,7 +25,7 @@ export const registerUserEpic: Epic<
                 mergeMap(user =>
                     of(
                         actions.recieveRegister(user),
-                        actions.getDevicesFromLogin(user.devices as Device[]),
+                        // actions.getDevicesFromLogin(user.devices as Device[]),
                         actions.clearAuthErrors()
                     )
                 ),
@@ -167,6 +167,7 @@ export const verifyRequestEpic: Epic<
                         mergeMap(userFromDb =>
                             of(
                                 actions.receiveLogin(userFromDb),
+                                actions.getDevicesFromLogin(userFromDb.devices),
                                 actions.verifySuccess()
                             )
                         )
