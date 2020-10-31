@@ -58,7 +58,7 @@ export class Home extends React.Component<HomeProps, HomeState> {
         })
 
         const observable = getDevicesService()
-        
+
         this.subscription = observable.subscribe({
             next: res => {
                 const mapMarkers = res.map(device => {
@@ -66,7 +66,7 @@ export class Home extends React.Component<HomeProps, HomeState> {
 
                     return { brand, model, type, materials, location }
                 })
-                debugger
+                
                 this.setState({ mapMarkers })
             },
         })

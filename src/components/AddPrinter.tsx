@@ -81,11 +81,6 @@ const AddPrinter: React.FC<Props> = ({ toggleModal }) => {
         })
     }, [])
 
-    useEffect(() => {
-
-        
-    }, [userDevices, isLoading])
-
     const materials: Array<any> = [
         { value: 'pla', label: 'PLA' },
         { value: 'abs', label: 'ABS' },
