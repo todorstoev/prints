@@ -19,7 +19,7 @@ export const MessagesList: React.FC<Props> = ({ inputRef, selectedChat }) => {
     useEffect(() => {
         const observable = getUserMessages(selectedChat)
 
-        observable.subscribe({
+        const subscription = observable.subscribe({
             next: snapshot => {
                 setMessages(snapshot)
                 chatContainer.current?.scrollTo(
@@ -28,10 +28,13 @@ export const MessagesList: React.FC<Props> = ({ inputRef, selectedChat }) => {
                 )
             },
         })
+
+        return () => subscription.unsubscribe()
     }, [selectedChat])
 
     return (
         <Flex
+            pr={'7px'}
             ref={chatContainer}
             flexDirection={'column'}
             overflow="auto"
@@ -45,7 +48,12 @@ export const MessagesList: React.FC<Props> = ({ inputRef, selectedChat }) => {
                         message.author === user.uid ? 'myMessage' : 'message'
                     return (
                         <Box key={`${message.message}${i}`} variant={variant}>
-                            <Text>{message.message}</Text>
+                            <Text
+                                width={'100%'}
+                                sx={{ overflowWrap: 'break-word' }}
+                            >
+                                {message.message}
+                            </Text>
                         </Box>
                     )
                 })}

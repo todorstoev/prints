@@ -249,6 +249,7 @@ const Profile: React.FC = () => {
                             justifyContent={'center'}
                             alignItems={'center'}
                             flexDirection={'column'}
+                            sx={{ position: 'relative' }}
                         >
                             {emailTrs.map(({ item, key, props }) =>
                                 item ? (

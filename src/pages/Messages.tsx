@@ -49,7 +49,7 @@ const MessagesHub: React.FC<RouteComponentProps> = () => {
             // overflow={'auto'}
             height={'100%'}
         >
-            <Box width={1 / 3} px={2} maxHeight={'100%'} overflow="auto">
+            <Box width={1 / 3} px={[0, 4]} maxHeight={'100%'} overflow="auto">
                 {userRooms.map(room => {
                     return (
                         <Box
@@ -70,7 +70,7 @@ const MessagesHub: React.FC<RouteComponentProps> = () => {
                     )
                 })}
             </Box>
-            <Box width={2 / 2} px={4} maxHeight={'100%'}>
+            <Box width={2 / 3} px={[0, 4]} maxHeight={'100%'}>
                 {selectedChat && (
                     <MessagesList {...{ selectedChat, inputRef: inputEl }} />
                 )}
