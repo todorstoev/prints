@@ -1,7 +1,10 @@
 import React from 'react'
+import { useDispatch } from 'react-redux'
 import { Flex, Button } from 'rebass'
-import { Edit2, Save } from 'react-feather'
+import { Edit2, Save, LogOut } from 'react-feather'
 import { config, useTransition, animated } from 'react-spring'
+
+import { actions } from '../shared/store'
 
 type Props = {
     edit: boolean
@@ -14,6 +17,8 @@ export const UserControl: React.FC<Props> = ({
     setEdit,
     sbmBtnTrRef,
 }) => {
+    const dispatch = useDispatch()
+
     const transitions = useTransition(edit, null, {
         config: config.stiff,
         ref: sbmBtnTrRef,
@@ -48,6 +53,30 @@ export const UserControl: React.FC<Props> = ({
                 }}
             >
                 <Edit2 size={18} />
+            </Flex>
+
+            <Flex
+                backgroundColor={'background'}
+                color={'primary'}
+                p={'.3em'}
+                onClick={e => {
+                    e.preventDefault()
+                    dispatch(actions.requestLogout())
+                }}
+                sx={{
+                    position: 'absolute',
+                    right: 0,
+                    top: 0,
+                    borderRadius: 360,
+                    boxShadow: 'small',
+                    transition: 'all 0.2s linear',
+                    ':hover': {
+                        cursor: 'pointer',
+                        filter: 'brightness(110%)',
+                    },
+                }}
+            >
+                <LogOut size={18} />
             </Flex>
 
             {transitions.map(

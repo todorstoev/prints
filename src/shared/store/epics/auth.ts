@@ -136,7 +136,8 @@ export const logoutUserEpic: Epic<
                 mergeMap(() => {
                     return of(
                         actions.receiveLogout(),
-                        actions.clearAuthErrors()
+                        actions.clearAuthErrors(),
+                        actions.addNotification('Successfully logged out')
                     )
                 }),
                 catchError((error: string) =>
