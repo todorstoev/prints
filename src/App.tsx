@@ -38,14 +38,14 @@ const App: React.FC = () => {
             className="App"
             height={'100vh'}
             width={'100%'}
-            style={{ overflowX: 'hidden' }}
+            style={{ overflow: 'hidden' }}
         >
             {transitions.map(({ item: location, props, key }) => (
                 <animated.div
                     key={key}
                     style={{
                         ...props,
-                        height: '100%',
+                        height: '100vh',
                         position: 'absolute',
                         width: '100%',
                     }}

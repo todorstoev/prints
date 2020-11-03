@@ -101,6 +101,7 @@ export const theme: any = {
             p: '5px',
             borderRadius: '5px',
             width: '100%',
+            overflowWrap: 'break-word',
         },
         myMessage: {
             variant: 'variants.message',
