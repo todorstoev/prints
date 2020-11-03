@@ -27,14 +27,10 @@ const Navigation: React.FC<Props> = ({ user, location, isAuthenticated }) => (
             m={'auto'}
             my={3}
             sx={{
-                position: 'absolute',
-                top: 0,
-                left: '2em',
+                position: 'fixed',
+                left: '1.2em',
+                top: '-0.4em',
                 bg: 'transperent',
-                '@media screen and (max-width: 64em)': {
-                    left: '0.2em',
-                    top: '-1em',
-                },
             }}
         >
             <Link to={'/'}>
@@ -50,11 +46,11 @@ const Navigation: React.FC<Props> = ({ user, location, isAuthenticated }) => (
             m={'auto'}
             my={3}
             sx={{
-                position: 'absolute',
-                top: 0,
+                position: 'fixed',
+                top: '-1em',
                 right: '2em',
                 background: 'transparent',
-                '@media screen and (max-width: 64em)': {
+                '@media screen and (max-width: 40em)': {
                     right: '0.2em',
                     top: '-1em',
                 },
@@ -87,22 +83,22 @@ const Navigation: React.FC<Props> = ({ user, location, isAuthenticated }) => (
                 </Link>
             )}
         </Box>
-        <Box
-            variant={'navAvatar'}
-            m={'auto'}
-            my={3}
-            sx={{
-                position: 'absolute',
-                bottom: 0,
-                right: '2em',
-                bg: 'transperent',
-                '@media screen and (max-width: 40em)': {
-                    right: '60px',
-                    top: '-1em',
-                },
-            }}
-        >
-            {isAuthenticated && (
+        {isAuthenticated && location.pathname !== '/messages' && (
+            <Box
+                variant={'navAvatar'}
+                m={'auto'}
+                my={3}
+                sx={{
+                    position: 'fixed',
+                    bottom: 0,
+                    right: '2em',
+                    bg: 'transperent',
+                    '@media screen and (max-width: 40em)': {
+                        right: '0.2em',
+                        bottom: 0,
+                    },
+                }}
+            >
                 <Link to={'/messages'}>
                     <Box
                         bg="#fff"
@@ -113,13 +109,16 @@ const Navigation: React.FC<Props> = ({ user, location, isAuthenticated }) => (
                             justifyContent: 'center',
                             alignItems: 'center',
                             boxShadow: 'small',
+                            ':active': {
+                                transform: 'scale(0.9)',
+                            },
                         }}
                     >
                         <MessageCircle size={42}></MessageCircle>
                     </Box>
                 </Link>
-            )}
-        </Box>
+            </Box>
+        )}
     </>
 )
 

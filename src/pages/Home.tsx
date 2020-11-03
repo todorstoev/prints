@@ -3,33 +3,27 @@ import React from 'react'
 import { Icon } from 'leaflet'
 import { Popup } from 'react-leaflet'
 import MarkerClusterGroup from 'react-leaflet-markercluster'
-import { Box, Text, Link } from 'rebass'
+import { Box, Text } from 'rebass'
 
-import { Coords } from '../types'
+import { Link } from 'react-router-dom'
+
+import { Coords, Device } from '../types'
 import { getUserLocation } from '../shared/helpers'
 import { getDevicesService } from '../shared/services'
 import Map from '../components/Map'
 import MapMarker from '../components/MapMarker'
 import { Subscription } from 'rxjs'
 
-type DeviceMarker = {
-    brand: string
-    model: string
-    type: string
-    materials: string[]
-    location: Coords
-}
-
 type HomeProps = {}
 
 type HomeState = {
     mapCenter: Coords
     mapZoom: number
-    mapMarkers: DeviceMarker[]
+    mapMarkers: Device[]
 }
 
-const DeviceMarkerPopup: React.FC<DeviceMarker> = props => {
-    const { model, type, materials } = props
+const DeviceMarkerPopup: React.FC<Device> = device => {
+    const { model, type, materials } = device
 
     return (
         <Popup>
@@ -37,7 +31,9 @@ const DeviceMarkerPopup: React.FC<DeviceMarker> = props => {
                 <Text>Model: {model}</Text>
                 <Text>Type: {type}</Text>
                 <Text>Materials: {materials.join(', ')}</Text>
-                <Link href="#">See more</Link>
+                <Link to={{ pathname: '/messages', state: device }}>
+                    Message
+                </Link>
             </Box>
         </Popup>
     )
@@ -60,16 +56,14 @@ export class Home extends React.Component<HomeProps, HomeState> {
         const observable = getDevicesService()
 
         this.subscription = observable.subscribe({
-            next: res => {
-                const mapMarkers = res.map(device => {
-                    const { brand, model, type, materials, location } = device
-
-                    return { brand, model, type, materials, location }
-                })
-                
-                this.setState({ mapMarkers })
+            next: snapshot => {
+                this.setState({ mapMarkers: snapshot })
             },
         })
+    }
+
+    componentWillUnmount() {
+        this.subscription?.unsubscribe()
     }
 
     render() {

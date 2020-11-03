@@ -40,10 +40,15 @@ export type PrintsUser = {
     devices?: Device[]
 }
 
+export type RoomData = {
+    id: string
+    data: ChatData
+}
+
 export type ChatData = {
-    messages: Message[]
     users: string[]
     recieverHasRed: boolean
+    title: string
 }
 
 type NotificationItem = { key: number; msg: string }
@@ -51,7 +56,7 @@ type NotificationItem = { key: number; msg: string }
 type Message = {
     message: string
     author: string
-    time: string
+    time: firebase.firestore.FieldValue
 }
 
 export type Coords = {

@@ -93,7 +93,13 @@ const Profile: React.FC = () => {
 
     return (
         <React.Fragment>
-            <Flex p={'1rem'} pt={'3%'} justifyContent={'center'}>
+            <Flex
+                p={'1rem'}
+                pt={'5rem'}
+                justifyContent={'center'}
+                overflow={'auto'}
+                height={'100%'}
+            >
                 <Box width={[1 / 1, 1 / 2, 1 / 2, 1 / 4]}>
                     <form onSubmit={handleSubmit(onSubmit)}>
                         <Flex

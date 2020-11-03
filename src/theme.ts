@@ -36,8 +36,7 @@ export const theme: any = {
         small: '0 2px 4px -2px rgba(11, 39, 65, 0.3)',
         heavy: `0px 3px 5px -1px rgba(0, 0, 0, 0.2), 0px 6px 10px 0px rgba(0, 0, 0, 0.14), 0px 1px 18px 0px rgba(0, 0, 0, 0);`,
     },
-    blueGradient: `linear-gradient(90deg, rgb(3, 77, 127) 0%, 23.389%, rgb(3, 141, 206) 46.778%, 73.389%, rgb(109, 195, 234) 100%);`,
-    silverGradient: `linear-gradient(90deg, rgb(245, 248, 249) 0%, 25.4773%, rgb(237, 241, 243) 50.9547%, 75.4773%, rgb(205, 215, 222) 100%)`,
+
     breakpoints: ['40em', '56em', '64em'],
 
     // rebass variants
@@ -74,11 +73,16 @@ export const theme: any = {
         },
         link: {
             color: 'primary',
+            fontWeight: 'bold',
+            ':hover,:focus,.active': {
+                color: 'secondary',
+                cursor: 'pointer',
+            },
         },
         nav: {
             fontSize: 1,
             fontWeight: 'bold',
-            display: 'inline-block',
+
             p: 2,
             color: 'inherit',
             textDecoration: 'none',
@@ -86,6 +90,22 @@ export const theme: any = {
                 color: 'gray',
                 cursor: 'pointer',
             },
+        },
+        message: {
+            display: 'inline-block',
+            clear: 'both',
+            bg: '#80808024',
+            color: 'black',
+            alignSelf: 'flex-start',
+            my: '1rem',
+            p: '5px',
+            borderRadius: '5px',
+        },
+        myMessage: {
+            variant: 'variants.message',
+            bg: 'primary',
+            color: 'background',
+            alignSelf: 'flex-end',
         },
     },
     text: {
@@ -177,4 +197,8 @@ export const theme: any = {
             lineHeight: 'body',
         },
     },
+
+    //custom
+    blueGradient: `linear-gradient(90deg, rgb(3, 77, 127) 0%, 23.389%, rgb(3, 141, 206) 46.778%, 73.389%, rgb(109, 195, 234) 100%);`,
+    silverGradient: `linear-gradient(90deg, rgb(245, 248, 249) 0%, 25.4773%, rgb(237, 241, 243) 50.9547%, 75.4773%, rgb(205, 215, 222) 100%)`,
 }

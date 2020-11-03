@@ -1,4 +1,11 @@
-import { ChatData, Device, Printer, PrintsUser } from '../../types'
+import {
+    RoomData,
+    Device,
+    Printer,
+    PrintsUser,
+    ChatData,
+    Message,
+} from '../../types'
 import {
     db,
     googleProvider,
@@ -120,9 +127,15 @@ export const getDevicesService = (): Observable<Device[]> => {
         db.collection('users').onSnapshot({
             next: snapshot => {
                 let devicesList: Device[] = []
-                debugger
+
                 for (let i = 0; snapshot.docs.length > i; i++) {
-                    const currUserDevices = snapshot.docs[i].data().devices
+                    const currUserDevices: Device[] = snapshot.docs[i].data()
+                        .devices
+
+                    for (let d = 0; currUserDevices.length > d; d++) {
+                        currUserDevices[d].id = snapshot.docs[i].data().uid
+                    }
+
                     devicesList = [...devicesList, ...currUserDevices]
                 }
 
@@ -231,19 +244,56 @@ export const updateEmail = (email: string): Promise<any> => {
     })
 }
 
-export const getUserChats = (user: PrintsUser): Observable<ChatData[]> => {
+export const getUserMessages = (selected: string): Observable<Message[]> => {
     const doc = db
         .collection('chats')
-        .where('users', 'array-contains', user.email)
+        .doc(selected)
+        .collection('messages')
+        .orderBy('time', 'asc')
+        .limitToLast(20)
 
     return new Observable(subscriber => {
         doc.onSnapshot({
             next: snapshot =>
                 subscriber.next(
-                    snapshot.docs.map(doc => doc.data() as ChatData)
+                    snapshot.docs.map(doc => {
+                        return doc.data() as Message
+                    })
                 ),
             error: error => subscriber.error(error.message),
             complete: () => subscriber.complete(),
         })
+    })
+}
+
+export const getUserRooms = (user: PrintsUser): Promise<RoomData[]> => {
+    return new Promise((resolve, reject) => {
+        db.collection('chats')
+            .where('users', 'array-contains', user.uid)
+
+            .get()
+            .then(querySnapshot => {
+                const docs: RoomData[] = []
+                querySnapshot.forEach(doc =>
+                    docs.push({ id: doc.id, data: doc.data() as ChatData })
+                )
+
+                resolve(docs)
+            })
+            .catch(e => reject(e))
+    })
+}
+
+export const addMessage = (
+    message: Message,
+    selected: string
+): Promise<boolean> => {
+    return new Promise((resolve, reject) => {
+        db.collection('chats')
+            .doc(selected)
+            .collection('messages')
+            .add(message)
+            .then(() => resolve(true))
+            .catch(err => reject(err))
     })
 }

@@ -50,6 +50,8 @@ const AddPrinter: React.FC<Props> = ({ toggleModal }) => {
         ...state.devices,
     }))
 
+    const [lastestDevicesNum] = useState<number>(userDevices.length)
+
     const mainTheme = useTheme<any>()
 
     const dispatch = useDispatch()
@@ -79,7 +81,11 @@ const AddPrinter: React.FC<Props> = ({ toggleModal }) => {
 
             setPrinterOptions(printerOptions)
         })
-    }, [])
+
+        if (userDevices.length > lastestDevicesNum) {
+            toggleModal(false)
+        }
+    }, [userDevices.length, lastestDevicesNum, toggleModal])
 
     const materials: Array<any> = [
         { value: 'pla', label: 'PLA' },
