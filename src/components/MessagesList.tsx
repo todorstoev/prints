@@ -12,7 +12,7 @@ type Props = {
 export const MessagesList: React.FC<Props> = ({ inputRef, selectedChat }) => {
     const [messages, setMessages] = useState<Message[]>([])
 
-    const { user } = useSelector<RootState, AuthState>(state => state.auth)
+    const { user } = useSelector<RootState, AuthState>((state) => state.auth)
 
     const chatContainer = useRef<HTMLElement>(null)
 
@@ -20,7 +20,7 @@ export const MessagesList: React.FC<Props> = ({ inputRef, selectedChat }) => {
         const observable = getUserMessages(selectedChat)
 
         const subscription = observable.subscribe({
-            next: snapshot => {
+            next: (snapshot) => {
                 setMessages(snapshot)
                 chatContainer.current?.scrollTo(
                     0,
@@ -42,6 +42,16 @@ export const MessagesList: React.FC<Props> = ({ inputRef, selectedChat }) => {
                 inputRef.current?.getBoundingClientRect().height
             }px)`}
         >
+            {messages?.length === 0 && (
+                <Flex
+                    alignItems={'center'}
+                    justifyContent={'center'}
+                    height={'100%'}
+                    width={'100%'}
+                >
+                    <Text>There is still no messages here</Text>
+                </Flex>
+            )}
             {messages?.length > 0 &&
                 messages.map((message, i) => {
                     const variant =

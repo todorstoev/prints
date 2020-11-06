@@ -28,6 +28,7 @@ export const registerWithEmail = async (
             lastName: '',
             uid: '',
             username: '',
+            prestige: 0,
             pic: './assets/user-unknown-com.svg',
             devices: [],
         }
@@ -35,15 +36,15 @@ export const registerWithEmail = async (
         myFirebase
             .auth()
             .createUserWithEmailAndPassword(email, password)
-            .then(res => {
+            .then((res) => {
                 userToInsert.uid = res.user?.uid
 
                 return saveUserToDb(userToInsert)
             })
-            .then(res => {
+            .then((res) => {
                 if (res) resolve(userToInsert)
             })
-            .catch(e => reject(fbErrorMessages(e)))
+            .catch((e) => reject(fbErrorMessages(e)))
     })
 }
 
@@ -59,18 +60,18 @@ export const loginWithSsoFinish = (): Promise<PrintsUser> => {
         myFirebase
             .auth()
             .getRedirectResult()
-            .then(res => {
+            .then((res) => {
                 const userToInsert = remapUser(res)
 
                 if (res.additionalUserInfo?.isNewUser) {
                     saveUserToDb(userToInsert)
                         .then(() => resolve(userToInsert))
-                        .catch(e => reject(fbErrorMessages(e)))
+                        .catch((e) => reject(fbErrorMessages(e)))
                 } else {
                     resolve(userToInsert)
                 }
             })
-            .catch(e => reject(fbErrorMessages(e)))
+            .catch((e) => reject(fbErrorMessages(e)))
     })
 }
 
@@ -86,25 +87,25 @@ export const loginWithEmail = (
             .then(() =>
                 myFirebase.auth().signInWithEmailAndPassword(email, password)
             )
-            .then(res => {
+            .then((res) => {
                 const uid = (res.user as User).uid
 
                 return getUserFromDb(uid)
             })
-            .then(res => {
+            .then((res) => {
                 resolve(res)
             })
-            .catch(e => reject(fbErrorMessages(e)))
+            .catch((e) => reject(fbErrorMessages(e)))
     })
 }
 
 export const getCurrentUser = (): Observable<firebase.User> => {
-    return new Observable(subscriber => {
+    return new Observable((subscriber) => {
         myFirebase.auth().onAuthStateChanged({
-            next: user => {
+            next: (user) => {
                 subscriber.next(user)
             },
-            error: error => subscriber.error(error.message),
+            error: (error) => subscriber.error(error.message),
             complete: () => subscriber.complete(),
         })
     })
@@ -118,39 +119,44 @@ export const logoutUser = (): Promise<boolean> => {
             .then(() => {
                 resolve(true)
             })
-            .catch(e => reject(fbErrorMessages(e)))
+            .catch((e) => reject(fbErrorMessages(e)))
     })
 }
 
-export const getDevicesService = (): Observable<Device[]> => {
-    return new Observable<Device[]>(subscriber => {
-        db.collection('users').onSnapshot({
-            next: snapshot => {
+export const getDevicesService = (): Promise<Device[]> => {
+    return new Promise<Device[]>((resolve, reject) => {
+        db.collection('users')
+            .get()
+            .then((asyncSnapshot) => {
                 let devicesList: Device[] = []
 
-                for (let i = 0; snapshot.docs.length > i; i++) {
-                    const currUserDevices: Device[] = snapshot.docs[i].data()
-                        .devices
+                for (let i = 0; asyncSnapshot.docs.length > i; i++) {
+                    const currUserDevices: Device[] = asyncSnapshot.docs[
+                        i
+                    ].data().devices
+
+                    if (currUserDevices.length < 1) continue
 
                     for (let d = 0; currUserDevices.length > d; d++) {
-                        currUserDevices[d].id = snapshot.docs[i].data().uid
+                        currUserDevices[d].id = asyncSnapshot.docs[i].data().uid
+                        currUserDevices[d].prestige = asyncSnapshot.docs[
+                            i
+                        ].data().prestige
                     }
 
                     devicesList = [...devicesList, ...currUserDevices]
                 }
 
-                subscriber.next(devicesList)
-            },
-            error: error => subscriber.error(error.message),
-            complete: () => subscriber.complete(),
-        })
+                resolve(devicesList)
+            })
+            .catch((e) => reject(e))
     })
 }
 
 export const getPrinters = (): Promise<Printer[]> => {
     return new Promise<Printer[]>((resolve, reject) => {
-        db.collection('printers').onSnapshot(snapshot => {
-            const printers = snapshot.docs.map(doc => doc.data() as Printer)
+        db.collection('printers').onSnapshot((snapshot) => {
+            const printers = snapshot.docs.map((doc) => doc.data() as Printer)
 
             resolve(printers)
         })
@@ -163,26 +169,26 @@ export const saveUserToDb = (
     return new Promise((resolve, reject) => {
         db.collection('users')
             .add(user)
-            .then(_snapshot => {
+            .then((_snapshot) => {
                 resolve(true)
             })
-            .catch(e => {
+            .catch((e) => {
                 reject(e)
             })
     })
 }
 
 export const getUserFromDb = (uid: string): Promise<any> => {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
         db.collection('users')
             .where('uid', '==', uid)
             .get()
-            .then(docs => {
-                docs.forEach(doc => {
+            .then((docs) => {
+                docs.forEach((doc) => {
                     resolve(doc.data())
                 })
             })
-            .catch(e => {
+            .catch((e) => {
                 throw e
             })
     })
@@ -193,14 +199,14 @@ export const updatePrintsUserDB = (user: PrintsUser): Promise<PrintsUser> => {
         db.collection('users')
             .where('uid', '==', user.uid)
             .get()
-            .then(docs => {
+            .then((docs) => {
                 const [doc] = docs.docs
                 return doc.ref.update(user)
             })
             .then(() => {
                 resolve(user)
             })
-            .catch(e => {
+            .catch((e) => {
                 reject(e)
             })
     })
@@ -226,7 +232,7 @@ export const updateUser = (
                 return updatePrintsUserDB(user)
             })
             .then(() => resolve(user))
-            .catch(e => reject(fbErrorMessages(e)))
+            .catch((e) => reject(fbErrorMessages(e)))
     })
 }
 
@@ -235,10 +241,10 @@ export const updateEmail = (email: string): Promise<any> => {
         myFirebase
             .auth()
             .currentUser?.updateEmail(email)
-            .then(res => {
+            .then((res) => {
                 resolve(res)
             })
-            .catch(e => {
+            .catch((e) => {
                 reject(e)
             })
     })
@@ -252,15 +258,15 @@ export const getUserMessages = (selected: string): Observable<Message[]> => {
         .orderBy('time', 'asc')
         .limitToLast(20)
 
-    return new Observable(subscriber => {
+    return new Observable((subscriber) => {
         doc.onSnapshot({
-            next: snapshot =>
+            next: (snapshot) =>
                 subscriber.next(
-                    snapshot.docs.map(doc => {
+                    snapshot.docs.map((doc) => {
                         return doc.data() as Message
                     })
                 ),
-            error: error => subscriber.error(error.message),
+            error: (error) => subscriber.error(error.message),
             complete: () => subscriber.complete(),
         })
     })
@@ -272,15 +278,25 @@ export const getUserRooms = (user: PrintsUser): Promise<RoomData[]> => {
             .where('users', 'array-contains', user.uid)
 
             .get()
-            .then(querySnapshot => {
+            .then((querySnapshot) => {
                 const docs: RoomData[] = []
-                querySnapshot.forEach(doc =>
+                querySnapshot.forEach((doc) =>
                     docs.push({ id: doc.id, data: doc.data() as ChatData })
                 )
 
                 resolve(docs)
             })
-            .catch(e => reject(e))
+            .catch((e) => reject(e))
+    })
+}
+
+export const createNewChat = (newChat: RoomData): Promise<boolean> => {
+    return new Promise((resolve, reject) => {
+        db.collection('chats')
+            .doc(newChat.id)
+            .set(newChat.data)
+            .then((res) => resolve(true))
+            .catch((e) => reject(e))
     })
 }
 
@@ -294,6 +310,6 @@ export const addMessage = (
             .collection('messages')
             .add(message)
             .then(() => resolve(true))
-            .catch(err => reject(err))
+            .catch((err) => reject(err))
     })
 }

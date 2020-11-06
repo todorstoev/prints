@@ -33,6 +33,7 @@ export type PrintsUser = {
     firstName: string
     lastName: string
     email: string
+    prestige: number
     pic: string
     uid: string | undefined
     username: string
@@ -47,6 +48,7 @@ export type RoomData = {
 
 export type ChatData = {
     users: string[]
+    voted: boolean
     recieverHasRed: boolean
     title: string
 }
@@ -79,6 +81,7 @@ export interface Device extends Printer {
     materials: string[]
     type: string
     id?: string
+    prestige?: number
 }
 
 export type PrintsGenericError = {

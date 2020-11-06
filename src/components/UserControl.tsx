@@ -35,7 +35,7 @@ export const UserControl: React.FC<Props> = ({
                 backgroundColor={edit ? 'gray' : 'primary'}
                 color={'background'}
                 p={'.3em'}
-                onClick={e => {
+                onClick={(e) => {
                     e.preventDefault()
                     setEdit(!edit)
                 }}
@@ -59,7 +59,7 @@ export const UserControl: React.FC<Props> = ({
                 backgroundColor={'background'}
                 color={'primary'}
                 p={'.3em'}
-                onClick={e => {
+                onClick={(e) => {
                     e.preventDefault()
                     dispatch(actions.requestLogout())
                 }}

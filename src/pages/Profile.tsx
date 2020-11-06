@@ -129,7 +129,7 @@ const Profile: React.FC = () => {
                                             <Box mb={2}>
                                                 <Input
                                                     ref={register({
-                                                        validate: value =>
+                                                        validate: (value) =>
                                                             value !== 'admin' ||
                                                             'Nice try!',
                                                     })}
@@ -144,7 +144,7 @@ const Profile: React.FC = () => {
                                             <Box>
                                                 <Input
                                                     ref={register({
-                                                        validate: value =>
+                                                        validate: (value) =>
                                                             value !== 'admin' ||
                                                             'Nice try!',
                                                     })}
@@ -196,7 +196,7 @@ const Profile: React.FC = () => {
                                         >
                                             <Input
                                                 ref={register({
-                                                    validate: value =>
+                                                    validate: (value) =>
                                                         value !== 'admin' ||
                                                         'Nice try!',
                                                 })}
@@ -300,7 +300,9 @@ const Profile: React.FC = () => {
                                 )
                             )}
                         </Flex>
-                        <Text textAlign={'center'}>Rating: 1000</Text>
+                        <Text textAlign={'center'}>
+                            Prestige: {user.prestige}
+                        </Text>
                         <Flex
                             justifyContent={'space-between'}
                             alignItems={'center'}
@@ -310,7 +312,7 @@ const Profile: React.FC = () => {
 
                             <Button
                                 variant="primary"
-                                onClick={e => {
+                                onClick={(e) => {
                                     e.preventDefault()
                                     setShowAddModal(true)
                                 }}
@@ -375,7 +377,7 @@ const Profile: React.FC = () => {
                                                 </Text>
                                             </Box>
                                             <Box
-                                                onClick={e => {
+                                                onClick={(e) => {
                                                     e.preventDefault()
                                                     dispatch(
                                                         actions.requestDeleteDevice(

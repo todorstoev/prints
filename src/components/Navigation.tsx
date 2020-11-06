@@ -11,10 +11,9 @@ type Props = {
 }
 
 const Navigation: React.FC<Props> = ({ location }) => {
-    const { user, isAuthenticated } = useSelector<
-        RootState,
-        AuthState
-    >(state => state.auth)
+    const { user, isAuthenticated } = useSelector<RootState, AuthState>(
+        (state) => state.auth
+    )
 
     return (
         <>
@@ -48,7 +47,6 @@ const Navigation: React.FC<Props> = ({ location }) => {
                     top: '-1em',
                     right: '2em',
                     zIndex: 10,
-                    background: 'transparent',
                     '@media screen and (max-width: 40em)': {
                         right: '0.2em',
                         top: '-1em',
@@ -68,6 +66,7 @@ const Navigation: React.FC<Props> = ({ location }) => {
                 {location.pathname !== '/' && isAuthenticated && (
                     <Link to={'/'}>
                         <Box
+                            bg="#fff"
                             color="primary"
                             variant={'navAvatar'}
                             sx={{

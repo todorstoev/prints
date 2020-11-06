@@ -1,4 +1,5 @@
 import React from 'react'
+import { useSelector } from 'react-redux'
 
 import { Icon } from 'leaflet'
 import { Popup } from 'react-leaflet'
@@ -7,12 +8,11 @@ import { Box, Text } from 'rebass'
 
 import { Link } from 'react-router-dom'
 
-import { Coords, Device } from '../types'
+import { Coords, Device, PrintsUser, RootState } from '../types'
 import { getUserLocation } from '../shared/helpers'
 import { getDevicesService } from '../shared/services'
 import Map from '../components/Map'
 import MapMarker from '../components/MapMarker'
-import { Subscription } from 'rxjs'
 
 type HomeProps = {}
 
@@ -22,8 +22,10 @@ type HomeState = {
     mapMarkers: Device[]
 }
 
-const DeviceMarkerPopup: React.FC<Device> = device => {
-    const { model, type, materials } = device
+const DeviceMarkerPopup: React.FC<Device> = (device) => {
+    const user = useSelector<RootState, PrintsUser>((state) => state.auth.user)
+
+    const { model, type, materials, prestige } = device
 
     return (
         <Popup>
@@ -31,39 +33,43 @@ const DeviceMarkerPopup: React.FC<Device> = device => {
                 <Text>Model: {model}</Text>
                 <Text>Type: {type}</Text>
                 <Text>Materials: {materials.join(', ')}</Text>
-                <Link to={{ pathname: '/messages', state: device }}>
-                    Message
-                </Link>
+                <Text>Prestige: {prestige}</Text>
+                {user.uid !== device.id && (
+                    <Link to={{ pathname: '/messages', state: device }}>
+                        Message
+                    </Link>
+                )}
+                {user.uid === device.id && (
+                    <Text>This device belongs to you</Text>
+                )}
             </Box>
         </Popup>
     )
 }
 
 export class Home extends React.Component<HomeProps, HomeState> {
+    mounted: boolean = false
+
     readonly state: HomeState = {
         mapCenter: { lat: 0, lng: 0 },
         mapZoom: 13,
         mapMarkers: [],
     }
 
-    subscription: Subscription | undefined
-
     componentDidMount() {
-        getUserLocation().then(location => {
-            this.setState({ mapCenter: location })
+        this.mounted = true
+
+        getUserLocation().then((location) => {
+            if (this.mounted) this.setState({ mapCenter: location })
         })
 
-        const observable = getDevicesService()
-
-        this.subscription = observable.subscribe({
-            next: snapshot => {
-                this.setState({ mapMarkers: snapshot })
-            },
+        getDevicesService().then((devices) => {
+            if (this.mounted) this.setState({ mapMarkers: devices })
         })
     }
 
     componentWillUnmount() {
-        this.subscription?.unsubscribe()
+        this.mounted = false
     }
 
     render() {
