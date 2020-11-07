@@ -3,11 +3,12 @@ import { catchError, exhaustMap, filter, mergeMap } from 'rxjs/operators'
 import { isActionOf } from 'typesafe-actions'
 import { Epic } from 'redux-observable'
 
-import { Device, RootState } from '../../../types'
-
 import * as API from '../../services'
 
 import { actions, RootAction } from '..'
+
+import { Device, RoomData, RootState } from '../../../types'
+import { Vote } from '../../../components/ChatRoomDetails'
 
 export const registerUserEpic: Epic<
     RootAction,
@@ -18,11 +19,11 @@ export const registerUserEpic: Epic<
     action$.pipe(
         filter(isActionOf(actions.requestRegister)),
 
-        mergeMap(action => {
+        mergeMap((action) => {
             const { email, password } = action.payload
 
             return from(registerWithEmail(email, password)).pipe(
-                mergeMap(user =>
+                mergeMap((user) =>
                     of(
                         actions.recieveRegister(user),
                         // actions.getDevicesFromLogin(user.devices as Device[]),
@@ -50,11 +51,11 @@ export const loginUserEpic: Epic<
 > = (action$, _state$, { loginWithEmail }) =>
     action$.pipe(
         filter(isActionOf(actions.requestLogin)),
-        mergeMap(action => {
+        mergeMap((action) => {
             const { email, password, remember } = action.payload
 
             return from(loginWithEmail(email, password, remember)).pipe(
-                mergeMap(user => {
+                mergeMap((user) => {
                     return of(
                         actions.receiveLogin(user),
                         actions.getDevicesFromLogin(user.devices as Device[]),
@@ -82,17 +83,17 @@ export const updateUserEpic: Epic<
 > = (action$, _state$, { updateUser }) =>
     action$.pipe(
         filter(isActionOf(actions.updateUserRequest)),
-        mergeMap(action => {
+        mergeMap((action) => {
             const { user, data } = action.payload
 
             return from(updateUser(user, data)).pipe(
-                mergeMap(res => {
+                mergeMap((res) => {
                     return of(
                         actions.updateUserSuccess(res),
                         actions.addNotification('User Updated')
                     )
                 }),
-                catchError(e => {
+                catchError((e) => {
                     return of(
                         actions.recieveAuthError(e),
                         actions.addNotification(e)
@@ -112,7 +113,7 @@ export const loginSSOEpic: Epic<
         filter(isActionOf(actions.requestSsoLogin)),
         exhaustMap(() => {
             return from(loginWithSsoFinish()).pipe(
-                mergeMap(user => {
+                mergeMap((user) => {
                     return of(
                         actions.recieveSsoLogin(user),
                         actions.getDevicesFromLogin(user.devices as Device[]),
@@ -163,9 +164,9 @@ export const verifyRequestEpic: Epic<
 
         mergeMap(() => {
             return getCurrentUser().pipe(
-                mergeMap(user => {
+                mergeMap((user) => {
                     return from(getUserFromDb(user.uid)).pipe(
-                        mergeMap(userFromDb =>
+                        mergeMap((userFromDb) =>
                             of(
                                 actions.receiveLogin(userFromDb),
                                 actions.getDevicesFromLogin(userFromDb.devices),
@@ -174,9 +175,53 @@ export const verifyRequestEpic: Epic<
                         )
                     )
                 }),
-                catchError(e => {
+                catchError((e) => {
                     return of(actions.verifySuccess(), actions.receiveLogout())
                 })
             )
+        })
+    )
+
+export const voteUser: Epic<RootAction, RootAction, RootState, typeof API> = (
+    action$,
+    _state$,
+    { voteUser, updateUserRoom }
+) =>
+    action$.pipe(
+        filter(isActionOf(actions.voteUserRequest)),
+        exhaustMap((action) => {
+            const direction = action.payload.vote
+            let { rating, id: uid } = action.payload.roomData.data.chatDevice
+
+            if (direction === Vote.Up) {
+                ;(rating as number)++
+            } else {
+                ;(rating as number)--
+            }
+
+            return from(voteUser(uid as string, rating as number)).pipe(
+                mergeMap((res) => {
+                    const { roomData } = action.payload
+
+                    const newRoomData: RoomData = {
+                        ...roomData,
+                        data: {
+                            ...roomData.data,
+                            chatDevice: {
+                                ...roomData.data.chatDevice,
+                                rating,
+                            },
+                            voted: true,
+                        },
+                    }
+
+                    return from(updateUserRoom(newRoomData)).pipe(
+                        mergeMap(() => of(actions.voteUserSuccess()))
+                    )
+                })
+            )
+        }),
+        catchError((e) => {
+            return of(actions.addNotification(e))
         })
     )

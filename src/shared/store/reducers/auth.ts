@@ -18,7 +18,7 @@ const initialState: AuthState = {
         pic: '',
         refreshToken: '',
         username: '',
-        prestige: 0,
+        rating: 100,
     },
 }
 
@@ -80,7 +80,7 @@ export const authReducer = createReducer<AuthState, RootAction>(initialState)
             pic: '',
             refreshToken: '',
             username: '',
-            prestige: 0,
+            rating: 100,
         },
     }))
     .handleAction(actions.verifyRequest, (state) => ({
@@ -99,4 +99,13 @@ export const authReducer = createReducer<AuthState, RootAction>(initialState)
         ...state,
         isLoading: false,
         user: action.payload,
+    }))
+    .handleAction(actions.voteUserRequest, (state) => ({
+        ...state,
+        isLoading: true,
+    }))
+
+    .handleAction(actions.voteUserSuccess, (state) => ({
+        ...state,
+        isLoading: false,
     }))

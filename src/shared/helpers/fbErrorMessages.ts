@@ -14,6 +14,8 @@ export const fbErrorMessages = (error: FirebaseError): string => {
             return 'Google Login was canceled'
         case 'auth/requires-recent-login':
             return 'Log in again before retrying to change your email.'
+        case 'not-found':
+            return 'Wrong user'
         default:
             return error.message
     }

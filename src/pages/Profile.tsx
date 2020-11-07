@@ -300,9 +300,7 @@ const Profile: React.FC = () => {
                                 )
                             )}
                         </Flex>
-                        <Text textAlign={'center'}>
-                            Prestige: {user.prestige}
-                        </Text>
+                        <Text textAlign={'center'}>Rating: {user.rating}</Text>
                         <Flex
                             justifyContent={'space-between'}
                             alignItems={'center'}

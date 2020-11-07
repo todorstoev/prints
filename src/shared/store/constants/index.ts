@@ -12,6 +12,9 @@ export const REGISTER_CANCEL = '@@auth/REGISTER_CANCEL'
 export const LOGOUT_REQUEST = '@@auth/LOGOUT_REQUEST'
 export const LOGOUT_SUCCESS = '@@auth/LOGOUT_SUCCESS'
 
+export const VOTE_USER_REQUEST = '@@auth/VOTE_USER_REQUEST'
+export const VOTE_USER_SUCCESS = '@@auth/VOTE_USER_SUCCESS'
+
 export const UPDATE_USER_REQUEST = '@@auth/UPDATE_USER_REQUEST'
 export const UPDATE_USER_SUCCESS = '@@auth/UPDATE_USER_SUCCESS'
 

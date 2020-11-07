@@ -44,8 +44,8 @@ const Navigation: React.FC<Props> = ({ location }) => {
                 my={3}
                 sx={{
                     position: 'fixed',
-                    top: '-1em',
-                    right: '2em',
+                    top: '-20px',
+                    right: '0em',
                     zIndex: 10,
                     '@media screen and (max-width: 40em)': {
                         right: '0.2em',
@@ -89,13 +89,9 @@ const Navigation: React.FC<Props> = ({ location }) => {
                     sx={{
                         position: 'fixed',
                         bottom: 0,
-                        right: '2em',
+                        right: '0em',
                         zIndex: 10,
                         bg: 'transperent',
-                        '@media screen and (max-width: 40em)': {
-                            right: '0.2em',
-                            bottom: 0,
-                        },
                     }}
                 >
                     <Link to={'/messages'}>

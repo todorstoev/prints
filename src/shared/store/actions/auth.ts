@@ -1,6 +1,7 @@
 import { createAction } from 'typesafe-actions'
+import { Vote } from '../../../components/ChatRoomDetails'
 
-import { PrintsUser } from '../../../types'
+import { PrintsUser, RoomData } from '../../../types'
 
 import {
     LOGIN_REQUEST,
@@ -17,6 +18,8 @@ import {
     UPDATE_USER_SUCCESS,
     SSO_LOGIN_REQUEST,
     SSO_LOGIN_SUCCESS,
+    VOTE_USER_REQUEST,
+    VOTE_USER_SUCCESS,
 } from '../constants'
 
 export const requestLogin = createAction(LOGIN_REQUEST)<{
@@ -56,3 +59,10 @@ export const updateUserRequest = createAction(UPDATE_USER_REQUEST)<{
 }>()
 
 export const updateUserSuccess = createAction(UPDATE_USER_SUCCESS)<PrintsUser>()
+
+export const voteUserRequest = createAction(VOTE_USER_REQUEST)<{
+    vote: Vote
+    roomData: RoomData
+}>()
+
+export const voteUserSuccess = createAction(VOTE_USER_SUCCESS)()

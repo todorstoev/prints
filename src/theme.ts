@@ -63,7 +63,7 @@ export const theme: any = {
             transform: 'scale(0.8)',
             ':hover': {
                 cursor: 'pointer',
-                transform: 'scale(0.9)',
+                transform: 'scale(0.75)',
             },
         },
         card: {
@@ -141,6 +141,9 @@ export const theme: any = {
                 filter: 'brightness(110%)',
                 cursor: 'pointer',
             },
+            ':disabled': {
+                bg: '#d9e1e5',
+            },
         },
         secondary: {
             variant: 'buttons.primary',
@@ -203,4 +206,7 @@ export const theme: any = {
     //custom
     blueGradient: `linear-gradient(90deg, rgb(3, 77, 127) 0%, 23.389%, rgb(3, 141, 206) 46.778%, 73.389%, rgb(109, 195, 234) 100%);`,
     silverGradient: `linear-gradient(90deg, rgb(245, 248, 249) 0%, 25.4773%, rgb(237, 241, 243) 50.9547%, 75.4773%, rgb(205, 215, 222) 100%)`,
+    bwGradient: `background: rgb(26,123,180);
+    background: linear-gradient(90deg, rgba(26,123,180,1) 19%, rgba(145,191,219,1) 39%, rgba(218,235,245,1) 52%, rgba(255,255,255,1) 100%)`,
+    bwGradientSmall: `linear-gradient(90deg,rgba(26 123 180 / 42%) 19%,rgba(145 191 219 / 41%) 39%,rgba(218,235,245,1) 52%,rgba(255,255,255,1) 100%)`,
 }

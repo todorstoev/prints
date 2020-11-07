@@ -6,13 +6,14 @@ import { Map as LeafletMap, TileLayer, ZoomControl } from 'react-leaflet'
 import { Coords } from '../types'
 
 type MapProps = {
+    controls: boolean
     center: Coords
     zoom: number
     onClick?: (e: LeafletMouseEvent) => void
 }
 
-const Map: React.FC<MapProps> = props => {
-    const { center, zoom, onClick, children } = props
+const Map: React.FC<MapProps> = (props) => {
+    const { center, zoom, onClick, children, controls } = props
 
     return (
         <LeafletMap
@@ -28,7 +29,7 @@ const Map: React.FC<MapProps> = props => {
             />
 
             {children}
-            <ZoomControl position={'bottomleft'} />
+            {controls && <ZoomControl position={'bottomleft'} />}
         </LeafletMap>
     )
 }

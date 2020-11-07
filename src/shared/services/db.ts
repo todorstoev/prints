@@ -28,7 +28,7 @@ export const registerWithEmail = async (
             lastName: '',
             uid: '',
             username: '',
-            prestige: 0,
+            rating: 100,
             pic: './assets/user-unknown-com.svg',
             devices: [],
         }
@@ -139,9 +139,9 @@ export const getDevicesService = (): Promise<Device[]> => {
 
                     for (let d = 0; currUserDevices.length > d; d++) {
                         currUserDevices[d].id = asyncSnapshot.docs[i].data().uid
-                        currUserDevices[d].prestige = asyncSnapshot.docs[
+                        currUserDevices[d].rating = asyncSnapshot.docs[
                             i
-                        ].data().prestige
+                        ].data().rating
                     }
 
                     devicesList = [...devicesList, ...currUserDevices]
@@ -272,6 +272,21 @@ export const getUserMessages = (selected: string): Observable<Message[]> => {
     })
 }
 
+export const voteUser = (uid: string, rating: number): Promise<boolean> => {
+    return new Promise((resolve, rejects) => {
+        db.collection('users')
+            .where('uid', '==', uid)
+            .get()
+            .then((docs) => {
+                const [doc] = docs.docs
+
+                return doc.ref.update({ rating })
+            })
+            .then(() => resolve(true))
+            .catch((err) => rejects(fbErrorMessages(err)))
+    })
+}
+
 export const getUserRooms = (user: PrintsUser): Promise<RoomData[]> => {
     return new Promise((resolve, reject) => {
         db.collection('chats')
@@ -287,6 +302,16 @@ export const getUserRooms = (user: PrintsUser): Promise<RoomData[]> => {
                 resolve(docs)
             })
             .catch((e) => reject(e))
+    })
+}
+
+export const updateUserRoom = (room: RoomData): Promise<boolean> => {
+    return new Promise((resolve, reject) => {
+        db.collection('chats')
+            .doc(room.id)
+            .update(room.data)
+            .then((res) => resolve(true))
+            .catch((err) => reject(err))
     })
 }
 

@@ -33,7 +33,7 @@ export type PrintsUser = {
     firstName: string
     lastName: string
     email: string
-    prestige: number
+    rating: number
     pic: string
     uid: string | undefined
     username: string
@@ -51,6 +51,7 @@ export type ChatData = {
     voted: boolean
     recieverHasRed: boolean
     title: string
+    chatDevice: Device
 }
 
 type NotificationItem = { key: number; msg: string }
@@ -81,7 +82,7 @@ export interface Device extends Printer {
     materials: string[]
     type: string
     id?: string
-    prestige?: number
+    rating?: number
 }
 
 export type PrintsGenericError = {

@@ -16,7 +16,7 @@ export const addDeviceEpic: Epic<
 > = (action$, state$, { updatePrintsUserDB }) =>
     action$.pipe(
         filter(isActionOf(actions.requestAddDevice)),
-        exhaustMap(action => {
+        exhaustMap((action) => {
             const { auth } = state$.value
 
             const userWithNewPritner: PrintsUser = {
@@ -25,7 +25,7 @@ export const addDeviceEpic: Epic<
             }
 
             return from(updatePrintsUserDB(userWithNewPritner)).pipe(
-                exhaustMap(_updatedUserWithPrinter => {
+                exhaustMap((_updatedUserWithPrinter) => {
                     return of(
                         actions.successAddDevice(action.payload),
                         actions.addNotification(
@@ -33,7 +33,7 @@ export const addDeviceEpic: Epic<
                         )
                     )
                 }),
-                catchError(error => of(actions.recieveDeviceError(error)))
+                catchError((error) => of(actions.recieveDeviceError(error)))
             )
         })
     )
@@ -46,7 +46,7 @@ export const remmoveDeviceEpic: Epic<
 > = (action$, state$, { updatePrintsUserDB }) =>
     action$.pipe(
         filter(isActionOf(actions.requestDeleteDevice)),
-        mergeMap(action => {
+        mergeMap((action) => {
             const { devices, auth } = state$.value
 
             const removedDevice = devices.userDevices.splice(action.payload, 1)
@@ -64,5 +64,5 @@ export const remmoveDeviceEpic: Epic<
                 )
             )
         }),
-        catchError(e => of(actions.recieveDeviceError(e)))
+        catchError((e) => of(actions.recieveDeviceError(e)))
     )

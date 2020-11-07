@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux'
 import { Icon } from 'leaflet'
 import { Popup } from 'react-leaflet'
 import MarkerClusterGroup from 'react-leaflet-markercluster'
-import { Box, Text } from 'rebass'
+import { Box, Heading, Text } from 'rebass'
 
 import { Link } from 'react-router-dom'
 
@@ -25,15 +25,18 @@ type HomeState = {
 const DeviceMarkerPopup: React.FC<Device> = (device) => {
     const user = useSelector<RootState, PrintsUser>((state) => state.auth.user)
 
-    const { model, type, materials, prestige } = device
+    const { brand, model, type, materials, rating } = device
 
     return (
         <Popup>
             <Box>
-                <Text>Model: {model}</Text>
+                <Heading wrap={'true'}>
+                    {brand} {model}
+                </Heading>
+                <Box variant={'hr'} my={1}></Box>
                 <Text>Type: {type}</Text>
                 <Text>Materials: {materials.join(', ')}</Text>
-                <Text>Prestige: {prestige}</Text>
+                <Text>Rating: {rating}</Text>
                 {user.uid !== device.id && (
                     <Link to={{ pathname: '/messages', state: device }}>
                         Message
@@ -84,7 +87,7 @@ export class Home extends React.Component<HomeProps, HomeState> {
 
         return (
             <Box height={'100%'}>
-                <Map center={mapCenter} zoom={mapZoom}>
+                <Map center={mapCenter} zoom={mapZoom} controls={true}>
                     <MarkerClusterGroup>
                         {mapMarkers.map((marker, index) => {
                             return (

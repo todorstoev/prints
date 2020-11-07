@@ -45,7 +45,7 @@ const AddPrinter: React.FC<Props> = ({ toggleModal }) => {
     const { isLoading, userDevices } = useSelector<
         RootState,
         PrintsUser & DeviceState
-    >(state => ({
+    >((state) => ({
         ...state.auth.user,
         ...state.devices,
     }))
@@ -73,8 +73,8 @@ const AddPrinter: React.FC<Props> = ({ toggleModal }) => {
     useEffect(() => {
         getUserLocation().then(setUserLocation)
 
-        getPrinters().then(printers => {
-            const printerOptions = printers.map(printer => ({
+        getPrinters().then((printers) => {
+            const printerOptions = printers.map((printer) => ({
                 value: printer,
                 label: `${printer.brand} ${printer.model}`,
             }))
@@ -180,7 +180,7 @@ const AddPrinter: React.FC<Props> = ({ toggleModal }) => {
                                         }}
                                         placeholder={'Search for printer ...'}
                                         options={printerOptions}
-                                        theme={theme => ({
+                                        theme={(theme) => ({
                                             ...theme,
 
                                             colors: {
@@ -379,7 +379,7 @@ const AddPrinter: React.FC<Props> = ({ toggleModal }) => {
                                                     },
                                                 }}
                                                 menuPortalTarget={document.body}
-                                                theme={theme => ({
+                                                theme={(theme) => ({
                                                     ...theme,
 
                                                     colors: {
@@ -424,7 +424,7 @@ const AddPrinter: React.FC<Props> = ({ toggleModal }) => {
                                                         }
                                                     },
                                                 }}
-                                                theme={theme => ({
+                                                theme={(theme) => ({
                                                     ...theme,
 
                                                     colors: {
@@ -461,9 +461,12 @@ const AddPrinter: React.FC<Props> = ({ toggleModal }) => {
                                     }}
                                 >
                                     <Map
+                                        controls={true}
                                         zoom={13}
                                         center={userLocation}
-                                        onClick={e => setPickerCords(e.latlng)}
+                                        onClick={(e) =>
+                                            setPickerCords(e.latlng)
+                                        }
                                     >
                                         <MapMarker
                                             position={pickerCords}
