@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { useForm } from 'react-hook-form'
 
@@ -14,7 +14,6 @@ import { addMessage, createNewChat, getUserRooms } from '../shared/services'
 import firebase from '../shared/services/firebase'
 import { MessagesList } from '../components/MessagesList'
 import { ChatRoomDetails } from '../components/ChatRoomDetails'
-import { useTheme } from 'emotion-theming'
 
 const doesChatExists = (chats: RoomData[], deviceFromLocation: Device) =>
     chats.find((chat) => {
@@ -28,19 +27,15 @@ const MessagesHub: React.FC<RouteComponentProps<any, any, Device>> = ({
 
     const [userRooms, setUserRooms] = useState<RoomData[]>([])
 
-    const [newChat, setNewChat] = useState<RoomData | null>(null)
+    const [newChat, setNewChat] = useState<RoomData | undefined>()
 
     const [shoudStartNew, setShouldStartNew] = useState<boolean>(false)
+
+    const [detailsDevice, setDetailsDevice] = useState<RoomData | undefined>()
 
     const { user } = useSelector<RootState, AuthState>((state) => state.auth)
 
     const { handleSubmit, register, reset } = useForm()
-
-    const inputElRef = useRef<HTMLElement>(null)
-
-    const chatDetailsRef = useRef<Element>(null)
-
-    const mainTheme = useTheme<any>()
 
     const onSubmit = async (values: any) => {
         const newMessage: Message = {
@@ -76,7 +71,7 @@ const MessagesHub: React.FC<RouteComponentProps<any, any, Device>> = ({
                                 user.uid as string,
                                 messagedDevice.id as string,
                             ],
-                            voted: false,
+                            voted: ['voted'],
                             chatDevice: messagedDevice,
                         },
                         id: `${user.uid}:${messagedDevice.id}`,
@@ -94,52 +89,93 @@ const MessagesHub: React.FC<RouteComponentProps<any, any, Device>> = ({
         })
     }, [user, location])
 
+    useEffect(() => {
+        if (userRooms) {
+            setDetailsDevice(userRooms.find((room) => room.id === selectedChat))
+        }
+    }, [userRooms, selectedChat])
+
     return (
-        <Box p={'1rem'} pt={'8rem'} height={'100%'}>
-            <Box width={'100%'} mb={4} mt={1} ref={chatDetailsRef}>
-                {(userRooms.length > 0 || location.state) && (
-                    <ChatRoomDetails
-                        {...(userRooms.length > 0
-                            ? (userRooms.find(
-                                  (room) => room.id === selectedChat
-                              ) as RoomData)
-                            : (newChat as RoomData))}
-                    />
-                )}
-            </Box>
+        <Box p={'1rem'} pt={['4.5rem', '6rem']} height={'100%'}>
             <Box
                 sx={{
+                    height: '100%',
+                    position: 'relative',
                     display: 'grid',
-                    gridGap: 3,
-                    gridTemplateColumns: 'repeat(auto-fit, minmax(128px, 1fr))',
+                    gridTemplateColumns: '1fr 2fr',
+                    gridGap: '1em',
+                    gridTemplateRows: 'auto 1fr auto',
+                    gridTemplateAreas: `
+                      "details details"
+                      "chats messages"
+                      "input input"`,
                     '@media screen and (max-width:56em)': {
-                        gridTemplateColumns: ' repeat(1, 1fr)',
+                        gridTemplateColumns: '1fr',
+                        gridTemplateRows: 'auto auto 1fr auto',
+                        gridTemplateAreas: `
+                        "details"
+                        "chats"
+                        "messages"
+                        "input"`,
+                    },
+                    '@media screen and (min-width:56em)': {
+                        width: '70%',
+                        margin: 'auto',
                     },
                 }}
-                height={[
-                    'auto',
-                    `calc(100% - ${
-                        (chatDetailsRef.current?.getBoundingClientRect()
-                            .height as number) +
-                        mainTheme.space[4] +
-                        mainTheme.space[1]
-                    }px)`,
-                ]}
             >
+                <Box
+                    sx={{
+                        gridArea: 'details',
+                    }}
+                    width={'100%'}
+                >
+                    {(detailsDevice || newChat) && (
+                        <ChatRoomDetails
+                            {...((detailsDevice as RoomData) ||
+                                (newChat as RoomData))}
+                        />
+                    )}
+                </Box>
                 {(userRooms.length > 0 || location.state) && (
-                    <Box maxHeight={'100%'} overflow="auto">
-                        {newChat && (
-                            <Box>
-                                <Box
-                                    sx={{
-                                        color:
-                                            selectedChat === newChat.id
-                                                ? 'secondary'
-                                                : 'primary',
-                                    }}
-                                    height={'2em'}
-                                    variant={'link'}
-                                    py={2}
+                    <Box
+                        overflow={'auto'}
+                        sx={{
+                            gridArea: 'chats',
+                            '@media screen and (max-width:56em)': {
+                                display: 'block',
+                                whiteSpace: 'nowrap',
+                            },
+                        }}
+                    >
+                        <Box
+                            variant={'hr'}
+                            mb={2}
+                            sx={{
+                                '@media screen and (max-width:56em)': {
+                                    display: 'block',
+                                },
+                                '@media screen and (min-width:56em)': {
+                                    display: 'none',
+                                },
+                            }}
+                        />
+                        <Box
+                            overflowX={'auto'}
+                            sx={{
+                                '::-webkit-scrollbar': { display: 'none' },
+                                '@media screen and (min-width:56em)': {
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'flex-start',
+                                },
+                            }}
+                        >
+                            {newChat && (
+                                <Button
+                                    variant={'outline'}
+                                    mr={2}
+                                    mt={[0, 2]}
                                     onClick={() => {
                                         const chatExists = userRooms.find(
                                             (chat) => newChat === chat
@@ -150,45 +186,53 @@ const MessagesHub: React.FC<RouteComponentProps<any, any, Device>> = ({
                                         setSelectedChat(newChat.id)
                                     }}
                                 >
-                                    <Text>{newChat.data.title}</Text>
-                                </Box>
-                            </Box>
-                        )}
-                        {userRooms.map((room) => {
-                            return (
-                                <Box
-                                    sx={{
-                                        color:
-                                            selectedChat === room.id
-                                                ? 'secondary'
-                                                : 'primary',
-                                    }}
-                                    key={room.id}
-                                    height={'2em'}
-                                    variant={'link'}
-                                    py={2}
-                                    onClick={() => {
-                                        const chatExists = userRooms.find(
-                                            (chat) => room === chat
-                                        )
-                                        if (chatExists) setShouldStartNew(false)
-                                        setSelectedChat(room.id)
-                                    }}
-                                >
-                                    <Text>{room.data.title}</Text>
-                                </Box>
-                            )
-                        })}
+                                    {newChat.data.title}
+                                </Button>
+                            )}
+                            {userRooms.map((room) => {
+                                return (
+                                    <Button
+                                        variant={'outline'}
+                                        key={room.id}
+                                        mt={[0, 2]}
+                                        mr={2}
+                                        onClick={() => {
+                                            const chatExists = userRooms.find(
+                                                (chat) => room === chat
+                                            )
+                                            if (chatExists)
+                                                setShouldStartNew(false)
+                                            setSelectedChat(room.id)
+                                        }}
+                                    >
+                                        {room.data.title}
+                                    </Button>
+                                )
+                            })}
+                        </Box>
+                        <Box
+                            variant={'hr'}
+                            mt={2}
+                            sx={{
+                                '@media screen and (max-width:56em)': {
+                                    display: 'block',
+                                },
+                                '@media screen and (min-width:56em)': {
+                                    display: 'none',
+                                },
+                            }}
+                        />
                     </Box>
                 )}
                 {(userRooms.length > 0 || location.state) && (
-                    <Box maxHeight={'100%'}>
-                        {selectedChat && (
-                            <MessagesList
-                                {...{ selectedChat, inputRef: inputElRef }}
-                            />
-                        )}
-                        <Box ref={inputElRef}>
+                    <>
+                        <Box overflow={'hidden'} sx={{ gridArea: 'messages' }}>
+                            {selectedChat && (
+                                <MessagesList {...{ selectedChat }} />
+                            )}
+                        </Box>
+
+                        <Box sx={{ gridArea: 'input' }}>
                             <form
                                 onSubmit={handleSubmit(onSubmit)}
                                 style={{ position: 'relative' }}
@@ -204,7 +248,6 @@ const MessagesHub: React.FC<RouteComponentProps<any, any, Device>> = ({
                                         background: '#80808024',
                                         opacity: selectedChat ? 1 : 0,
                                     }}
-                                    mt={2}
                                     pr={5}
                                     name="message"
                                     ref={register({
@@ -233,7 +276,7 @@ const MessagesHub: React.FC<RouteComponentProps<any, any, Device>> = ({
                                 </Button>
                             </form>
                         </Box>
-                    </Box>
+                    </>
                 )}
                 {userRooms.length <= 0 && !location.state && (
                     <Text sx={{ justifySelf: 'center' }} alignSelf={'center'}>

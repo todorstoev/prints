@@ -5,11 +5,10 @@ import { getUserMessages } from '../shared/services'
 import { AuthState, Message, RootState } from '../types'
 
 type Props = {
-    inputRef: React.RefObject<HTMLElement>
     selectedChat: string
 }
 
-export const MessagesList: React.FC<Props> = ({ inputRef, selectedChat }) => {
+export const MessagesList: React.FC<Props> = ({ selectedChat }) => {
     const [messages, setMessages] = useState<Message[]>([])
 
     const { user } = useSelector<RootState, AuthState>((state) => state.auth)
@@ -36,11 +35,9 @@ export const MessagesList: React.FC<Props> = ({ inputRef, selectedChat }) => {
         <Flex
             pr={'7px'}
             ref={chatContainer}
+            height={'100%'}
             flexDirection={'column'}
             overflow="auto"
-            height={`calc(100% - ${
-                inputRef.current?.getBoundingClientRect().height
-            }px)`}
         >
             {messages?.length === 0 && (
                 <Flex

@@ -184,7 +184,7 @@ export const verifyRequestEpic: Epic<
 
 export const voteUser: Epic<RootAction, RootAction, RootState, typeof API> = (
     action$,
-    _state$,
+    state$,
     { voteUser, updateUserRoom }
 ) =>
     action$.pipe(
@@ -202,6 +202,7 @@ export const voteUser: Epic<RootAction, RootAction, RootState, typeof API> = (
             return from(voteUser(uid as string, rating as number)).pipe(
                 mergeMap((res) => {
                     const { roomData } = action.payload
+                    const { user } = state$.value.auth
 
                     const newRoomData: RoomData = {
                         ...roomData,
@@ -211,7 +212,7 @@ export const voteUser: Epic<RootAction, RootAction, RootState, typeof API> = (
                                 ...roomData.data.chatDevice,
                                 rating,
                             },
-                            voted: true,
+                            voted: [...roomData.data.voted, user.uid as string],
                         },
                     }
 

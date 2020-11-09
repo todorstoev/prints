@@ -48,7 +48,7 @@ export type RoomData = {
 
 export type ChatData = {
     users: string[]
-    voted: boolean
+    voted: string[]
     recieverHasRed: boolean
     title: string
     chatDevice: Device

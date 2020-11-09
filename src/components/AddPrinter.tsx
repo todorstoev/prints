@@ -461,6 +461,7 @@ const AddPrinter: React.FC<Props> = ({ toggleModal }) => {
                                     }}
                                 >
                                     <Map
+                                        dragging={true}
                                         controls={true}
                                         zoom={13}
                                         center={userLocation}

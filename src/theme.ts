@@ -100,7 +100,7 @@ export const theme: any = {
             my: '1rem',
             p: '5px',
             borderRadius: '5px',
-            width: '100%',
+            // width: '100%',
             overflowWrap: 'break-word',
         },
         myMessage: {

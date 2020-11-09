@@ -9,11 +9,12 @@ type MapProps = {
     controls: boolean
     center: Coords
     zoom: number
+    dragging: boolean
     onClick?: (e: LeafletMouseEvent) => void
 }
 
 const Map: React.FC<MapProps> = (props) => {
-    const { center, zoom, onClick, children, controls } = props
+    const { center, zoom, onClick, children, controls, dragging } = props
 
     return (
         <LeafletMap
@@ -22,6 +23,7 @@ const Map: React.FC<MapProps> = (props) => {
             zoom={zoom}
             onclick={onClick}
             zoomControl={false}
+            dragging={dragging}
         >
             <TileLayer
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

@@ -87,7 +87,12 @@ export class Home extends React.Component<HomeProps, HomeState> {
 
         return (
             <Box height={'100%'}>
-                <Map center={mapCenter} zoom={mapZoom} controls={true}>
+                <Map
+                    center={mapCenter}
+                    zoom={mapZoom}
+                    controls={true}
+                    dragging={true}
+                >
                     <MarkerClusterGroup>
                         {mapMarkers.map((marker, index) => {
                             return (
