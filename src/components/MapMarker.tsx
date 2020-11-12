@@ -1,35 +1,30 @@
-import React from 'react'
+import React from 'react';
 
-import { Icon, LeafletMouseEvent } from 'leaflet'
-import { Marker } from 'react-leaflet'
+import { Icon } from 'leaflet';
+import { Marker } from 'react-leaflet';
 
-import { Coords } from '../types'
+import { Coords } from '../types';
 
 type MapMarkerProps = {
-    position: Coords
-    icon?: Icon
-    onClick?: (e: LeafletMouseEvent) => void
-}
+  position: Coords;
+  icon?: Icon;
+};
 
-const MapMarker: React.FC<MapMarkerProps> = props => {
-    const { position, icon, onClick, children } = props
+const MapMarker: React.FC<MapMarkerProps> = (props) => {
+  const { position, icon, children } = props;
 
-    const defaultIcon = new Icon({
-        iconUrl: './assets/default-location-pin-icon.svg',
-        iconAnchor: [20, 40],
-        popupAnchor: [0, -35],
-        iconSize: [40, 40],
-    })
+  const defaultIcon = new Icon({
+    iconUrl: './assets/default-location-pin-icon.svg',
+    iconAnchor: [20, 40],
+    popupAnchor: [0, -35],
+    iconSize: [45, 45],
+  });
 
-    return (
-        <Marker
-            position={position}
-            icon={icon || defaultIcon}
-            onClick={onClick}
-        >
-            {children}
-        </Marker>
-    )
-}
+  return (
+    <Marker position={position} icon={icon || defaultIcon}>
+      {children}
+    </Marker>
+  );
+};
 
-export default MapMarker
+export default MapMarker;

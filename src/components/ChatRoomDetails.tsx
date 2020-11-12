@@ -1,8 +1,9 @@
 import { useTheme } from 'emotion-theming';
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Box, Flex, Text, Heading, Button } from 'rebass';
-import { ChevronDown, ChevronUp, Plus, Minus } from 'react-feather';
+import { ChevronDown, ChevronUp, Plus, Minus, Info } from 'react-feather';
+import { useSpring, animated, config } from 'react-spring';
 
 import MapMarker from '../components/MapMarker';
 import Map from '../components/Map';
@@ -26,10 +27,27 @@ export const ChatRoomDetails: React.FC<Props> = ({ data }) => {
 
   const [stretched, setStretched] = useState<boolean>(true);
 
+  const [showInfo, setShowInfo] = useState<boolean>(false);
+
   const { user, canVote } = useSelector<RootState, AuthState & ChatState>((state) => ({
     ...state.auth,
     ...state.chat,
   }));
+
+  const headingRef = useRef<HTMLElement>(null);
+
+  const [props, set] = useSpring(() => ({
+    opacity: 1,
+    transform: `translate3d(0,0px,0) scale(0.7)`,
+  }));
+
+  useEffect(() => {
+    set({
+      opacity: showInfo ? 1 : 0,
+      transform: `translate3d(0,${showInfo ? -100 : 0}px,0) scale(${showInfo ? 1 : 0.6})`,
+      config: config.stiff,
+    });
+  }, [showInfo, set]);
 
   return (
     <Flex
@@ -116,42 +134,75 @@ export const ChatRoomDetails: React.FC<Props> = ({ data }) => {
                   flexDirection={'column'}
                   justifyContent={'space-evenly'}
                 >
-                  <Heading color="primary" my={2}>
-                    Rating : {data.data.chatDevice.rating}
-                  </Heading>
-                  <Box>
-                    <Button
-                      mr={1}
-                      disabled={!canVote}
-                      onClick={() => {
-                        if (!canVote) return;
-                        dispatch(
-                          actions.voteUserRequest({
-                            vote: Vote.Down,
-                            roomData: data,
-                          }),
-                        );
-                        (data.data.chatDevice.rating as number)--;
+                  <Box sx={{ position: 'relative' }}>
+                    <Heading color="primary" my={2} py={1} ref={headingRef}>
+                      Rating : {data.data.chatDevice.rating}
+                    </Heading>
+                    <Box
+                      sx={{
+                        ':hover': {
+                          color: 'secondary',
+                          cursor: 'pointer',
+                        },
+                        transition: 'all 0.2s linear',
+                        position: 'absolute',
+                        left: 0,
+                        top: `-5px`,
+                      }}
+                      color="primary"
+                      onClick={(e) => {
+                        setShowInfo(!showInfo);
                       }}
                     >
-                      <Minus />
-                    </Button>
-                    <Button
-                      disabled={!canVote}
-                      onClick={() => {
-                        if (!canVote) return;
-                        dispatch(
-                          actions.voteUserRequest({
-                            vote: Vote.Up,
-                            roomData: data,
-                          }),
-                        );
-                        (data.data.chatDevice.rating as number)++;
-                      }}
-                    >
-                      <Plus />
-                    </Button>
+                      <Info size={14} />
+                    </Box>
                   </Box>
+
+                  <animated.div style={{ ...props, position: 'absolute', zIndex: 1000 }}>
+                    <Box
+                      p={2}
+                      bg={'background'}
+                      color={'black'}
+                      sx={{ boxShadow: 'card', maxWidth: 240 }}
+                    >
+                      You can rate this device's owner. {'\n'} Careful, you can rate only once.
+                    </Box>
+                  </animated.div>
+                  {data.data.chatDevice.id !== user.uid && (
+                    <Box>
+                      <Button
+                        mr={1}
+                        disabled={!canVote}
+                        onClick={() => {
+                          if (!canVote) return;
+                          dispatch(
+                            actions.voteUserRequest({
+                              vote: Vote.Down,
+                              roomData: data,
+                            }),
+                          );
+                          (data.data.chatDevice.rating as number)--;
+                        }}
+                      >
+                        <Minus />
+                      </Button>
+                      <Button
+                        disabled={!canVote}
+                        onClick={() => {
+                          if (!canVote) return;
+                          dispatch(
+                            actions.voteUserRequest({
+                              vote: Vote.Up,
+                              roomData: data,
+                            }),
+                          );
+                          (data.data.chatDevice.rating as number)++;
+                        }}
+                      >
+                        <Plus />
+                      </Button>
+                    </Box>
+                  )}
                 </Flex>
               </Box>
             </Box>

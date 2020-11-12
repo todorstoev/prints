@@ -172,7 +172,7 @@ export const verifyRequestEpic: Epic<RootAction, RootAction, RootState, typeof A
 
 export const voteUser: Epic<RootAction, RootAction, RootState, typeof API> = (
   action$,
-  state$,
+  _state$,
   { voteUser, updateUserRoom },
 ) =>
   action$.pipe(
@@ -184,7 +184,11 @@ export const voteUser: Epic<RootAction, RootAction, RootState, typeof API> = (
 
       const { roomData } = action.payload;
 
-      const { user } = state$.value.auth;
+      if (direction === Vote.Up) {
+        (rating as number)++;
+      } else {
+        (rating as number)--;
+      }
 
       const newRoomData: RoomData = {
         ...roomData,
@@ -194,20 +198,21 @@ export const voteUser: Epic<RootAction, RootAction, RootState, typeof API> = (
             ...roomData.data.chatDevice,
             rating,
           },
-          voted: [...roomData.data.voted, user.uid as string],
+          voted: true,
         },
       };
 
-      if (direction === Vote.Up) {
-        (rating as number)++;
-      } else {
-        (rating as number)--;
-      }
-
+      debugger;
       return from(voteUser(uid as string, rating as number)).pipe(
         mergeMap(() => {
           return from(updateUserRoom(newRoomData)).pipe(
-            mergeMap(() => of(actions.voteUserSuccess())),
+            mergeMap(() =>
+              of(
+                actions.voteUserSuccess(),
+                actions.setCanVote(false),
+                actions.addNotification('User is Rated'),
+              ),
+            ),
           );
         }),
       );

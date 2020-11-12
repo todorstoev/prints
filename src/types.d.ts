@@ -53,7 +53,7 @@ export type RoomData = {
 
 export type ChatData = {
   users: string[];
-  voted: string[];
+  voted: boolean;
   recieverHasRed: boolean;
   title: string;
   chatDevice: Device;

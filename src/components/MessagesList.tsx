@@ -2,16 +2,21 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import { Box, Flex, Text } from 'rebass';
 import { getUserMessages } from '../shared/services';
-import { AuthState, Message, RootState } from '../types';
+
+import { AuthState, ChatState, Message, RootState } from '../types';
 
 type Props = {
   selectedChat: string;
+  voted: boolean;
 };
 
-export const MessagesList: React.FC<Props> = ({ selectedChat }) => {
+export const MessagesList: React.FC<Props> = ({ selectedChat, voted }) => {
   const [messages, setMessages] = useState<Message[]>([]);
 
-  const { user } = useSelector<RootState, AuthState>((state) => state.auth);
+  const { user } = useSelector<RootState, AuthState & ChatState>((state) => ({
+    ...state.auth,
+    ...state.chat,
+  }));
 
   const chatContainer = useRef<HTMLElement>(null);
 
@@ -21,6 +26,7 @@ export const MessagesList: React.FC<Props> = ({ selectedChat }) => {
     const subscription = observable.subscribe({
       next: (snapshot) => {
         setMessages(snapshot);
+
         chatContainer.current?.scrollTo(0, chatContainer.current.scrollHeight);
       },
     });

@@ -26,9 +26,9 @@ const MessagesHub: React.FC<RouteComponentProps<any, any, Device>> = ({ location
 
   const [userRooms, setUserRooms] = useState<RoomData[]>([]);
 
-  const [newChat, setNewChat] = useState<RoomData | undefined>();
-
   const [shoudStartNew, setShouldStartNew] = useState<boolean>(false);
+
+  const [newChat, setNewChat] = useState<RoomData | undefined>();
 
   const [detailsDevice, setDetailsDevice] = useState<RoomData | undefined>();
 
@@ -47,7 +47,10 @@ const MessagesHub: React.FC<RouteComponentProps<any, any, Device>> = ({ location
 
     reset();
 
-    if (shoudStartNew) await createNewChat(newChat as RoomData);
+    if (shoudStartNew) {
+      await createNewChat(newChat as RoomData);
+      dispatch(actions.setCanVote(true));
+    }
 
     await addMessage(newMessage, selectedChat);
   };
@@ -63,13 +66,16 @@ const MessagesHub: React.FC<RouteComponentProps<any, any, Device>> = ({ location
 
         if (chatExist) {
           setSelectedChat(chatExist.id);
+          if (!chatExist.data.voted) {
+            dispatch(actions.setCanVote(true));
+          }
         } else {
           const startingNewChat: RoomData = {
             data: {
               recieverHasRed: false,
               title: `${messagedDevice.brand} ${messagedDevice.model}`,
               users: [user.uid as string, messagedDevice.id as string],
-              voted: [],
+              voted: false,
               chatDevice: messagedDevice,
             },
             id: `${user.uid}:${messagedDevice.id}`,
@@ -85,29 +91,13 @@ const MessagesHub: React.FC<RouteComponentProps<any, any, Device>> = ({ location
         if (res[0]) setSelectedChat(res[0].id);
       }
     });
-  }, [user, location]);
+  }, [user, location, dispatch]);
 
   useEffect(() => {
     if (userRooms) {
       setDetailsDevice(userRooms.find((room) => room.id === selectedChat));
     }
   }, [userRooms, selectedChat]);
-
-  useEffect(() => {
-    if (detailsDevice && detailsDevice.id === selectedChat) {
-      if (detailsDevice?.data.voted.find((id) => id === user.uid)) {
-        dispatch(actions.setCanVote(false));
-      } else {
-        dispatch(actions.setCanVote(true));
-      }
-    }
-
-    if (newChat) {
-      if (newChat.id === selectedChat) {
-        dispatch(actions.setCanVote(false));
-      }
-    }
-  }, [detailsDevice, dispatch, user.uid, newChat, selectedChat]);
 
   return (
     <Box p={'1rem'} pt={['5.5rem', '8rem']} height={'100%'}>
@@ -218,7 +208,7 @@ const MessagesHub: React.FC<RouteComponentProps<any, any, Device>> = ({ location
                     }}
                   >
                     {room.data.title}
-                    {room.id === user.uid ? '(yours)' : ''}
+                    {room.data.chatDevice.id === user.uid ? ' (yours)' : ''}
                   </Button>
                 );
               })}
@@ -232,7 +222,18 @@ const MessagesHub: React.FC<RouteComponentProps<any, any, Device>> = ({ location
               overflow={'hidden'}
               sx={{ gridArea: 'messages', boxShadow: ['none', 'small'] }}
             >
-              {selectedChat && <MessagesList {...{ selectedChat }} />}
+              {selectedChat && (
+                <MessagesList
+                  {...{
+                    selectedChat,
+                    voted: detailsDevice
+                      ? detailsDevice.data.voted
+                      : newChat
+                      ? newChat.data.voted
+                      : false,
+                  }}
+                />
+              )}
             </Box>
             <Box sx={{ gridArea: 'inputHalf' }} display={['none', 'block']}></Box>
             <Box sx={{ gridArea: 'input' }}>
