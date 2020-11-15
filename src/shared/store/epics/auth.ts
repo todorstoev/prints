@@ -172,38 +172,46 @@ export const verifyRequestEpic: Epic<RootAction, RootAction, RootState, typeof A
 
 export const voteUser: Epic<RootAction, RootAction, RootState, typeof API> = (
   action$,
-  _state$,
+  state$,
   { voteUser, updateUserRoom },
 ) =>
   action$.pipe(
     filter(isActionOf(actions.voteUserRequest)),
     exhaustMap((action) => {
-      const direction = action.payload.vote;
-
-      let { rating, id: uid } = action.payload.roomData.data.chatDevice;
+      let { user } = state$.value.auth;
 
       const { roomData } = action.payload;
 
+      const direction = action.payload.vote;
+
+      let { rating } = action.payload.roomData.data;
+
+      let newRating = rating[user.uid as string];
+
+      const contactUserId: string = Object.keys(rating).filter((r) => r !== user.uid)[0];
+
       if (direction === Vote.Up) {
-        (rating as number)++;
+        newRating++;
       } else {
-        (rating as number)--;
+        newRating--;
       }
 
       const newRoomData: RoomData = {
         ...roomData,
         data: {
           ...roomData.data,
-          chatDevice: {
-            ...roomData.data.chatDevice,
-            rating,
+          rating: {
+            ...roomData.data.rating,
+            [`${user.uid}`]: newRating,
           },
-          voted: true,
+          voted: {
+            ...roomData.data.voted,
+            [`${user.uid}`]: true,
+          },
         },
       };
 
-      debugger;
-      return from(voteUser(uid as string, rating as number)).pipe(
+      return from(voteUser(contactUserId as string, newRating as number)).pipe(
         mergeMap(() => {
           return from(updateUserRoom(newRoomData)).pipe(
             mergeMap(() =>

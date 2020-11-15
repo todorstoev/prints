@@ -7,10 +7,9 @@ import { AuthState, ChatState, Message, RootState } from '../types';
 
 type Props = {
   selectedChat: string;
-  voted: boolean;
 };
 
-export const MessagesList: React.FC<Props> = ({ selectedChat, voted }) => {
+export const MessagesList: React.FC<Props> = ({ selectedChat }) => {
   const [messages, setMessages] = useState<Message[]>([]);
 
   const { user } = useSelector<RootState, AuthState & ChatState>((state) => ({

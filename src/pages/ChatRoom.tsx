@@ -21,16 +21,16 @@ const doesChatExists = (chats: RoomData[], deviceFromLocation: Device) =>
     return chat.data.users.some((id) => id === deviceFromLocation.id);
   });
 
-const MessagesHub: React.FC<RouteComponentProps<any, any, Device>> = ({ location }) => {
+const ChatRoom: React.FC<RouteComponentProps<any, any, Device>> = ({ location }) => {
   const [selectedChat, setSelectedChat] = useState<string>('');
 
   const [userRooms, setUserRooms] = useState<RoomData[]>([]);
 
+  const [selectedUserRoom, setSelectedUserRoom] = useState<RoomData | undefined>();
+
   const [shoudStartNew, setShouldStartNew] = useState<boolean>(false);
 
   const [newChat, setNewChat] = useState<RoomData | undefined>();
-
-  const [detailsDevice, setDetailsDevice] = useState<RoomData | undefined>();
 
   const { user } = useSelector<RootState, AuthState>((state) => state.auth);
 
@@ -60,47 +60,62 @@ const MessagesHub: React.FC<RouteComponentProps<any, any, Device>> = ({ location
       const { state: messagedDevice } = location;
 
       setUserRooms(res);
-
       if (messagedDevice !== undefined) {
         const chatExist = doesChatExists(res, messagedDevice);
-
         if (chatExist) {
-          setSelectedChat(chatExist.id);
-          if (!chatExist.data.voted) {
+          setSelectedChat(chatExist.roomId);
+          if (!chatExist.data.voted[user.uid as string]) {
             dispatch(actions.setCanVote(true));
           }
         } else {
           const startingNewChat: RoomData = {
             data: {
+              rating: {
+                [`${messagedDevice.id}`]: user.rating,
+                [`${user.uid}`]: messagedDevice.rating as number,
+              },
               recieverHasRed: false,
-              title: `${messagedDevice.brand} ${messagedDevice.model}`,
               users: [user.uid as string, messagedDevice.id as string],
-              voted: false,
+              voted: {
+                [`${messagedDevice.id}`]: false,
+                [`${user.uid}`]: false,
+              },
+              titles: {
+                [`${messagedDevice.id}`]: user.username as string,
+                [`${user.uid}`]: messagedDevice.username as string,
+              },
               chatDevice: messagedDevice,
             },
-            id: `${user.uid}:${messagedDevice.id}`,
+            roomId: `${user.uid}:${messagedDevice.id}`,
           };
-
           setNewChat(startingNewChat);
 
-          setSelectedChat(startingNewChat.id);
+          setSelectedChat(startingNewChat.roomId);
 
           setShouldStartNew(true);
         }
       } else {
-        if (res[0]) setSelectedChat(res[0].id);
+        if (res[0]) setSelectedChat(res[0].roomId);
       }
     });
   }, [user, location, dispatch]);
 
   useEffect(() => {
     if (userRooms) {
-      setDetailsDevice(userRooms.find((room) => room.id === selectedChat));
+      setSelectedUserRoom(userRooms.find((room) => room.roomId === selectedChat));
     }
   }, [userRooms, selectedChat]);
 
+  useEffect(() => {
+    if (selectedUserRoom === undefined) return;
+
+    if (!selectedUserRoom?.data.voted[user.uid as string]) {
+      dispatch(actions.setCanVote(true));
+    }
+  }, [selectedUserRoom, dispatch, user.uid]);
+
   return (
-    <Box p={'1rem'} pt={['5.5rem', '8rem']} height={'100%'}>
+    <Box p={'1rem'} pt={['5.5rem', '6rem']} height={'100%'} overflow={'hidden'}>
       {userRooms.length <= 0 && !location.state && (
         <>
           <Heading as={'h2'} textAlign="center">
@@ -141,15 +156,16 @@ const MessagesHub: React.FC<RouteComponentProps<any, any, Device>> = ({ location
       >
         <Box
           sx={{
-            boxShadow: ['none', 'small'],
+            boxShadow: ['small'],
             gridArea: 'details',
           }}
+          p={[2, 0]}
           width={'100%'}
         >
-          {(detailsDevice || newChat) && (
+          {(selectedUserRoom || newChat) && (
             <ChatRoomDetails
               {...{
-                data: (detailsDevice as RoomData) || (newChat as RoomData),
+                data: (selectedUserRoom as RoomData) || (newChat as RoomData),
               }}
             />
           )}
@@ -160,7 +176,7 @@ const MessagesHub: React.FC<RouteComponentProps<any, any, Device>> = ({ location
             overflow={'auto'}
             sx={{
               gridArea: 'chats',
-              boxShadow: 'small',
+              boxShadow: 'card',
               '@media screen and (max-width:56em)': {
                 display: 'block',
                 whiteSpace: 'nowrap',
@@ -180,7 +196,7 @@ const MessagesHub: React.FC<RouteComponentProps<any, any, Device>> = ({ location
             >
               {newChat && (
                 <Button
-                  variant={newChat.id === selectedChat ? 'chatItemActive' : 'chatItem'}
+                  variant={newChat.roomId === selectedChat ? 'chatItemActive' : 'chatItem'}
                   mr={2}
                   mt={[0, 2]}
                   onClick={() => {
@@ -188,27 +204,26 @@ const MessagesHub: React.FC<RouteComponentProps<any, any, Device>> = ({ location
 
                     if (!chatExists) setShouldStartNew(true);
 
-                    setSelectedChat(newChat.id);
+                    setSelectedChat(newChat.roomId);
                   }}
                 >
-                  {newChat.data.title}
+                  {newChat.data.titles[user.uid as string]}
                 </Button>
               )}
               {userRooms.map((room) => {
                 return (
                   <Button
-                    variant={room.id === selectedChat ? 'chatItemActive' : 'chatItem'}
-                    key={room.id}
+                    variant={room.roomId === selectedChat ? 'chatItemActive' : 'chatItem'}
+                    key={room.roomId}
                     mt={[0, 2]}
                     mr={2}
                     onClick={() => {
                       const chatExists = userRooms.find((chat) => room === chat);
                       if (chatExists) setShouldStartNew(false);
-                      setSelectedChat(room.id);
+                      setSelectedChat(room.roomId);
                     }}
                   >
-                    {room.data.title}
-                    {room.data.chatDevice.id === user.uid ? ' (yours)' : ''}
+                    {room.data.titles[user.uid as string]}
                   </Button>
                 );
               })}
@@ -217,20 +232,11 @@ const MessagesHub: React.FC<RouteComponentProps<any, any, Device>> = ({ location
         )}
         {(userRooms.length > 0 || location.state) && (
           <>
-            <Box
-              p={2}
-              overflow={'hidden'}
-              sx={{ gridArea: 'messages', boxShadow: ['none', 'small'] }}
-            >
+            <Box p={2} overflow={'hidden'} sx={{ gridArea: 'messages', boxShadow: ['small'] }}>
               {selectedChat && (
                 <MessagesList
                   {...{
                     selectedChat,
-                    voted: detailsDevice
-                      ? detailsDevice.data.voted
-                      : newChat
-                      ? newChat.data.voted
-                      : false,
                   }}
                 />
               )}
@@ -284,4 +290,4 @@ const MessagesHub: React.FC<RouteComponentProps<any, any, Device>> = ({ location
   );
 };
 
-export default MessagesHub;
+export default ChatRoom;

@@ -1,15 +1,16 @@
 import { useTheme } from 'emotion-theming';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Box, Flex, Text, Heading, Button } from 'rebass';
-import { ChevronDown, ChevronUp, Plus, Minus, Info } from 'react-feather';
-import { useSpring, animated, config } from 'react-spring';
+import { Plus, Minus } from 'react-feather';
 
-import MapMarker from '../components/MapMarker';
-import Map from '../components/Map';
 import { AuthState, ChatState, RoomData, RootState } from '../types';
 
 import { actions } from '../shared/store';
+
+import { ChatDetailsControls } from '../components/ChatDetailsControls';
+import MapMarker from '../components/MapMarker';
+import Map from '../components/Map';
 
 export enum Vote {
   Up = 'UP',
@@ -23,11 +24,9 @@ type Props = {
 export const ChatRoomDetails: React.FC<Props> = ({ data }) => {
   const mainTheme = useTheme<any>();
 
-  const dispatch = useDispatch();
-
   const [stretched, setStretched] = useState<boolean>(true);
 
-  const [showInfo, setShowInfo] = useState<boolean>(false);
+  const dispatch = useDispatch();
 
   const { user, canVote } = useSelector<RootState, AuthState & ChatState>((state) => ({
     ...state.auth,
@@ -36,19 +35,6 @@ export const ChatRoomDetails: React.FC<Props> = ({ data }) => {
 
   const headingRef = useRef<HTMLElement>(null);
 
-  const [props, set] = useSpring(() => ({
-    opacity: 1,
-    transform: `translate3d(0,0px,0) scale(0.7)`,
-  }));
-
-  useEffect(() => {
-    set({
-      opacity: showInfo ? 1 : 0,
-      transform: `translate3d(0,${showInfo ? -100 : 0}px,0) scale(${showInfo ? 1 : 0.6})`,
-      config: config.stiff,
-    });
-  }, [showInfo, set]);
-
   return (
     <Flex
       bg={[mainTheme.bwGradientSmall, mainTheme.bwGradient]}
@@ -56,21 +42,17 @@ export const ChatRoomDetails: React.FC<Props> = ({ data }) => {
         borderRadius: 5,
         position: 'relative',
       }}
+      flexDirection={'column'}
       color={'background'}
       p={[0, 3]}
       height={'auto'}
     >
-      <Box color={'primary'} sx={{ position: 'absolute', right: 0, top: 0 }}>
-        {stretched && (
-          <ChevronDown onClick={() => setStretched(false)} style={{ cursor: 'pointer' }} />
-        )}
-        {!stretched && (
-          <ChevronUp onClick={() => setStretched(true)} style={{ cursor: 'pointer' }} />
-        )}
-      </Box>
       {data &&
         (!stretched ? (
           <Box width={'100%'} height={'100%'}>
+            <Box my={[2, 0]}>
+              <ChatDetailsControls streched={stretched} setStretched={setStretched} />
+            </Box>
             <Box
               sx={{
                 display: 'grid',
@@ -84,7 +66,9 @@ export const ChatRoomDetails: React.FC<Props> = ({ data }) => {
               }}
             >
               <Flex
+                sx={{ position: 'relative', top: '-13px' }}
                 height={'100%'}
+                pl={'13px'}
                 justifyContent={['space-between', 'space-between', 'flex-start']}
               >
                 <Box
@@ -127,90 +111,66 @@ export const ChatRoomDetails: React.FC<Props> = ({ data }) => {
                 </Flex>
               </Flex>
               <Box>
-                <Box mt={2} />
                 <Flex
                   alignItems={['center', 'center', 'flex-end']}
                   height={'100%'}
-                  flexDirection={'column'}
-                  justifyContent={'space-evenly'}
+                  flexDirection={['row', 'column']}
+                  justifyContent={['space-between', 'space-evenly']}
                 >
                   <Box sx={{ position: 'relative' }}>
                     <Heading color="primary" my={2} py={1} ref={headingRef}>
-                      Rating : {data.data.chatDevice.rating}
+                      Rating : {data.data.rating[user.uid as string]}
                     </Heading>
-                    <Box
-                      sx={{
-                        ':hover': {
-                          color: 'secondary',
-                          cursor: 'pointer',
-                        },
-                        transition: 'all 0.2s linear',
-                        position: 'absolute',
-                        left: 0,
-                        top: `-5px`,
-                      }}
-                      color="primary"
-                      onClick={(e) => {
-                        setShowInfo(!showInfo);
-                      }}
-                    >
-                      <Info size={14} />
-                    </Box>
                   </Box>
 
-                  <animated.div style={{ ...props, position: 'absolute', zIndex: 1000 }}>
-                    <Box
-                      p={2}
-                      bg={'background'}
-                      color={'black'}
-                      sx={{ boxShadow: 'card', maxWidth: 240 }}
+                  <Box>
+                    <Button
+                      mr={1}
+                      disabled={!canVote}
+                      onClick={() => {
+                        if (!canVote) return;
+                        dispatch(
+                          actions.voteUserRequest({
+                            vote: Vote.Down,
+                            roomData: data,
+                          }),
+                        );
+
+                        (data.data.rating[user.uid as string] as number)--;
+                      }}
                     >
-                      You can rate this device's owner. {'\n'} Careful, you can rate only once.
-                    </Box>
-                  </animated.div>
-                  {data.data.chatDevice.id !== user.uid && (
-                    <Box>
-                      <Button
-                        mr={1}
-                        disabled={!canVote}
-                        onClick={() => {
-                          if (!canVote) return;
-                          dispatch(
-                            actions.voteUserRequest({
-                              vote: Vote.Down,
-                              roomData: data,
-                            }),
-                          );
-                          (data.data.chatDevice.rating as number)--;
-                        }}
-                      >
-                        <Minus />
-                      </Button>
-                      <Button
-                        disabled={!canVote}
-                        onClick={() => {
-                          if (!canVote) return;
-                          dispatch(
-                            actions.voteUserRequest({
-                              vote: Vote.Up,
-                              roomData: data,
-                            }),
-                          );
-                          (data.data.chatDevice.rating as number)++;
-                        }}
-                      >
-                        <Plus />
-                      </Button>
-                    </Box>
-                  )}
+                      <Minus />
+                    </Button>
+                    <Button
+                      disabled={!canVote}
+                      onClick={() => {
+                        if (!canVote) return;
+                        dispatch(
+                          actions.voteUserRequest({
+                            vote: Vote.Up,
+                            roomData: data,
+                          }),
+                        );
+
+                        (data.data.rating[user.uid as string] as number)++;
+                      }}
+                    >
+                      <Plus />
+                    </Button>
+                  </Box>
                 </Flex>
               </Box>
             </Box>
           </Box>
         ) : (
-          <Heading color={['primary', 'background']}>
-            {data.data.chatDevice.brand} {data.data.chatDevice.model}
-          </Heading>
+          <Flex alignItems={'center'} justifyContent={'space-between'}>
+            <Box>
+              <Heading color={['primary', 'background']}>
+                {data.data.chatDevice.brand} {data.data.chatDevice.model}
+              </Heading>
+            </Box>
+            <ChatDetailsControls streched={stretched} setStretched={setStretched} />
+          </Flex>
         ))}
     </Flex>
   );

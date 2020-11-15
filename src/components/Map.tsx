@@ -2,6 +2,7 @@ import React from 'react';
 
 import { LeafletMouseEvent } from 'leaflet';
 import { Map as LeafletMap, TileLayer, ZoomControl } from 'react-leaflet';
+import MarkerClusterGroup from 'react-leaflet-markercluster';
 
 import { Coords } from '../types';
 
@@ -30,7 +31,8 @@ const Map: React.FC<MapProps> = (props) => {
         attribution="&amp;copy <a href='http://osm.org/copyright'>OpenStreetMap</a> contributors"
       />
 
-      {children}
+      <MarkerClusterGroup>{children}</MarkerClusterGroup>
+
       {controls && <ZoomControl position={'bottomleft'} />}
     </LeafletMap>
   );

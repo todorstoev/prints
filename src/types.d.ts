@@ -47,15 +47,25 @@ export type PrintsUser = {
 };
 
 export type RoomData = {
-  id: string;
+  roomId: string;
   data: ChatData;
 };
 
 export type ChatData = {
   users: string[];
-  voted: boolean;
+  voted: {
+    [key: string]: boolean;
+    [key: string]: boolean;
+  };
   recieverHasRed: boolean;
-  title: string;
+  titles: {
+    [key: string]: string;
+    [key: string]: string;
+  };
+  rating: {
+    [key: string]: number;
+    [key: string]: number;
+  };
   chatDevice: Device;
 };
 
@@ -88,6 +98,7 @@ export interface Device extends Printer {
   type: string;
   id?: string;
   rating?: number;
+  username?: string;
 }
 
 export type PrintsGenericError = {

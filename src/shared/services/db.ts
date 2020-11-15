@@ -2,16 +2,37 @@ import { RoomData, Device, Printer, PrintsUser, ChatData, Message } from '../../
 import { db, googleProvider, myFirebase, localPersistance, nonePersistance } from './firebase';
 import { FirebaseError, User } from 'firebase';
 import { Observable } from 'rxjs';
+
+import {
+  uniqueNamesGenerator,
+  Config,
+  adjectives,
+  NumberDictionary,
+  starWars,
+} from 'unique-names-generator';
+
 import { fbErrorMessages, remapUser } from '../helpers';
 
+const numberDictionary = NumberDictionary.generate({ min: 0, max: 9999 });
+
+const customConfigNameGen: Config = {
+  dictionaries: [adjectives, starWars, numberDictionary],
+  separator: '-',
+  length: 3,
+};
+
 export const registerWithEmail = async (email: string, password: string): Promise<PrintsUser> => {
+  const username: string = uniqueNamesGenerator(customConfigNameGen)
+    .replaceAll(' ', '-')
+    .toLowerCase();
+
   return new Promise((resolve, reject) => {
     const userToInsert: PrintsUser = {
       email,
       firstName: '',
       lastName: '',
       uid: '',
-      username: '',
+      username,
       rating: 100,
       pic: './assets/user-unknown-com.svg',
       devices: [],
@@ -45,7 +66,11 @@ export const loginWithSsoFinish = (): Promise<PrintsUser> => {
       .auth()
       .getRedirectResult()
       .then((res) => {
-        const userToInsert = remapUser(res);
+        const username: string = uniqueNamesGenerator(customConfigNameGen)
+          .replace(' ', '-')
+          .toLowerCase();
+
+        const userToInsert = remapUser(res, username);
 
         if (res.additionalUserInfo?.isNewUser) {
           saveUserToDb(userToInsert)
@@ -120,6 +145,7 @@ export const getDevicesService = (): Promise<Device[]> => {
           for (let d = 0; currUserDevices.length > d; d++) {
             currUserDevices[d].id = asyncSnapshot.docs[i].data().uid;
             currUserDevices[d].rating = asyncSnapshot.docs[i].data().rating;
+            currUserDevices[d].username = asyncSnapshot.docs[i].data().username;
           }
 
           devicesList = [...devicesList, ...currUserDevices];
@@ -268,7 +294,7 @@ export const getUserRooms = (user: PrintsUser): Promise<RoomData[]> => {
       .get()
       .then((querySnapshot) => {
         const docs: RoomData[] = [];
-        querySnapshot.forEach((doc) => docs.push({ id: doc.id, data: doc.data() as ChatData }));
+        querySnapshot.forEach((doc) => docs.push({ roomId: doc.id, data: doc.data() as ChatData }));
 
         resolve(docs);
       })
@@ -279,7 +305,7 @@ export const getUserRooms = (user: PrintsUser): Promise<RoomData[]> => {
 export const updateUserRoom = (room: RoomData): Promise<boolean> => {
   return new Promise((resolve, reject) => {
     db.collection('chats')
-      .doc(room.id)
+      .doc(room.roomId)
       .update(room.data)
       .then((res) => resolve(true))
       .catch((err) => reject(err));
@@ -289,7 +315,7 @@ export const updateUserRoom = (room: RoomData): Promise<boolean> => {
 export const createNewChat = (newChat: RoomData): Promise<boolean> => {
   return new Promise((resolve, reject) => {
     db.collection('chats')
-      .doc(newChat.id)
+      .doc(newChat.roomId)
       .set(newChat.data)
       .then((res) => resolve(true))
       .catch((e) => reject(e));

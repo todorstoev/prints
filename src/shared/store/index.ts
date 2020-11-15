@@ -1,45 +1,41 @@
-import { applyMiddleware, createStore } from 'redux'
+import { applyMiddleware, createStore } from 'redux';
 
-import { createEpicMiddleware } from 'redux-observable'
-import { logger } from 'redux-logger'
+import { createEpicMiddleware } from 'redux-observable';
+import { logger } from 'redux-logger';
 
-import { ActionType } from 'typesafe-actions'
+import { ActionType } from 'typesafe-actions';
 
-import { RootState } from '../../types'
+import { RootState } from '../../types';
 
-import * as actions from './actions'
+import * as actions from './actions';
 
-import rootReducer from './reducers'
+import rootReducer from './reducers';
 
-import * as API from '../services'
+import * as API from '../services';
 
-import { rootEpics } from './epics'
+import { rootEpics } from './epics';
 
-export type RootAction = ActionType<typeof actions>
+export type RootAction = ActionType<typeof actions>;
 
 const epicMiddleware = createEpicMiddleware<RootAction, RootAction, RootState>({
-    dependencies: API,
-})
+  dependencies: API,
+});
 
 const configureStore = (initialState?: RootState) => {
-    const store = createStore(
-        rootReducer,
-        initialState,
-        applyMiddleware(epicMiddleware, logger)
-    )
+  const store = createStore(rootReducer, initialState, applyMiddleware(epicMiddleware, logger));
 
-    epicMiddleware.run(rootEpics)
+  epicMiddleware.run(rootEpics);
 
-    if (sessionStorage.getItem('3dreact:sso')) {
-        store.dispatch(actions.requestSsoLogin())
-        sessionStorage.removeItem('3dreact:sso')
-    } else {
-        store.dispatch(actions.verifyRequest())
-    }
+  if (sessionStorage.getItem('3dreact:sso')) {
+    store.dispatch(actions.requestSsoLogin());
+    sessionStorage.removeItem('3dreact:sso');
+  } else {
+    store.dispatch(actions.verifyRequest());
+  }
 
-    return store
-}
+  return store;
+};
 
-export { actions }
+export { actions };
 
-export default configureStore
+export default configureStore;
