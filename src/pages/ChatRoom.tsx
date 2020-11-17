@@ -155,6 +155,7 @@ const ChatRoom: React.FC<RouteComponentProps<any, any, Device>> = ({ location })
         }}
       >
         <Box
+          bg={['grayBg', 'transparent']}
           sx={{
             boxShadow: ['small'],
             gridArea: 'details',
@@ -174,6 +175,7 @@ const ChatRoom: React.FC<RouteComponentProps<any, any, Device>> = ({ location })
           <Box
             p={2}
             overflow={'auto'}
+            bg={'grayBg'}
             sx={{
               gridArea: 'chats',
               boxShadow: 'card',
@@ -232,7 +234,12 @@ const ChatRoom: React.FC<RouteComponentProps<any, any, Device>> = ({ location })
         )}
         {(userRooms.length > 0 || location.state) && (
           <>
-            <Box p={2} overflow={'hidden'} sx={{ gridArea: 'messages', boxShadow: ['small'] }}>
+            <Box
+              bg={'grayBg'}
+              p={2}
+              overflow={'hidden'}
+              sx={{ gridArea: 'messages', boxShadow: ['small'] }}
+            >
               {selectedChat && (
                 <MessagesList
                   {...{

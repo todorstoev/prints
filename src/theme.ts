@@ -2,9 +2,10 @@ export const theme: any = {
   colors: {
     background: '#fff',
     primary: '#037BB6',
-    secondary: '#6dc3ea',
+    secondary: '#70c1e6',
     error: 'red',
     muted: 'rgb(204,204,204)',
+    grayBg: '#fbfbfc',
     highlight: 'hsla(205, 100%, 40%, 0.125)',
   },
   fonts: {

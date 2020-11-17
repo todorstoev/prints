@@ -73,13 +73,12 @@ export const loginWithSsoFinish = (): Promise<PrintsUser> => {
         const userToInsert = remapUser(res, username);
 
         if (res.additionalUserInfo?.isNewUser) {
-          saveUserToDb(userToInsert)
-            .then(() => resolve(userToInsert))
-            .catch((e) => reject(fbErrorMessages(e)));
+          return saveUserToDb(userToInsert);
         } else {
-          resolve(userToInsert);
+          return getUserFromDb(res.user?.uid as string);
         }
       })
+      .then((user) => resolve(user as PrintsUser))
       .catch((e) => reject(fbErrorMessages(e)));
   });
 };
@@ -167,12 +166,12 @@ export const getPrinters = (): Promise<Printer[]> => {
   });
 };
 
-export const saveUserToDb = (user: PrintsUser): Promise<boolean | FirebaseError> => {
+export const saveUserToDb = (user: PrintsUser): Promise<PrintsUser | FirebaseError> => {
   return new Promise((resolve, reject) => {
     db.collection('users')
       .add(user)
       .then((_snapshot) => {
-        resolve(true);
+        resolve(user);
       })
       .catch((e) => {
         reject(e);
