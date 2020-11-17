@@ -185,6 +185,8 @@ const ChatRoom: React.FC<RouteComponentProps<any, any, Device>> = ({ location })
               },
             }}
           >
+            <Heading color={'primary'}>Chats</Heading>
+            <Box variant={'hr'} width={'100%'} mt={3} mb={1}></Box>
             <Box
               overflowX={'auto'}
               sx={{
@@ -201,6 +203,8 @@ const ChatRoom: React.FC<RouteComponentProps<any, any, Device>> = ({ location })
                   variant={newChat.roomId === selectedChat ? 'chatItemActive' : 'chatItem'}
                   mr={2}
                   mt={[0, 2]}
+                  width={['auto', 'auto', '100%']}
+                  sx={{ textAlign: 'left' }}
                   onClick={() => {
                     const chatExists = userRooms.find((chat) => newChat === chat);
 
@@ -215,6 +219,8 @@ const ChatRoom: React.FC<RouteComponentProps<any, any, Device>> = ({ location })
               {userRooms.map((room) => {
                 return (
                   <Button
+                    width={['auto', 'auto', '100%']}
+                    sx={{ textAlign: 'left' }}
                     variant={room.roomId === selectedChat ? 'chatItemActive' : 'chatItem'}
                     key={room.roomId}
                     mt={[0, 2]}
