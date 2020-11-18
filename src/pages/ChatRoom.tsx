@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { RouteComponentProps } from 'react-router-dom';
 
 import { Input } from '@rebass/forms';
-import { Box, Button, Heading, Text } from 'rebass';
+import { Box, Button, Flex, Heading, Text } from 'rebass';
 import { Send } from 'react-feather';
 
 import { AuthState, RoomData, Message, RootState, Device } from '../types';
@@ -15,6 +15,8 @@ import firebase from '../shared/services/firebase';
 import { MessagesList } from '../components/MessagesList';
 import { ChatRoomDetails } from '../components/ChatRoomDetails';
 import { actions } from '../shared/store';
+import { Loader } from '../components/Loader';
+import { animated, useTransition } from 'react-spring';
 
 const doesChatExists = (chats: RoomData[], deviceFromLocation: Device) =>
   chats.find((chat) => {
@@ -24,7 +26,7 @@ const doesChatExists = (chats: RoomData[], deviceFromLocation: Device) =>
 const ChatRoom: React.FC<RouteComponentProps<any, any, Device>> = ({ location }) => {
   const [selectedChat, setSelectedChat] = useState<string>('');
 
-  const [userRooms, setUserRooms] = useState<RoomData[]>([]);
+  const [userRooms, setUserRooms] = useState<RoomData[] | undefined>(undefined);
 
   const [selectedUserRoom, setSelectedUserRoom] = useState<RoomData | undefined>();
 
@@ -37,6 +39,12 @@ const ChatRoom: React.FC<RouteComponentProps<any, any, Device>> = ({ location })
   const dispatch = useDispatch();
 
   const { handleSubmit, register, reset } = useForm();
+
+  const transitions = useTransition(typeof userRooms === 'undefined', null, {
+    from: { opacity: 0 },
+    enter: { opacity: 1 },
+    leave: { opacity: 0 },
+  });
 
   const onSubmit = async (values: any) => {
     const newMessage: Message = {
@@ -116,189 +124,218 @@ const ChatRoom: React.FC<RouteComponentProps<any, any, Device>> = ({ location })
 
   return (
     <Box p={'1rem'} pt={['5.5rem', '6rem']} height={'100%'} overflow={'hidden'}>
-      {userRooms.length <= 0 && !location.state && (
-        <>
-          <Heading as={'h2'} textAlign="center">
-            Nothing Here
-          </Heading>
-          <Text as={'h6'} textAlign="center">
-            (there are no active conversations)
-          </Text>
-        </>
-      )}
-      <Box
-        pb={[0, 3]}
-        sx={{
-          height: '100%',
-          position: 'relative',
-          display: 'grid',
-          gridTemplateColumns: '1fr 3fr',
-          gridGap: '1em',
-          gridTemplateRows: 'auto 1fr auto',
-          gridTemplateAreas: `
+      {transitions.map(({ item, key, props }) =>
+        item ? (
+          <animated.div
+            key={key}
+            style={{
+              ...props,
+              position: 'absolute',
+              width: '100%',
+              top: '30%',
+              alignItems: 'center',
+            }}
+          >
+            <Flex justifyContent={'center'}>
+              <Loader />
+            </Flex>
+          </animated.div>
+        ) : (
+          <animated.div key={key} style={{ ...props, width: '100%', height: '100%' }}>
+            {(userRooms as RoomData[]).length <= 0 && !location.state && (
+              <>
+                <Heading as={'h2'} textAlign="center">
+                  Nothing Here
+                </Heading>
+                <Text as={'h6'} textAlign="center">
+                  (there are no active conversations)
+                </Text>
+              </>
+            )}
+            <Box
+              pb={[0, 3]}
+              sx={{
+                height: '100%',
+                position: 'relative',
+                display: 'grid',
+                gridTemplateColumns: '1fr 3fr',
+                gridGap: '1em',
+                gridTemplateRows: 'auto 1fr auto',
+                gridTemplateAreas: `
                       "details details"
                       "chats messages"
                       "inputHalf input"`,
-          '@media screen and (max-width:56em)': {
-            gridTemplateColumns: '1fr',
-            gridTemplateRows: 'auto auto 1fr auto',
-            gridTemplateAreas: `
+                '@media screen and (max-width:56em)': {
+                  gridTemplateColumns: '1fr',
+                  gridTemplateRows: 'auto auto 1fr auto',
+                  gridTemplateAreas: `
                         "details"
                         "chats"
                         "messages"
                         "input"`,
-          },
-          '@media screen and (min-width:56em)': {
-            width: '70%',
-            margin: 'auto',
-          },
-        }}
-      >
-        <Box
-          bg={['grayBg', 'transparent']}
-          sx={{
-            boxShadow: ['small'],
-            gridArea: 'details',
-          }}
-          p={[2, 0]}
-          width={'100%'}
-        >
-          {(selectedUserRoom || newChat) && (
-            <ChatRoomDetails
-              {...{
-                data: (selectedUserRoom as RoomData) || (newChat as RoomData),
-              }}
-            />
-          )}
-        </Box>
-        {(userRooms.length > 0 || location.state) && (
-          <Box
-            p={2}
-            overflow={'auto'}
-            bg={'grayBg'}
-            sx={{
-              gridArea: 'chats',
-              boxShadow: 'card',
-              '@media screen and (max-width:56em)': {
-                display: 'block',
-                whiteSpace: 'nowrap',
-              },
-            }}
-          >
-            <Heading color={'primary'}>Chats</Heading>
-            <Box variant={'hr'} width={'100%'} mt={3} mb={1}></Box>
-            <Box
-              overflowX={'auto'}
-              sx={{
-                '::-webkit-scrollbar': { display: 'none' },
+                },
                 '@media screen and (min-width:56em)': {
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'flex-start',
+                  width: '70%',
+                  margin: 'auto',
                 },
               }}
             >
-              {newChat && (
-                <Button
-                  variant={newChat.roomId === selectedChat ? 'chatItemActive' : 'chatItem'}
-                  mr={2}
-                  mt={[0, 2]}
-                  width={['auto', 'auto', '100%']}
-                  sx={{ textAlign: 'left' }}
-                  onClick={() => {
-                    const chatExists = userRooms.find((chat) => newChat === chat);
-
-                    if (!chatExists) setShouldStartNew(true);
-
-                    setSelectedChat(newChat.roomId);
-                  }}
-                >
-                  {newChat.data.titles[user.uid as string]}
-                </Button>
-              )}
-              {userRooms.map((room) => {
-                return (
-                  <Button
-                    width={['auto', 'auto', '100%']}
-                    sx={{ textAlign: 'left' }}
-                    variant={room.roomId === selectedChat ? 'chatItemActive' : 'chatItem'}
-                    key={room.roomId}
-                    mt={[0, 2]}
-                    mr={2}
-                    onClick={() => {
-                      const chatExists = userRooms.find((chat) => room === chat);
-                      if (chatExists) setShouldStartNew(false);
-                      setSelectedChat(room.roomId);
+              <Box
+                bg={['grayBg', 'transparent']}
+                sx={{
+                  boxShadow: ['small'],
+                  gridArea: 'details',
+                  borderRadius: '5px',
+                }}
+                p={[2, 0]}
+                width={'100%'}
+              >
+                {(selectedUserRoom || newChat) && (
+                  <ChatRoomDetails
+                    {...{
+                      data: (selectedUserRoom as RoomData) || (newChat as RoomData),
                     }}
-                  >
-                    {room.data.titles[user.uid as string]}
-                  </Button>
-                );
-              })}
-            </Box>
-          </Box>
-        )}
-        {(userRooms.length > 0 || location.state) && (
-          <>
-            <Box
-              bg={'grayBg'}
-              p={2}
-              overflow={'hidden'}
-              sx={{ gridArea: 'messages', boxShadow: ['small'] }}
-            >
-              {selectedChat && (
-                <MessagesList
-                  {...{
-                    selectedChat,
-                  }}
-                />
-              )}
-            </Box>
-            <Box sx={{ gridArea: 'inputHalf' }} display={['none', 'block']}></Box>
-            <Box sx={{ gridArea: 'input' }}>
-              <form onSubmit={handleSubmit(onSubmit)} style={{ position: 'relative' }}>
-                <Input
-                  autoComplete={'off'}
-                  placeholder={'Say something'}
+                  />
+                )}
+              </Box>
+              {((userRooms as RoomData[]).length > 0 || location.state) && (
+                <Box
+                  p={2}
+                  overflow={'auto'}
+                  bg={'grayBg'}
                   sx={{
-                    width: '100%',
-                    padding: '0.5rem',
-                    outline: 'none',
-                    border: 'none',
-                    background: '#80808024',
-                    opacity: selectedChat ? 1 : 0,
-                  }}
-                  pr={5}
-                  name="message"
-                  ref={register({
-                    required: true,
-                    minLength: 1,
-                  })}
-                />
-                <Button
-                  sx={{
-                    top: '-3px',
-                    right: '-7px',
-                    background: 'transparent',
-                    color: 'primary',
-                    position: 'absolute',
-                    opacity: selectedChat ? 1 : 0,
-                    ':active': {
-                      transform: 'scale(0.8)',
+                    gridArea: 'chats',
+                    boxShadow: 'small',
+                    borderRadius: '5px',
+                    '@media screen and (max-width:56em)': {
+                      display: 'block',
+                      whiteSpace: 'nowrap',
                     },
                   }}
                 >
-                  <Send
-                    style={{
-                      transform: 'rotate(40deg)',
+                  <Heading color={'primary'}>Chats</Heading>
+                  <Box height={[2, 5]}></Box>
+                  <Box
+                    overflowX={'auto'}
+                    sx={{
+                      '::-webkit-scrollbar': { display: 'none' },
+                      '@media screen and (min-width:56em)': {
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'flex-start',
+                      },
                     }}
-                  />
-                </Button>
-              </form>
+                  >
+                    {newChat && (
+                      <Button
+                        variant={newChat.roomId === selectedChat ? 'chatItemActive' : 'chatItem'}
+                        mr={2}
+                        mt={[0, 2]}
+                        pl={0}
+                        width={['auto', 'auto', '100%']}
+                        sx={{ textAlign: 'left' }}
+                        onClick={() => {
+                          const chatExists = (userRooms as RoomData[]).find(
+                            (chat) => newChat === chat,
+                          );
+
+                          if (!chatExists) setShouldStartNew(true);
+
+                          setSelectedChat(newChat.roomId);
+                        }}
+                      >
+                        {newChat.data.titles[user.uid as string]}
+                      </Button>
+                    )}
+                    {(userRooms as RoomData[]).map((room) => {
+                      return (
+                        <Button
+                          width={['auto', 'auto', '100%']}
+                          sx={{ textAlign: 'left' }}
+                          variant={room.roomId === selectedChat ? 'chatItemActive' : 'chatItem'}
+                          key={room.roomId}
+                          pl={1}
+                          mt={[0, 2]}
+                          mr={2}
+                          onClick={() => {
+                            const chatExists = (userRooms as RoomData[]).find(
+                              (chat) => room === chat,
+                            );
+                            if (chatExists) setShouldStartNew(false);
+                            setSelectedChat(room.roomId);
+                          }}
+                        >
+                          {room.data.titles[user.uid as string]}
+                        </Button>
+                      );
+                    })}
+                  </Box>
+                </Box>
+              )}
+              {((userRooms as RoomData[]).length > 0 || location.state) && (
+                <>
+                  <Box
+                    bg={'grayBg'}
+                    p={2}
+                    overflow={'hidden'}
+                    sx={{ gridArea: 'messages', boxShadow: ['small'], borderRadius: '5px' }}
+                  >
+                    {selectedChat && (
+                      <MessagesList
+                        {...{
+                          selectedChat,
+                        }}
+                      />
+                    )}
+                  </Box>
+                  <Box sx={{ gridArea: 'inputHalf' }} display={['none', 'block']}></Box>
+                  <Box sx={{ gridArea: 'input' }}>
+                    <form onSubmit={handleSubmit(onSubmit)} style={{ position: 'relative' }}>
+                      <Input
+                        autoComplete={'off'}
+                        placeholder={'Say something'}
+                        sx={{
+                          width: '100%',
+                          padding: '0.5rem',
+                          outline: 'none',
+                          border: 'none',
+                          background: '#80808024',
+                          opacity: selectedChat ? 1 : 0,
+                        }}
+                        pr={5}
+                        name="message"
+                        ref={register({
+                          required: true,
+                          minLength: 1,
+                        })}
+                      />
+                      <Button
+                        sx={{
+                          top: '-3px',
+                          right: '-7px',
+                          background: 'transparent',
+                          color: 'primary',
+                          position: 'absolute',
+                          opacity: selectedChat ? 1 : 0,
+                          ':active': {
+                            transform: 'scale(0.8)',
+                          },
+                        }}
+                      >
+                        <Send
+                          style={{
+                            transform: 'rotate(40deg)',
+                          }}
+                        />
+                      </Button>
+                    </form>
+                  </Box>
+                </>
+              )}
             </Box>
-          </>
-        )}
-      </Box>
+          </animated.div>
+        ),
+      )}
     </Box>
   );
 };

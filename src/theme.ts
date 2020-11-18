@@ -167,7 +167,7 @@ export const theme: any = {
       fontFamily: 'heading',
       fontWeight: 'heading',
       lineHeight: 'heading',
-      bg: 'background',
+      bg: 'transparent',
       color: 'secondary',
     },
     chatItemActive: {
