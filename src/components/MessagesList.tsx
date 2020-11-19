@@ -57,6 +57,20 @@ export const MessagesList: React.FC<Props> = ({ selectedChat }) => {
               height={'100%'}
               flexDirection={'column'}
               overflow="auto"
+              sx={{
+                '::-webkit-scrollbar': {
+                  width: '5px',
+                },
+                '::-webkit-scrollbar-track': {
+                  bg: 'mute',
+                },
+                '::-webkit-scrollbar-thumb': {
+                  bg: '#70c1e636',
+                },
+                '::-webkit-scrollbar-thumb:hover': {
+                  bg: 'secondary',
+                },
+              }}
             >
               {messages?.length === 0 && (
                 <Flex

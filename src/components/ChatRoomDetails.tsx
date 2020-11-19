@@ -11,6 +11,7 @@ import { actions } from '../shared/store';
 import { ChatDetailsControls } from '../components/ChatDetailsControls';
 import MapMarker from '../components/MapMarker';
 import Map from '../components/Map';
+import { Icon } from 'leaflet';
 
 export enum Vote {
   Up = 'UP',
@@ -35,6 +36,13 @@ export const ChatRoomDetails: React.FC<Props> = ({ data }) => {
 
   const headingRef = useRef<HTMLElement>(null);
 
+  const deviceIcon = new Icon({
+    iconUrl: './assets/device-location-pin-icon.svg',
+    iconAnchor: [15, 30],
+    popupAnchor: [0, 0],
+    iconSize: [30, 30],
+  });
+
   return (
     <Flex
       bg={[mainTheme.bwGradientSmall, mainTheme.bwGradient]}
@@ -50,10 +58,16 @@ export const ChatRoomDetails: React.FC<Props> = ({ data }) => {
       {data &&
         (!stretched ? (
           <Box width={'100%'} height={'100%'}>
-            <Box my={[2, 0]}>
-              <ChatDetailsControls streched={stretched} setStretched={setStretched} />
+            <Box>
+              <ChatDetailsControls
+                device={data.data.chatDevice}
+                streched={stretched}
+                setStretched={setStretched}
+              />
             </Box>
+
             <Box
+              mt={2}
               sx={{
                 display: 'grid',
                 gridGap: 3,
@@ -66,9 +80,7 @@ export const ChatRoomDetails: React.FC<Props> = ({ data }) => {
               }}
             >
               <Flex
-                sx={{ position: 'relative', top: '-13px' }}
                 height={'100%'}
-                pl={'13px'}
                 justifyContent={['space-between', 'space-between', 'flex-start']}
               >
                 <Box
@@ -85,32 +97,36 @@ export const ChatRoomDetails: React.FC<Props> = ({ data }) => {
                     center={data.data.chatDevice.location}
                     controls={false}
                   >
-                    <MapMarker position={data.data.chatDevice.location}></MapMarker>
+                    <MapMarker
+                      position={data.data.chatDevice.location}
+                      icon={deviceIcon}
+                    ></MapMarker>
                   </Map>
                 </Box>
-                <Flex pl={3} flexDirection={'column'} justifyContent={'space-evenly'}>
-                  <Heading color={['primary', 'background']}>
-                    {data.data.chatDevice.brand} {data.data.chatDevice.model}
-                  </Heading>
-                  <Text color={['primary', 'background']}>Type : {data.data.chatDevice.type}</Text>
-                  <Text color={['primary', 'background']}>
+                <Flex pl={3} flexDirection={'column'} justifyContent={'flex-end'}>
+                  <Text color={['primary', 'background']} fontSize={[1, 2]}>
+                    Type : {data.data.chatDevice.type}
+                  </Text>
+                  <Text color={['primary', 'background']} fontSize={[1, 2]}>
                     Materials: {data.data.chatDevice.materials.join(', ')}
                   </Text>
                   <Box>
-                    <Text color={['primary', 'background']}>
-                      Dimensions: {data.data.chatDevice.dimensions.height} /{' '}
-                      {data.data.chatDevice.dimensions.width} /{' '}
+                    <Text color={['primary', 'background']} fontSize={[1, 2]}>
+                      Dimensions: {data.data.chatDevice.dimensions.height}/
+                      {data.data.chatDevice.dimensions.width}/
                       {data.data.chatDevice.dimensions.depth}
                     </Text>
                   </Box>
                   {data.data.chatDevice.id === user.uid && (
                     <Box>
-                      <Text color={['primary', 'background']}>(This device is yours)</Text>
+                      <Text color={['primary', 'background']} fontSize={[1, 2]}>
+                        (This device is yours)
+                      </Text>
                     </Box>
                   )}
                 </Flex>
               </Flex>
-              <Box>
+              <Box mt={2}>
                 <Flex
                   alignItems={['center', 'center', 'flex-end']}
                   height={'100%'}
@@ -118,7 +134,14 @@ export const ChatRoomDetails: React.FC<Props> = ({ data }) => {
                   justifyContent={['space-between', 'space-evenly']}
                 >
                   <Box sx={{ position: 'relative' }}>
-                    <Heading color="primary" my={2} py={1} ref={headingRef}>
+                    <Heading
+                      color="primary"
+                      my={2}
+                      py={1}
+                      ref={headingRef}
+                      fontSize={[2, 3]}
+                      fontWeight={'body'}
+                    >
                       Rating : {data.data.rating[user.uid as string]}
                     </Heading>
                   </Box>
@@ -163,14 +186,11 @@ export const ChatRoomDetails: React.FC<Props> = ({ data }) => {
             </Box>
           </Box>
         ) : (
-          <Flex alignItems={'center'} justifyContent={'space-between'}>
-            <Box>
-              <Heading color={['primary', 'background']}>
-                {data.data.chatDevice.brand} {data.data.chatDevice.model}
-              </Heading>
-            </Box>
-            <ChatDetailsControls streched={stretched} setStretched={setStretched} />
-          </Flex>
+          <ChatDetailsControls
+            device={data.data.chatDevice}
+            streched={stretched}
+            setStretched={setStretched}
+          />
         ))}
     </Flex>
   );

@@ -254,7 +254,7 @@ export const getUserMessages = (selected: string): Observable<Message[]> => {
     .doc(selected)
     .collection('messages')
     .orderBy('time', 'asc')
-    .limitToLast(20);
+    .limitToLast(15);
 
   return new Observable((subscriber) => {
     doc.onSnapshot({

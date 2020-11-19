@@ -123,7 +123,7 @@ const ChatRoom: React.FC<RouteComponentProps<any, any, Device>> = ({ location })
   }, [selectedUserRoom, dispatch, user.uid]);
 
   return (
-    <Box p={'1rem'} pt={['5.5rem', '6rem']} height={'100%'} overflow={'hidden'}>
+    <Box p={'1rem'} pt={['5.5rem', '5rem']} height={'100%'} overflow={'hidden'}>
       {transitions.map(({ item, key, props }) =>
         item ? (
           <animated.div
@@ -153,7 +153,6 @@ const ChatRoom: React.FC<RouteComponentProps<any, any, Device>> = ({ location })
               </>
             )}
             <Box
-              pb={[0, 3]}
               sx={{
                 height: '100%',
                 position: 'relative',
@@ -213,7 +212,9 @@ const ChatRoom: React.FC<RouteComponentProps<any, any, Device>> = ({ location })
                     },
                   }}
                 >
-                  <Heading color={'primary'}>Chats</Heading>
+                  <Heading color={'primary'} fontWeight={'body'}>
+                    Chats
+                  </Heading>
                   <Box height={[2, 5]}></Box>
                   <Box
                     overflowX={'auto'}
