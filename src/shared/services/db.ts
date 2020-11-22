@@ -266,7 +266,7 @@ export const getUserMessages = (selected: string): Promise<Message[]> => {
       .doc(selected)
       .collection('messages')
       .orderBy('time', 'desc')
-      .limit(19);
+      .limit(15);
 
     doc
       .get()

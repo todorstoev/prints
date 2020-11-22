@@ -21,6 +21,8 @@ export const MessagesList: React.FC<Props> = ({ selectedChat }) => {
 
   const { messages } = useSelector<RootState, ChatState>((state) => state.chat);
 
+  const [loading, setLoading] = useState<boolean>(true);
+
   const dispatch = useDispatch();
 
   const { user } = useSelector<RootState, AuthState & ChatState>((state) => ({
@@ -30,10 +32,20 @@ export const MessagesList: React.FC<Props> = ({ selectedChat }) => {
 
   const chatContainer = useRef<HTMLElement>(null);
 
-  const fetchMoreMessages = useCallback(async () => {
-    if (!messages) return;
-
+  const fetchMoreMessages = async () => {
     if (!chatContainer) return;
+
+    if (loading) return;
+
+    if (
+      !(
+        (chatContainer.current?.scrollHeight as number) >
+        (chatContainer.current?.clientHeight as number)
+      )
+    )
+      return;
+
+    if (!messages) return;
 
     const lastElement =
       chatContainer.current?.firstElementChild?.firstElementChild?.lastElementChild
@@ -49,12 +61,13 @@ export const MessagesList: React.FC<Props> = ({ selectedChat }) => {
     } else {
       setHasMoreMessages(false);
     }
-  }, [messages, selectedChat, dispatch]);
+  };
 
   useEffect(() => {
     getUserMessages(selectedChat).then((res) => {
-      dispatch(actions.addPrevMessages(res));
-
+      dispatch(actions.setMessages(res));
+      setLoading(false);
+      setHasMoreMessages(true);
       chatContainer.current?.scrollTo(0, chatContainer.current.scrollHeight);
     });
 
@@ -79,6 +92,7 @@ export const MessagesList: React.FC<Props> = ({ selectedChat }) => {
       height={'100%'}
       overflow="auto"
       sx={{
+        position: 'relative',
         '::-webkit-scrollbar': {
           width: '5px',
         },
@@ -93,13 +107,13 @@ export const MessagesList: React.FC<Props> = ({ selectedChat }) => {
         },
       }}
     >
-      {messages.length === 0 && (
+      {!loading && messages.length === 0 && (
         <Flex alignItems={'center'} justifyContent={'center'} height={'100%'} width={'100%'}>
           <Text>There is still no messages here</Text>
         </Flex>
       )}
 
-      {messages.length > 0 && (
+      {!loading && messages.length > 0 && (
         <InfiniteScroll
           dataLength={(messages as Message[]).length}
           next={fetchMoreMessages}
@@ -107,13 +121,17 @@ export const MessagesList: React.FC<Props> = ({ selectedChat }) => {
           inverse={true}
           hasMore={hasMoreMessages}
           loader={
-            <Flex justifyContent="center" color={'primary'}>
+            <Flex
+              justifyContent="center"
+              color={'primary'}
+              sx={{ position: 'absolute', top: 0, left: '50%', right: '50%' }}
+            >
               <Loader
                 type="BallTriangle"
                 color="#00BFFF"
                 height={25}
                 width={25}
-                timeout={4000} //3 secs
+                timeout={300} //3 secs
               />
             </Flex>
           }

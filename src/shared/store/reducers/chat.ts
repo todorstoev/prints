@@ -11,6 +11,12 @@ export const chatReducer = createReducer<ChatState, RootAction>(initialState)
       canVote: action.payload,
     };
   })
+  .handleAction(actions.setMessages, (state, action) => {
+    return {
+      ...state,
+      messages: action.payload,
+    };
+  })
   .handleAction(actions.addPrevMessages, (state, action) => {
     return {
       ...state,
