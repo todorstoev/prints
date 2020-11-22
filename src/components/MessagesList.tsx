@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useCallback } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { Box, Flex, Text } from 'rebass';
@@ -73,15 +73,30 @@ export const MessagesList: React.FC<Props> = ({ selectedChat }) => {
 
     const observer = getNewMessage(selectedChat);
 
-    const subscribe = observer.subscribe({
-      next: (snapshot) => {
-        dispatch(actions.addMessage(snapshot));
+    const subscription = observer.onSnapshot((snapshot) => {
+      var source = snapshot.metadata.hasPendingWrites ? 'Local' : 'Server';
 
-        chatContainer.current?.scrollTo(0, chatContainer.current.scrollHeight);
-      },
+      snapshot.docChanges().forEach((change) => {
+        const message: Message = { ...(change.doc.data() as Message), doc: observer };
+
+        if (change.type === 'added' && source === 'Server') {
+          dispatch(actions.addMessage(message));
+
+          chatContainer.current?.scrollTo(0, chatContainer.current.scrollHeight);
+        }
+
+        if (change.type === 'modified' && source === 'Server') {
+          dispatch(actions.addMessage(message));
+
+          chatContainer.current?.scrollTo(0, chatContainer.current.scrollHeight);
+        }
+        // if (change.type === 'removed') {
+
+        // }
+      });
     });
 
-    return () => subscribe.unsubscribe();
+    return () => subscription();
   }, [selectedChat, dispatch]);
 
   return (

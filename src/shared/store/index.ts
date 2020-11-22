@@ -1,6 +1,7 @@
 import { applyMiddleware, createStore } from 'redux';
 
 import { createEpicMiddleware } from 'redux-observable';
+
 import { logger } from 'redux-logger';
 
 import { ActionType } from 'typesafe-actions';
@@ -21,8 +22,14 @@ const epicMiddleware = createEpicMiddleware<RootAction, RootAction, RootState>({
   dependencies: API,
 });
 
+const middlewares: any[] = [epicMiddleware];
+
+if (process.env.REACT_APP_ENV === 'dev') {
+  middlewares.push(logger);
+}
+
 const configureStore = (initialState?: RootState) => {
-  const store = createStore(rootReducer, initialState, applyMiddleware(epicMiddleware, logger));
+  const store = createStore(rootReducer, initialState, applyMiddleware(...middlewares));
 
   epicMiddleware.run(rootEpics);
 

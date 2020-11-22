@@ -308,7 +308,9 @@ export const loadMoreMessages = (selected: string, lastDoc: any): Promise<Messag
   });
 };
 
-export const getNewMessage = (selected: string): Observable<Message> => {
+export const getNewMessage = (
+  selected: string,
+): firebase.firestore.Query<firebase.firestore.DocumentData> => {
   const doc = db
     .collection('chats')
     .doc(selected)
@@ -316,26 +318,7 @@ export const getNewMessage = (selected: string): Observable<Message> => {
     .orderBy('time', 'desc')
     .limit(1);
 
-  return new Observable((subscribe) => {
-    doc.onSnapshot((snapshot) => {
-      var source = snapshot.metadata.hasPendingWrites ? 'Local' : 'Server';
-
-      snapshot.docChanges().forEach((change) => {
-        const message: Message = { ...(change.doc.data() as Message), doc };
-
-        if (change.type === 'added' && source === 'Server') {
-          subscribe.next(message);
-        }
-
-        if (change.type === 'modified' && source === 'Server') {
-          subscribe.next(message);
-        }
-        // if (change.type === 'removed') {
-
-        // }
-      });
-    });
-  });
+  return doc;
 };
 
 export const addMessage = (message: Message, selected: string): Promise<boolean> => {
