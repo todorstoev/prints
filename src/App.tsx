@@ -4,6 +4,7 @@ import { useSelector } from 'react-redux';
 import { Box } from 'rebass';
 
 import { useTransition, animated } from 'react-spring';
+import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css';
 
 import ProtectedRoute from './components/ProtectedRoute';
 import Navigation from './components/Navigation';

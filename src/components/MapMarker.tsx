@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useRef } from 'react';
 
 import { Icon, LeafletMouseEvent } from 'leaflet';
 import { Marker } from 'react-leaflet';

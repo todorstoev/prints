@@ -248,25 +248,93 @@ export const updateEmail = (email: string): Promise<any> => {
   });
 };
 
-export const getUserMessages = (selected: string): Observable<Message[]> => {
+export const getUserMessages = (selected: string): Promise<Message[]> => {
+  return new Promise((resolve, reject) => {
+    const doc = db
+      .collection('chats')
+      .doc(selected)
+      .collection('messages')
+      .orderBy('time', 'desc')
+      .limit(19);
+
+    doc
+      .get()
+      .then((res) => {
+        const remapedMessages = res.docs.map((doc) => {
+          const message: Message = { ...(doc.data() as Message), doc };
+
+          return message;
+        });
+
+        resolve(remapedMessages);
+      })
+      .catch((e) => reject(e));
+  });
+};
+
+export const loadMoreMessages = (selected: string, lastDoc: any): Promise<Message[]> => {
+  return new Promise((resolve, reject) => {
+    const topMessages = db
+      .collection('chats')
+      .doc(selected)
+      .collection('messages')
+      .orderBy('time', 'desc')
+      .startAfter(lastDoc)
+      .limit(5);
+
+    topMessages
+      .get()
+      .then((res) => {
+        const remapedMessages = res.docs.map((doc) => {
+          const message: Message = { ...(doc.data() as Message), doc };
+
+          return message;
+        });
+
+        resolve(remapedMessages);
+      })
+      .catch((e) => reject(e));
+  });
+};
+
+export const getNewMessage = (selected: string): Observable<Message> => {
   const doc = db
     .collection('chats')
     .doc(selected)
     .collection('messages')
-    .orderBy('time', 'asc')
-    .limitToLast(15);
+    .orderBy('time', 'desc')
+    .limit(1);
 
-  return new Observable((subscriber) => {
-    doc.onSnapshot({
-      next: (snapshot) =>
-        subscriber.next(
-          snapshot.docs.map((doc) => {
-            return doc.data() as Message;
-          }),
-        ),
-      error: (error) => subscriber.error(error.message),
-      complete: () => subscriber.complete(),
+  return new Observable((subscribe) => {
+    doc.onSnapshot((snapshot) => {
+      var source = snapshot.metadata.hasPendingWrites ? 'Local' : 'Server';
+
+      snapshot.docChanges().forEach((change) => {
+        const message: Message = { ...(change.doc.data() as Message), doc };
+
+        if (change.type === 'added' && source === 'Server') {
+          subscribe.next(message);
+        }
+
+        if (change.type === 'modified' && source === 'Server') {
+          subscribe.next(message);
+        }
+        // if (change.type === 'removed') {
+
+        // }
+      });
     });
+  });
+};
+
+export const addMessage = (message: Message, selected: string): Promise<boolean> => {
+  return new Promise((resolve, reject) => {
+    db.collection('chats')
+      .doc(selected)
+      .collection('messages')
+      .add(message)
+      .then(() => resolve(true))
+      .catch((err) => reject(err));
   });
 };
 
@@ -318,16 +386,5 @@ export const createNewChat = (newChat: RoomData): Promise<boolean> => {
       .set(newChat.data)
       .then((res) => resolve(true))
       .catch((e) => reject(e));
-  });
-};
-
-export const addMessage = (message: Message, selected: string): Promise<boolean> => {
-  return new Promise((resolve, reject) => {
-    db.collection('chats')
-      .doc(selected)
-      .collection('messages')
-      .add(message)
-      .then(() => resolve(true))
-      .catch((err) => reject(err));
   });
 };

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch, useSelector, batch } from 'react-redux';
 import { useForm } from 'react-hook-form';
 
 import { RouteComponentProps } from 'react-router-dom';
@@ -8,7 +8,7 @@ import { Input } from '@rebass/forms';
 import { Box, Button, Flex, Heading, Text } from 'rebass';
 import { Send } from 'react-feather';
 
-import { AuthState, RoomData, Message, RootState, Device } from '../types';
+import { AuthState, RoomData, Message, RootState, Device, ChatState } from '../types';
 import { addMessage, createNewChat, getUserRooms } from '../shared/services';
 
 import firebase from '../shared/services/firebase';
@@ -34,7 +34,10 @@ const ChatRoom: React.FC<RouteComponentProps<any, any, Device>> = ({ location })
 
   const [newChat, setNewChat] = useState<RoomData | undefined>();
 
-  const { user } = useSelector<RootState, AuthState>((state) => state.auth);
+  const { user, canVote } = useSelector<RootState, AuthState & ChatState>((state) => ({
+    ...state.auth,
+    ...state.chat,
+  }));
 
   const dispatch = useDispatch();
 
@@ -55,9 +58,13 @@ const ChatRoom: React.FC<RouteComponentProps<any, any, Device>> = ({ location })
 
     reset();
 
-    if (shoudStartNew) {
+    if (shoudStartNew && !canVote) {
       await createNewChat(newChat as RoomData);
-      dispatch(actions.setCanVote(true));
+
+      batch(() => {
+        dispatch(actions.setCanVote(true));
+        dispatch(actions.startWriting(true));
+      });
     }
 
     await addMessage(newMessage, selectedChat);
@@ -212,9 +219,15 @@ const ChatRoom: React.FC<RouteComponentProps<any, any, Device>> = ({ location })
                     },
                   }}
                 >
-                  <Heading color={'primary'} fontWeight={'body'}>
+                  {/* <Box variant="hr" /> */}
+                  <Heading
+                    color={'primary'}
+                    fontWeight={['heading', 'body']}
+                    display={['none', 'block']}
+                  >
                     Chats
                   </Heading>
+
                   <Box height={[2, 5]}></Box>
                   <Box
                     overflowX={'auto'}

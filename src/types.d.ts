@@ -32,6 +32,8 @@ export interface NotificationState {
 
 export interface ChatState {
   canVote: boolean;
+  messages: Message[];
+  writing: boolean;
 }
 
 export type PrintsUser = {
@@ -75,6 +77,7 @@ type Message = {
   message: string;
   author: string;
   time: firebase.firestore.FieldValue;
+  doc?: firebase.firestore.DocumentData;
 };
 
 export type Coords = {

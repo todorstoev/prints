@@ -84,7 +84,7 @@ export const ChatRoomDetails: React.FC<Props> = ({ data }) => {
                 justifyContent={['space-between', 'space-between', 'flex-start']}
               >
                 <Box
-                  height={'100%'}
+                  height={[100, '100%']}
                   width={150}
                   sx={{
                     borderRadius: 5,
@@ -148,7 +148,8 @@ export const ChatRoomDetails: React.FC<Props> = ({ data }) => {
 
                   <Box>
                     <Button
-                      mr={1}
+                      mr={2}
+                      p={['2px 4px;', '6px 8px;']}
                       disabled={!canVote}
                       onClick={() => {
                         if (!canVote) return;
@@ -165,6 +166,7 @@ export const ChatRoomDetails: React.FC<Props> = ({ data }) => {
                       <Minus />
                     </Button>
                     <Button
+                      p={['2px 4px;', '6px 8px;']}
                       disabled={!canVote}
                       onClick={() => {
                         if (!canVote) return;
