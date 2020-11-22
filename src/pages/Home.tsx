@@ -76,9 +76,9 @@ export class Home extends React.Component<HomeProps, HomeState> {
 
     const deviceIcon = new Icon({
       iconUrl: './assets/device-location-pin-icon.svg',
-      iconAnchor: [0, 0],
-      popupAnchor: [20, 0],
-      iconSize: [45, 45],
+      iconAnchor: [20, 40],
+      popupAnchor: [0, -35],
+      iconSize: [40, 40],
     });
 
     return (

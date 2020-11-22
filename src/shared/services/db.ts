@@ -158,11 +158,14 @@ export const getDevicesService = (): Promise<Device[]> => {
 
 export const getPrinters = (): Promise<Printer[]> => {
   return new Promise<Printer[]>((resolve, reject) => {
-    db.collection('printers').onSnapshot((snapshot) => {
-      const printers = snapshot.docs.map((doc) => doc.data() as Printer);
+    db.collection('printers')
+      .get()
+      .then((docs) => {
+        const printers = docs.docs.map((doc) => doc.data() as Printer);
 
-      resolve(printers);
-    });
+        resolve(printers);
+      })
+      .catch((e) => reject(e));
   });
 };
 
@@ -179,14 +182,14 @@ export const saveUserToDb = (user: PrintsUser): Promise<PrintsUser | FirebaseErr
   });
 };
 
-export const getUserFromDb = (uid: string): Promise<any> => {
+export const getUserFromDb = (uid: string): Promise<PrintsUser> => {
   return new Promise((resolve) => {
     db.collection('users')
       .where('uid', '==', uid)
       .get()
       .then((docs) => {
         docs.forEach((doc) => {
-          resolve(doc.data());
+          resolve(doc.data() as PrintsUser);
         });
       })
       .catch((e) => {
@@ -202,7 +205,15 @@ export const updatePrintsUserDB = (user: PrintsUser): Promise<PrintsUser> => {
       .get()
       .then((docs) => {
         const [doc] = docs.docs;
-        return doc.ref.update(user);
+
+        return doc.ref.update({
+          firstName: user.firstName,
+          lastName: user.lastName,
+          email: user.email,
+          pic: user.pic,
+          username: user.username,
+          devices: user.devices,
+        });
       })
       .then(() => {
         resolve(user);

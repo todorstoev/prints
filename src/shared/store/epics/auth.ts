@@ -1,4 +1,4 @@
-import { from, of } from 'rxjs';
+import { from, of, zip } from 'rxjs';
 import { catchError, exhaustMap, filter, mergeMap } from 'rxjs/operators';
 import { isActionOf } from 'typesafe-actions';
 import { Epic } from 'redux-observable';
@@ -7,13 +7,13 @@ import * as API from '../../services';
 
 import { actions, RootAction } from '..';
 
-import { Device, RoomData, RootState } from '../../../types';
+import { Device, PrintsUser, RoomData, RootState } from '../../../types';
 import { Vote } from '../../../components/ChatRoomDetails';
 
 export const registerUserEpic: Epic<RootAction, RootAction, RootState, typeof API> = (
   action$,
   _state$,
-  { registerWithEmail },
+  { registerWithEmail, localStorageSet },
 ) =>
   action$.pipe(
     filter(isActionOf(actions.requestRegister)),
@@ -23,11 +23,10 @@ export const registerUserEpic: Epic<RootAction, RootAction, RootState, typeof AP
 
       return from(registerWithEmail(email, password)).pipe(
         mergeMap((user) =>
-          of(
-            actions.recieveRegister(user),
-            // actions.getDevicesFromLogin(user.devices as Device[]),
-            actions.clearAuthErrors(),
-          ),
+          zip(
+            localStorageSet<PrintsUser>('user', user),
+            localStorageSet<string>('persistance', 'local'),
+          ).pipe(mergeMap(() => of(actions.recieveRegister(user), actions.clearAuthErrors()))),
         ),
         catchError((error: string) =>
           of(
@@ -45,7 +44,7 @@ export const registerUserEpic: Epic<RootAction, RootAction, RootState, typeof AP
 export const loginUserEpic: Epic<RootAction, RootAction, RootState, typeof API> = (
   action$,
   _state$,
-  { loginWithEmail },
+  { loginWithEmail, localStorageSet },
 ) =>
   action$.pipe(
     filter(isActionOf(actions.requestLogin)),
@@ -54,10 +53,17 @@ export const loginUserEpic: Epic<RootAction, RootAction, RootState, typeof API> 
 
       return from(loginWithEmail(email, password, remember)).pipe(
         mergeMap((user) => {
-          return of(
-            actions.receiveLogin(user),
-            actions.getDevicesFromLogin(user.devices as Device[]),
-            actions.clearAuthErrors(),
+          return zip(
+            localStorageSet<PrintsUser>('user', user),
+            localStorageSet<string>('persistance', remember ? 'local' : 'none'),
+          ).pipe(
+            exhaustMap(() =>
+              of(
+                actions.receiveLogin(user),
+                actions.getDevicesFromLogin(user.devices as Device[]),
+                actions.clearAuthErrors(),
+              ),
+            ),
           );
         }),
         catchError((error: string) =>
@@ -76,7 +82,7 @@ export const loginUserEpic: Epic<RootAction, RootAction, RootState, typeof API> 
 export const updateUserEpic: Epic<RootAction, RootAction, RootState, typeof API> = (
   action$,
   _state$,
-  { updateUser },
+  { updateUser, localStorageSet },
 ) =>
   action$.pipe(
     filter(isActionOf(actions.updateUserRequest)),
@@ -84,9 +90,13 @@ export const updateUserEpic: Epic<RootAction, RootAction, RootState, typeof API>
       const { user, data } = action.payload;
 
       return from(updateUser(user, data)).pipe(
-        mergeMap((res) => {
-          return of(actions.updateUserSuccess(res), actions.addNotification('User Updated'));
-        }),
+        mergeMap((res) =>
+          localStorageSet('user', res).pipe(
+            exhaustMap(() =>
+              of(actions.updateUserSuccess(res), actions.addNotification('User Updated')),
+            ),
+          ),
+        ),
         catchError((e) => {
           return of(actions.recieveAuthError(e), actions.addNotification(e));
         }),
@@ -97,19 +107,26 @@ export const updateUserEpic: Epic<RootAction, RootAction, RootState, typeof API>
 export const loginSSOEpic: Epic<RootAction, RootAction, RootState, typeof API> = (
   action$,
   _state$,
-  { loginWithSsoFinish },
+  { loginWithSsoFinish, localStorageSet },
 ) =>
   action$.pipe(
     filter(isActionOf(actions.requestSsoLogin)),
     exhaustMap(() => {
       return from(loginWithSsoFinish()).pipe(
-        mergeMap((user) => {
-          return of(
-            actions.recieveSsoLogin(user),
-            actions.getDevicesFromLogin(user.devices as Device[]),
-            actions.clearAuthErrors(),
-          );
-        }),
+        mergeMap((user) =>
+          zip(
+            localStorageSet<PrintsUser>('user', user),
+            localStorageSet('persistance', 'local'),
+          ).pipe(
+            exhaustMap(() =>
+              of(
+                actions.recieveSsoLogin(user),
+                actions.getDevicesFromLogin(user.devices as Device[]),
+                actions.clearAuthErrors(),
+              ),
+            ),
+          ),
+        ),
       );
     }),
   );
@@ -117,19 +134,19 @@ export const loginSSOEpic: Epic<RootAction, RootAction, RootState, typeof API> =
 export const logoutUserEpic: Epic<RootAction, RootAction, RootState, typeof API> = (
   action$,
   _state$,
-  { logoutUser },
+  { logoutUser, localStorageRemove },
 ) =>
   action$.pipe(
     filter(isActionOf(actions.requestLogout)),
     mergeMap(() =>
-      from(logoutUser()).pipe(
-        mergeMap(() => {
-          return of(
+      zip(from(logoutUser()), localStorageRemove('user'), localStorageRemove('persistance')).pipe(
+        mergeMap(() =>
+          of(
             actions.receiveLogout(),
             actions.clearAuthErrors(),
             actions.addNotification('Successfully logged out'),
-          );
-        }),
+          ),
+        ),
         catchError((error: string) =>
           of(
             actions.recieveAuthError({
@@ -145,29 +162,22 @@ export const logoutUserEpic: Epic<RootAction, RootAction, RootState, typeof API>
 export const verifyRequestEpic: Epic<RootAction, RootAction, RootState, typeof API> = (
   action$,
   _state$,
-  { getCurrentUser, getUserFromDb },
+  { localStorageGet },
 ) =>
   action$.pipe(
     filter(isActionOf(actions.verifyRequest)),
-
-    mergeMap(() => {
-      return getCurrentUser().pipe(
-        mergeMap((user) => {
-          return from(getUserFromDb(user.uid)).pipe(
-            mergeMap((userFromDb) =>
-              of(
-                actions.receiveLogin(userFromDb),
-                actions.getDevicesFromLogin(userFromDb.devices),
-                actions.verifySuccess(),
-              ),
-            ),
-          );
-        }),
-        catchError((e) => {
-          return of(actions.verifySuccess(), actions.receiveLogout());
-        }),
-      );
-    }),
+    mergeMap(() =>
+      localStorageGet<PrintsUser>('user').pipe(
+        mergeMap((user) =>
+          of(
+            actions.receiveLogin(user),
+            actions.getDevicesFromLogin(user.devices as Device[]),
+            actions.verifySuccess(),
+          ),
+        ),
+      ),
+    ),
+    catchError((e) => of(actions.verifySuccess(), actions.receiveLogout())),
   );
 
 export const voteUser: Epic<RootAction, RootAction, RootState, typeof API> = (
