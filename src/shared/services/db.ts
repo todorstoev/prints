@@ -1,4 +1,4 @@
-import { RoomData, Device, Printer, PrintsUser, ChatData, Message } from '../../types';
+import { RoomData, Device, Printer, PrintsUser, ChatData, Message, Coords } from '../../types';
 import { db, googleProvider, myFirebase, localPersistance, nonePersistance } from './firebase';
 import { FirebaseError, User } from 'firebase';
 import { Observable } from 'rxjs';
@@ -129,7 +129,13 @@ export const logoutUser = (): Promise<boolean> => {
   });
 };
 
-export const getDevicesService = (): Promise<Device[]> => {
+export const getDevicesService = ({
+  northBound,
+  southBound,
+}: {
+  northBound: Coords;
+  southBound: Coords;
+}): Promise<Device[]> => {
   return new Promise<Device[]>((resolve, reject) => {
     db.collection('users')
       .get()

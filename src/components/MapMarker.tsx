@@ -25,7 +25,7 @@ const MapMarker: React.FC<MapMarkerProps> = (props) => {
   return (
     <Marker
       ref={markerRef}
-      position={position}
+      position={{ lat: position.latitude, lng: position.longitude }}
       icon={icon || defaultIcon}
       zIndexOffset={9999}
       onclick={(e: LeafletMouseEvent) => {

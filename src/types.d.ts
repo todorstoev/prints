@@ -80,11 +80,7 @@ type Message = {
   doc?: firebase.firestore.DocumentData;
 };
 
-export type Coords = {
-  lat: number;
-  lng: number;
-};
-
+export type Coords = firebase.firestore.GeoPoint;
 export interface Printer {
   dimensions: {
     width: number;

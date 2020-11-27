@@ -1,7 +1,7 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 
-import { Icon } from 'leaflet';
+import { Icon, LeafletEvent } from 'leaflet';
 import { Popup } from 'react-leaflet';
 
 import { Box, Heading, Text } from 'rebass';
@@ -9,7 +9,7 @@ import { Box, Heading, Text } from 'rebass';
 import { Link } from 'react-router-dom';
 
 import { Coords, Device, PrintsUser, RootState } from '../types';
-import { getUserLocation } from '../shared/helpers';
+import { convertGeopoint, getUserLocation } from '../shared/helpers';
 import { getDevicesService } from '../shared/services';
 import Map from '../components/Map';
 import MapMarker from '../components/MapMarker';
@@ -50,7 +50,7 @@ export class Home extends React.Component<HomeProps, HomeState> {
   mounted: boolean = false;
 
   readonly state: HomeState = {
-    mapCenter: { lat: 0, lng: 0 },
+    mapCenter: convertGeopoint(0, 0),
     mapZoom: 13,
     mapMarkers: [],
   };
@@ -61,14 +61,28 @@ export class Home extends React.Component<HomeProps, HomeState> {
     getUserLocation().then((location) => {
       if (this.mounted) this.setState({ mapCenter: location });
     });
-
-    getDevicesService().then((devices) => {
-      if (this.mounted) this.setState({ mapMarkers: devices });
-    });
   }
 
   componentWillUnmount() {
     this.mounted = false;
+  }
+
+  onChangeBounds(e: LeafletEvent) {
+    var NORTH = convertGeopoint(
+      e.target.getBounds()._northEast.lat,
+      e.target.getBounds()._northEast.lng,
+    );
+
+    var SOUTH = convertGeopoint(
+      e.target.getBounds()._southWest.lat,
+      e.target.getBounds()._southWest.lng,
+    );
+
+    console.log(NORTH, SOUTH);
+
+    // getDevicesService({ northBound: NORTH, southBound: SOUTH }).then((devices) => {
+    // if (this.mounted) this.setState({ mapMarkers: devices });
+    // });
   }
 
   render() {
@@ -83,7 +97,13 @@ export class Home extends React.Component<HomeProps, HomeState> {
 
     return (
       <Box height={'100%'}>
-        <Map center={mapCenter} zoom={mapZoom} controls={true} dragging={true}>
+        <Map
+          center={mapCenter}
+          zoom={mapZoom}
+          controls={true}
+          dragging={true}
+          onChangeBounds={this.onChangeBounds}
+        >
           {mapMarkers.map((marker, index) => {
             return (
               <MapMarker key={index} position={marker.location} icon={deviceIcon}>
