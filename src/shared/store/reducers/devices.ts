@@ -3,6 +3,7 @@ import { createReducer } from 'typesafe-actions';
 import { DeviceState } from '../../../types';
 
 import { RootAction, actions } from '..';
+import { remove } from 'lodash';
 
 const initialState: DeviceState = {
   userDevices: [],
@@ -24,12 +25,21 @@ export const deviceReducer = createReducer<DeviceState, RootAction>(initialState
     ...state,
     isLoading: true,
   }))
-  .handleAction(actions.successDeleteDevice, (state, action) => ({
+  .handleAction(actions.successDeleteDevice, (state, action) => {
+    remove(state.userDevices, (d) => d.id === action.payload.id);
+
+    return {
+      ...state,
+      isLoading: false,
+      userDevices: state.userDevices,
+    };
+  })
+  .handleAction(actions.requestLoadUserDevices, (state, action) => ({
+    ...state,
+    isLoading: true,
+  }))
+  .handleAction(actions.successLoadUserDevices, (state, action) => ({
     ...state,
     isLoading: false,
-    userDevices: action.payload,
-  }))
-  .handleAction(actions.getDevicesFromLogin, (state, action) => ({
-    ...state,
     userDevices: action.payload,
   }));

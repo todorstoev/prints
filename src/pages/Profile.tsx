@@ -1,7 +1,7 @@
 import React, { useState, useRef, RefObject, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { Flex, Box, Heading, Text, Card, Image, Button } from 'rebass';
+import { Flex, Box, Text, Card, Image, Button, Heading } from 'rebass';
 import { useTheme } from 'emotion-theming';
 import { useTransition, animated, useChain, ReactSpringHook, config } from 'react-spring';
 
@@ -14,9 +14,10 @@ import Modal from '../components/Modal';
 import { Input } from '@rebass/forms';
 import { UserControl } from '../components/UserControl';
 import { actions } from '../shared/store';
+import Loader from 'react-loader-spinner';
 
 const Profile: React.FC = () => {
-  const { user, userDevices } = useSelector((state: RootState) => ({
+  const { user, userDevices, isLoading } = useSelector((state: RootState) => ({
     ...state.auth,
     ...state.devices,
   }));
@@ -31,39 +32,36 @@ const Profile: React.FC = () => {
 
   const mainTheme = useTheme<any>();
 
-  const nameTrsRef = useRef() as RefObject<ReactSpringHook>;
-
   const unameTrsRef = useRef() as RefObject<ReactSpringHook>;
 
   const emailTrsRef = useRef() as RefObject<ReactSpringHook>;
 
   const sbmBtnTrRef = useRef() as RefObject<ReactSpringHook>;
 
-  const nameTrs = useTransition(edit, null, {
-    initial: null,
-    from: { position: 'absolute', opacity: 0, transform: 'scale(0)' },
-    enter: { opacity: 1, transform: 'scale(1)' },
-    leave: { opacity: 0, transform: 'scale(0)' },
-    config: config.stiff,
-    ref: nameTrsRef,
-  });
-
   const unameTrs = useTransition(edit, null, {
     initial: null,
-    from: { position: 'absolute', opacity: 0, transform: 'rotateX(90deg)' },
-    enter: { opacity: 1, transform: 'rotateX(0deg)' },
-    leave: { opacity: 0, transform: 'rotateX(90deg)' },
+    from: { position: 'absolute', opacity: 0 },
+    enter: { opacity: 1 },
+    leave: { opacity: 0 },
     config: config.stiff,
     ref: unameTrsRef,
   });
 
   const emailTrs = useTransition(edit, null, {
     initial: null,
-    from: { position: 'absolute', opacity: 0, transform: 'rotateX(90deg)' },
-    enter: { opacity: 1, transform: 'rotateX(0deg)' },
-    leave: { opacity: 0, transform: 'rotateX(90deg)' },
+    from: { position: 'absolute', opacity: 0 },
+    enter: { opacity: 1 },
+    leave: { opacity: 0 },
     config: config.stiff,
     ref: emailTrsRef,
+  });
+
+  const devicesTrs = useTransition(userDevices, (item) => item?.id as string, {
+    from: { transform: 'translate3d(0,-40px,0)', opacity: 0 },
+    enter: { transform: 'translate3d(0,0px,0)', opacity: 1 },
+    leave: { transform: 'translate3d(0,-40px,0)', opacity: 1 },
+    config: config.stiff,
+    trail: 200,
   });
 
   useEffect(() => {
@@ -74,15 +72,18 @@ const Profile: React.FC = () => {
     }
   }, [errors, dispatch]);
 
+  useEffect(() => {
+    dispatch(actions.requestLoadUserDevices());
+  }, [dispatch]);
+
   useChain(
-    edit
-      ? [nameTrsRef, unameTrsRef, emailTrsRef, sbmBtnTrRef]
-      : [sbmBtnTrRef, emailTrsRef, unameTrsRef, nameTrsRef],
-    [0, 0.4, 0.6, 0.8],
+    edit ? [unameTrsRef, emailTrsRef, sbmBtnTrRef] : [sbmBtnTrRef, emailTrsRef, unameTrsRef],
+    [0, 0.4, 0.8, 1],
   );
 
   const onSubmit = (data: any) => {
-    dispatch(actions.updateUserRequest({ user, data }));
+    dispatch(actions.updateUserRequest(data));
+    setEdit(false);
   };
 
   return (
@@ -91,64 +92,6 @@ const Profile: React.FC = () => {
         <Box width={[1 / 1, 1 / 2, 1 / 2, 1 / 4]}>
           <form onSubmit={handleSubmit(onSubmit)}>
             <Flex justifyContent={'center'} alignItems={'center'} flexDirection={'column'}>
-              <Flex
-                sx={{
-                  position: 'relative',
-                  height: 90,
-                  width: '100%',
-                }}
-                justifyContent={'center'}
-                alignItems={'center'}
-              >
-                {nameTrs.map(({ item, key, props }) =>
-                  item ? (
-                    <animated.div
-                      key={key}
-                      style={{
-                        opacity: props.opacity,
-                        position: props.position,
-                        transform: props.transform,
-                      }}
-                    >
-                      <Box mb={2}>
-                        <Input
-                          ref={register({
-                            validate: (value) => value !== 'admin' || 'Nice try!',
-                          })}
-                          variant={'inputAuto'}
-                          name={'firstName'}
-                          placeholder={'first name'}
-                          defaultValue={user.firstName}
-                        ></Input>
-                      </Box>
-                      <Box>
-                        <Input
-                          ref={register({
-                            validate: (value) => value !== 'admin' || 'Nice try!',
-                          })}
-                          variant={'inputAuto'}
-                          name={'lastName'}
-                          placeholder={'last name'}
-                          defaultValue={user.lastName}
-                        ></Input>
-                      </Box>
-                    </animated.div>
-                  ) : (
-                    <animated.div
-                      key={key}
-                      style={{
-                        opacity: props.opacity,
-                        position: props.position,
-                      }}
-                    >
-                      <Heading color={'primary'} textAlign={'center'} fontSize={24}>
-                        {user.firstName} {user.lastName}
-                      </Heading>
-                    </animated.div>
-                  ),
-                )}
-              </Flex>
-
               <Flex
                 justifyContent={'center'}
                 alignItems={'center'}
@@ -173,9 +116,9 @@ const Profile: React.FC = () => {
                           validate: (value) => value !== 'admin' || 'Nice try!',
                         })}
                         variant={'inputAuto'}
-                        placeholder={'username'}
-                        defaultValue={user.username}
-                        name={'username'}
+                        placeholder={'Display name'}
+                        defaultValue={user.displayName}
+                        name={'displayName'}
                       ></Input>
                     </animated.div>
                   ) : (
@@ -186,9 +129,9 @@ const Profile: React.FC = () => {
                         position: props.position,
                       }}
                     >
-                      <Text color={'gray'} py={1} textAlign={'center'}>
-                        {user.username}
-                      </Text>
+                      <Heading color={'primary'} py={1} textAlign={'center'}>
+                        {user.displayName}
+                      </Heading>
                     </animated.div>
                   ),
                 )}
@@ -204,7 +147,7 @@ const Profile: React.FC = () => {
                 boxShadow: '20px 20px 60px #d9d9d9,  -20px -20px 60px #ffffff',
               }}
             >
-              <Image src={user.pic} alt="" variant={'avatar'} />
+              <Image src={user.photoURL} alt="" variant={'avatar'} />
               <UserControl {...{ setEdit, edit, sbmBtnTrRef }}></UserControl>
             </Box>
             <Flex
@@ -258,7 +201,7 @@ const Profile: React.FC = () => {
                 ),
               )}
             </Flex>
-            <Text textAlign={'center'}>Rating: {user.rating}</Text>
+
             <Flex justifyContent={'space-between'} alignItems={'center'} my={4}>
               <Text>My Devices</Text>
 
@@ -274,64 +217,75 @@ const Profile: React.FC = () => {
             </Flex>
             <Box marginBottom={4} variant={'hr'}></Box>
             <Box sx={{ overflowY: 'auto' }}>
-              {userDevices.length <= 0 && <Text>You have no devices added</Text>}
+              {isLoading && (
+                <Flex justifyContent="center" color={'primary'}>
+                  <Loader
+                    type="BallTriangle"
+                    color="#00BFFF"
+                    timeout={300} //3 secs
+                  />
+                </Flex>
+              )}
+              {userDevices.length <= 0 && !isLoading && <Text>You have no devices added</Text>}
               {userDevices.length > 0 &&
-                userDevices.map((device: Device, i) => (
-                  <Card
-                    key={i}
-                    m={'auto'}
-                    mb={3}
-                    p={3}
-                    color="white"
-                    sx={{
-                      position: 'relative',
-                      background: mainTheme.blueGradient,
-                      boxShadow: 'card',
-                      lineHeight: 'body',
-                      borderRadius: 7,
-                    }}
-                  >
-                    <Flex mb={[2]} justifyContent={'space-between'} fontSize={3}>
-                      <Text variant={'heading'}>{device.brand}</Text>
-                      <Box>{device.model}</Box>
-                    </Flex>
-                    <Text>Type</Text>
-                    <Text variant={'heading'}>{device.type}</Text>
-                    <Text>Materials</Text>
-                    <Text variant={'heading'}>
-                      {device.materials.map((material, i) =>
-                        i === 0 ? material : `, ${material} `,
-                      )}
-                    </Text>
-                    <Text>Dimensions</Text>
-                    <Flex justifyContent={'space-between'} alignItems={'center'}>
-                      <Box>
-                        <Text variant={'heading'}>
-                          {device.dimensions.height} / {device.dimensions.width} /{' '}
-                          {device.dimensions.depth}
-                        </Text>
-                      </Box>
-                      <Box
-                        onClick={(e) => {
-                          e.preventDefault();
-                          dispatch(actions.requestDeleteDevice(i));
-                        }}
-                      >
-                        <Text
-                          sx={{
-                            textDecoration: 'italic',
-                            ':hover': {
-                              cursor: 'pointer',
-                            },
+                !isLoading &&
+                devicesTrs.map(({ item, props, key }) => (
+                  <animated.div key={key} style={props}>
+                    <Card
+                      m={'auto'}
+                      mb={3}
+                      p={3}
+                      color="white"
+                      sx={{
+                        position: 'relative',
+                        background: mainTheme.blueGradient,
+                        boxShadow: 'card',
+                        lineHeight: 'body',
+                        borderRadius: 7,
+                      }}
+                    >
+                      <Flex mb={[2]} justifyContent={'space-between'} fontSize={3}>
+                        <Text variant={'heading'}>{item.brand}</Text>
+                        <Box>{item.model}</Box>
+                      </Flex>
+                      <Text>Type</Text>
+                      <Text variant={'heading'}>{item.type}</Text>
+                      <Text>Materials</Text>
+                      <Text variant={'heading'}>
+                        {item.materials.map((material, i) =>
+                          i === 0 ? material : `, ${material} `,
+                        )}
+                      </Text>
+                      <Text>Dimensions</Text>
+                      <Flex justifyContent={'space-between'} alignItems={'center'}>
+                        <Box>
+                          <Text variant={'heading'}>
+                            {item.dimensions.height} / {item.dimensions.width} /{' '}
+                            {item.dimensions.depth}
+                          </Text>
+                        </Box>
+                        <Box
+                          onClick={(e) => {
+                            e.preventDefault();
+                            dispatch(actions.requestDeleteDevice(item));
                           }}
-                          fontSize={1}
-                          color={'background'}
                         >
-                          remove
-                        </Text>
-                      </Box>
-                    </Flex>
-                  </Card>
+                          <Text
+                            sx={{
+                              textDecoration: 'italic',
+                              ':hover': {
+                                cursor: 'pointer',
+                              },
+                            }}
+                            fontSize={1}
+                            color={'background'}
+                          >
+                            remove
+                          </Text>
+                        </Box>
+                      </Flex>
+                    </Card>
+                  </animated.div>
                 ))}
             </Box>
           </form>

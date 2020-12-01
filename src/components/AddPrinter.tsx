@@ -29,10 +29,12 @@ const AddPrinter: React.FC<Props> = ({ toggleModal }) => {
 
   const [pickerCords, setPickerCords] = useState<Coords>(convertGeopoint(0, 0));
 
-  const { isLoading, userDevices } = useSelector<RootState, PrintsUser & DeviceState>((state) => ({
-    ...state.auth.user,
-    ...state.devices,
-  }));
+  const { isLoading, userDevices, uid, email } = useSelector<RootState, PrintsUser & DeviceState>(
+    (state) => ({
+      ...state.auth.user,
+      ...state.devices,
+    }),
+  );
 
   const [lastestDevicesNum] = useState<number>(userDevices.length);
 
@@ -65,10 +67,6 @@ const AddPrinter: React.FC<Props> = ({ toggleModal }) => {
 
       setPrinterOptions(printerOptions);
     });
-
-    if (userDevices.length > lastestDevicesNum) {
-      toggleModal(false);
-    }
   }, [userDevices.length, lastestDevicesNum, toggleModal]);
 
   const materials: Array<any> = [
@@ -98,6 +96,8 @@ const AddPrinter: React.FC<Props> = ({ toggleModal }) => {
       materials: data.materials.map((mat: any) => mat.label),
       type: data.type.label,
       model: data.model,
+      uemail: email,
+      uid,
     };
 
     dispatch(actions.requestAddDevice(device));

@@ -31,21 +31,16 @@ export interface NotificationState {
 }
 
 export interface ChatState {
-  canVote: boolean;
   messages: Message[];
   writing: boolean;
 }
 
 export type PrintsUser = {
-  firstName: string;
-  lastName: string;
+  displayName: string;
   email: string;
-  rating: number;
-  pic: string;
-  uid: string | undefined;
-  username: string;
-  refreshToken?: string;
-  devices?: Device[];
+  photoURL: string;
+  uid: string;
+  refreshToken?: strinig;
 };
 
 export type RoomData = {
@@ -55,19 +50,7 @@ export type RoomData = {
 
 export type ChatData = {
   users: string[];
-  voted: {
-    [key: string]: boolean;
-    [key: string]: boolean;
-  };
   recieverHasRed: boolean;
-  titles: {
-    [key: string]: string;
-    [key: string]: string;
-  };
-  rating: {
-    [key: string]: number;
-    [key: string]: number;
-  };
   chatDevice: Device;
 };
 
@@ -95,9 +78,9 @@ export interface Device extends Printer {
   location: Coords;
   materials: string[];
   type: string;
-  id?: string;
-  rating?: number;
-  username?: string;
+  uemail: string;
+  uid: string; // device users id
+  id?: string; // device id
 }
 
 export type PrintsGenericError = {

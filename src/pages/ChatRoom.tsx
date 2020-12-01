@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useDispatch, useSelector, batch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useForm } from 'react-hook-form';
 
 import { RouteComponentProps } from 'react-router-dom';
@@ -8,19 +8,18 @@ import { Input } from '@rebass/forms';
 import { Box, Button, Flex, Heading, Text } from 'rebass';
 import { Send } from 'react-feather';
 
-import { AuthState, RoomData, Message, RootState, Device, ChatState } from '../types';
+import { AuthState, RoomData, Message, RootState, Device } from '../types';
 import { addMessage, createNewChat, getUserRooms } from '../shared/services';
 
 import firebase from '../shared/services/firebase';
 import { MessagesList } from '../components/MessagesList';
 import { ChatRoomDetails } from '../components/ChatRoomDetails';
-import { actions } from '../shared/store';
 import { Loader } from '../components/Loader';
 import { animated, useTransition } from 'react-spring';
 
 const doesChatExists = (chats: RoomData[], deviceFromLocation: Device) =>
   chats.find((chat) => {
-    return chat.data.users.some((id) => id === deviceFromLocation.id);
+    return chat.data.users.some((uid) => uid === deviceFromLocation.uid);
   });
 
 const ChatRoom: React.FC<RouteComponentProps<any, any, Device>> = ({ location }) => {
@@ -34,9 +33,8 @@ const ChatRoom: React.FC<RouteComponentProps<any, any, Device>> = ({ location })
 
   const [newChat, setNewChat] = useState<RoomData | undefined>();
 
-  const { user, canVote } = useSelector<RootState, AuthState & ChatState>((state) => ({
+  const { user } = useSelector<RootState, AuthState>((state) => ({
     ...state.auth,
-    ...state.chat,
   }));
 
   const dispatch = useDispatch();
@@ -58,13 +56,8 @@ const ChatRoom: React.FC<RouteComponentProps<any, any, Device>> = ({ location })
 
     reset();
 
-    if (shoudStartNew && !canVote) {
+    if (shoudStartNew) {
       await createNewChat(newChat as RoomData);
-
-      batch(() => {
-        dispatch(actions.setCanVote(true));
-        dispatch(actions.startWriting(true));
-      });
     }
 
     await addMessage(newMessage, selectedChat);
@@ -79,29 +72,14 @@ const ChatRoom: React.FC<RouteComponentProps<any, any, Device>> = ({ location })
         const chatExist = doesChatExists(res, messagedDevice);
         if (chatExist) {
           setSelectedChat(chatExist.roomId);
-          if (!chatExist.data.voted[user.uid as string]) {
-            dispatch(actions.setCanVote(true));
-          }
         } else {
           const startingNewChat: RoomData = {
             data: {
-              rating: {
-                [`${messagedDevice.id}`]: user.rating,
-                [`${user.uid}`]: messagedDevice.rating as number,
-              },
               recieverHasRed: false,
-              users: [user.uid as string, messagedDevice.id as string],
-              voted: {
-                [`${messagedDevice.id}`]: false,
-                [`${user.uid}`]: false,
-              },
-              titles: {
-                [`${messagedDevice.id}`]: user.username as string,
-                [`${user.uid}`]: messagedDevice.username as string,
-              },
+              users: [user.uid as string, messagedDevice.uid as string],
               chatDevice: messagedDevice,
             },
-            roomId: `${user.uid}:${messagedDevice.id}`,
+            roomId: `${user.email}:${messagedDevice.uemail}`,
           };
           setNewChat(startingNewChat);
 
@@ -120,14 +98,6 @@ const ChatRoom: React.FC<RouteComponentProps<any, any, Device>> = ({ location })
       setSelectedUserRoom(userRooms.find((room) => room.roomId === selectedChat));
     }
   }, [userRooms, selectedChat]);
-
-  useEffect(() => {
-    if (selectedUserRoom === undefined) return;
-
-    if (!selectedUserRoom?.data.voted[user.uid as string]) {
-      dispatch(actions.setCanVote(true));
-    }
-  }, [selectedUserRoom, dispatch, user.uid]);
 
   return (
     <Box p={'1rem'} pt={['5.5rem', '5rem']} height={'100%'} overflow={'hidden'}>
@@ -258,7 +228,7 @@ const ChatRoom: React.FC<RouteComponentProps<any, any, Device>> = ({ location })
                           setSelectedChat(newChat.roomId);
                         }}
                       >
-                        {newChat.data.titles[user.uid as string]}
+                        {newChat.data.users.filter((devUser) => devUser !== user.email)[0]}
                       </Button>
                     )}
                     {(userRooms as RoomData[]).map((room) => {
@@ -279,7 +249,7 @@ const ChatRoom: React.FC<RouteComponentProps<any, any, Device>> = ({ location })
                             setSelectedChat(room.roomId);
                           }}
                         >
-                          {room.data.titles[user.uid as string]}
+                          {room.data.users.filter((devUser) => devUser !== user.email)[0]}
                         </Button>
                       );
                     })}

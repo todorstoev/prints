@@ -1,70 +1,67 @@
 import { Epic } from 'redux-observable';
-import { catchError, exhaustMap, filter, mergeMap } from 'rxjs/operators';
+import { catchError, filter, mapTo, mergeMap } from 'rxjs/operators';
 import { isActionOf } from 'typesafe-actions';
 
-import { Device, PrintsUser, RootState } from '../../../types';
+import { RootState } from '../../../types';
 import * as API from '../../services';
 
 import { actions, RootAction } from '..';
 import { from, of } from 'rxjs';
 
-export const addDeviceEpic: Epic<RootAction, RootAction, RootState, typeof API> = (
+export const loadUserDevices: Epic<RootAction, RootAction, RootState, typeof API> = (
   action$,
   state$,
-  { updatePrintsUserDB, localStorageSet },
+  { loadUserDevicesService },
+) =>
+  action$.pipe(
+    filter(isActionOf(actions.requestLoadUserDevices)),
+    mergeMap(() => {
+      const { auth } = state$.value;
+
+      return from(loadUserDevicesService(auth.user)).pipe(
+        mergeMap((devices) => of(actions.successLoadUserDevices(devices))),
+      );
+    }),
+  );
+
+export const addDeviceEpic: Epic<RootAction, RootAction, RootState, typeof API> = (
+  action$,
+  _state$,
+  { addDevice },
 ) =>
   action$.pipe(
     filter(isActionOf(actions.requestAddDevice)),
-    exhaustMap((action) => {
-      const { auth } = state$.value;
+    mergeMap((action) => {
+      const { payload } = action;
 
-      const userWithNewPritner: PrintsUser = {
-        ...auth.user,
-        devices: [...(auth.user.devices as Device[]), action.payload],
-      };
-
-      return from(updatePrintsUserDB(userWithNewPritner)).pipe(
-        exhaustMap((updatedUserWithPrinter) =>
-          localStorageSet<PrintsUser>('user', updatedUserWithPrinter).pipe(
-            mergeMap(() =>
-              of(
-                actions.successAddDevice(action.payload),
-                actions.addNotification(`Device ${action.payload.brand} added`),
-              ),
-            ),
+      return from(addDevice(payload)).pipe(
+        mergeMap((device) =>
+          of(
+            actions.successAddDevice(device),
+            actions.addNotification(`Device ${action.payload.brand} added`),
           ),
         ),
-        catchError((error) => of(actions.recieveDeviceError(error))),
       );
     }),
   );
 
 export const remmoveDeviceEpic: Epic<RootAction, RootAction, RootState, typeof API> = (
   action$,
-  state$,
-  { updatePrintsUserDB, localStorageSet },
+  _state$,
+  { removeDevice },
 ) =>
   action$.pipe(
     filter(isActionOf(actions.requestDeleteDevice)),
-    mergeMap((action) => {
-      const { devices, auth } = state$.value;
+    mergeMap((action) =>
+      from(removeDevice(action.payload)).pipe(
+        mergeMap((deletedDevice) => {
+          return of(
+            actions.successDeleteDevice(deletedDevice),
+            actions.addNotification(`Removed ${deletedDevice.brand} ${deletedDevice.model}`),
+          );
+        }),
+      ),
+    ),
 
-      const removedDevice = devices.userDevices.splice(action.payload, 1);
-
-      auth.user.devices = devices.userDevices;
-
-      return from(updatePrintsUserDB(auth.user)).pipe(
-        mergeMap((user) =>
-          localStorageSet<PrintsUser>('user', user).pipe(
-            mergeMap(() =>
-              of(
-                actions.successDeleteDevice(devices.userDevices),
-                actions.addNotification(`Removed ${removedDevice[0].brand}`),
-              ),
-            ),
-          ),
-        ),
-      );
-    }),
     catchError((e) => of(actions.recieveDeviceError(e))),
   );

@@ -1,15 +1,7 @@
 import { createAction } from 'typesafe-actions';
 import { Message } from '../../../types';
 
-import {
-  SET_CAN_VOTE,
-  ADD_PREV_MESSAGES,
-  ADD_MESSAGE,
-  START_WRITING,
-  SET_MESSAGES,
-} from '../constants';
-
-export const setCanVote = createAction(SET_CAN_VOTE)<boolean>();
+import { ADD_PREV_MESSAGES, ADD_MESSAGE, START_WRITING, SET_MESSAGES } from '../constants';
 
 export const addPrevMessages = createAction(ADD_PREV_MESSAGES)<Message[]>();
 

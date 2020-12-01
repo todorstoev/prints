@@ -21,7 +21,7 @@ import { NotificationsHub } from './components/NotificationsHub';
 const App: React.FC = () => {
   const location = useLocation();
 
-  const transitions = useTransition(location, (location) => location.pathname, {
+  const transitions = useTransition(location, location => location.pathname, {
     from: { opacity: 0, transform: 'translate3d(2%,0,0)' },
     enter: { opacity: 1, transform: 'translate3d(0%,0,0)' },
     leave: { opacity: 0, transform: 'translate3d(-2%,0,0)' },

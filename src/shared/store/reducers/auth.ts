@@ -13,17 +13,14 @@ const initialState: AuthState = {
   user: {
     email: '',
     uid: '',
-    firstName: '',
-    lastName: '',
-    pic: '',
+    photoURL: '',
     refreshToken: '',
-    username: '',
-    rating: 100,
+    displayName: '',
   },
 };
 
 export const authReducer = createReducer<AuthState, RootAction>(initialState)
-  .handleAction(actions.requestSsoLogin, (state) => ({
+  .handleAction(actions.requestSsoLogin, state => ({
     ...state,
     isLoggingIn: true,
   }))
@@ -33,7 +30,7 @@ export const authReducer = createReducer<AuthState, RootAction>(initialState)
     isAuthenticated: true,
     user: action.payload,
   }))
-  .handleAction(actions.requestLogin, (state) => ({
+  .handleAction(actions.requestLogin, state => ({
     ...state,
     isLoggingIn: true,
   }))
@@ -43,12 +40,12 @@ export const authReducer = createReducer<AuthState, RootAction>(initialState)
     isAuthenticated: true,
     user: action.payload,
   }))
-  .handleAction(actions.cancelLogin, (state) => ({
+  .handleAction(actions.cancelLogin, state => ({
     ...state,
     isLoggingIn: false,
     isAuthenticated: false,
   }))
-  .handleAction(actions.requestRegister, (state) => ({
+  .handleAction(actions.requestRegister, state => ({
     ...state,
     isLoggingIn: true,
   }))
@@ -58,16 +55,16 @@ export const authReducer = createReducer<AuthState, RootAction>(initialState)
     isAuthenticated: true,
     user: action.payload,
   }))
-  .handleAction(actions.cancelRegister, (state) => ({
+  .handleAction(actions.cancelRegister, state => ({
     ...state,
     isLoggingIn: false,
     isAuthenticated: false,
   }))
-  .handleAction(actions.requestLogout, (state) => ({
+  .handleAction(actions.requestLogout, state => ({
     ...state,
     isLoggingOut: true,
   }))
-  .handleAction(actions.receiveLogout, (state) => ({
+  .handleAction(actions.receiveLogout, state => ({
     ...state,
     isLoggingOut: false,
     isAuthenticated: false,
@@ -75,23 +72,20 @@ export const authReducer = createReducer<AuthState, RootAction>(initialState)
     user: {
       email: '',
       uid: '',
-      firstName: '',
-      lastName: '',
-      pic: '',
+      photoURL: '',
       refreshToken: '',
-      username: '',
-      rating: 100,
+      displayName: '',
     },
   }))
-  .handleAction(actions.verifyRequest, (state) => ({
+  .handleAction(actions.verifyRequest, state => ({
     ...state,
     isVerifying: true,
   }))
-  .handleAction(actions.verifySuccess, (state) => ({
+  .handleAction(actions.verifySuccess, state => ({
     ...state,
     isVerifying: false,
   }))
-  .handleAction(actions.updateUserRequest, (state) => ({
+  .handleAction(actions.updateUserRequest, state => ({
     ...state,
     isLoading: true,
   }))
@@ -99,13 +93,4 @@ export const authReducer = createReducer<AuthState, RootAction>(initialState)
     ...state,
     isLoading: false,
     user: action.payload,
-  }))
-  .handleAction(actions.voteUserRequest, (state) => ({
-    ...state,
-    isLoading: true,
-  }))
-
-  .handleAction(actions.voteUserSuccess, (state) => ({
-    ...state,
-    isLoading: false,
   }));

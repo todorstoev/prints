@@ -1,22 +1,15 @@
 import { useTheme } from 'emotion-theming';
 import React, { useRef, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { Box, Flex, Text, Heading, Button } from 'rebass';
-import { Plus, Minus } from 'react-feather';
+import { useSelector } from 'react-redux';
+import { Box, Flex, Heading, Text } from 'rebass';
+import { Icon } from 'leaflet';
+import { animated, useSpring, config } from 'react-spring';
 
-import { AuthState, ChatState, RoomData, RootState } from '../types';
-
-import { actions } from '../shared/store';
+import { AuthState, RoomData, RootState } from '../types';
 
 import { ChatDetailsControls } from '../components/ChatDetailsControls';
 import MapMarker from '../components/MapMarker';
 import Map from '../components/Map';
-import { Icon } from 'leaflet';
-
-export enum Vote {
-  Up = 'UP',
-  Down = 'DOWN',
-}
 
 type Props = {
   data: RoomData;
@@ -25,16 +18,15 @@ type Props = {
 export const ChatRoomDetails: React.FC<Props> = ({ data }) => {
   const mainTheme = useTheme<any>();
 
+  const mapRef = useRef<any>(null);
+
   const [stretched, setStretched] = useState<boolean>(true);
 
-  const dispatch = useDispatch();
+  const props = useSpring({ height: stretched ? '80px' : '0px', config: config.default });
 
-  const { user, canVote } = useSelector<RootState, AuthState & ChatState>((state) => ({
+  const { user } = useSelector<RootState, AuthState>((state) => ({
     ...state.auth,
-    ...state.chat,
   }));
-
-  const headingRef = useRef<HTMLElement>(null);
 
   const deviceIcon = new Icon({
     iconUrl: './assets/device-location-pin-icon.svg',
@@ -52,148 +44,78 @@ export const ChatRoomDetails: React.FC<Props> = ({ data }) => {
       }}
       flexDirection={'column'}
       color={'background'}
-      p={[0, 3]}
+      p={[0, 2]}
       height={'auto'}
     >
-      {data &&
-        (!stretched ? (
-          <Box width={'100%'} height={'100%'}>
-            <Box>
-              <ChatDetailsControls
-                device={data.data.chatDevice}
-                streched={stretched}
-                setStretched={setStretched}
-              />
-            </Box>
+      {data && (
+        <Box width={'100%'} height={'100%'}>
+          <Flex justifyContent={'space-between'}>
+            <Heading color={['primary', 'background']}>
+              {data.data.chatDevice.brand} {data.data.chatDevice.model}
+            </Heading>
+            <ChatDetailsControls
+              device={data.data.chatDevice}
+              streched={stretched}
+              setStretched={setStretched}
+            />
+          </Flex>
 
+          <animated.div style={props}>
             <Box
-              mt={2}
               sx={{
                 display: 'grid',
                 gridGap: 3,
                 height: '100%',
-                gridTemplateColumns: 'auto 1fr',
+                overflow: 'hidden',
+                gridTemplateColumns: 'auto minmax(auto,250px)',
                 '@media screen and (max-width:56em)': {
                   gridTemplateColumns: ' repeat(1, 1fr)',
                   gridGap: 0,
                 },
               }}
             >
-              <Flex
-                height={'100%'}
-                justifyContent={['space-between', 'space-between', 'flex-start']}
-              >
-                <Box
-                  height={[100, '100%']}
-                  width={150}
-                  sx={{
-                    borderRadius: 5,
-                    overflow: 'hidden',
-                  }}
-                >
-                  <Map
-                    dragging={false}
-                    zoom={13}
-                    center={data.data.chatDevice.location}
-                    controls={false}
-                  >
-                    <MapMarker
-                      position={data.data.chatDevice.location}
-                      icon={deviceIcon}
-                    ></MapMarker>
-                  </Map>
+              <Flex flexDirection={'column'} justifyContent={'space-evenly'}>
+                <Text color={['primary', 'background']} fontSize={[1, 2]}>
+                  Type : {data.data.chatDevice.type}
+                </Text>
+                <Text color={['primary', 'background']} fontSize={[1, 2]}>
+                  Materials: {data.data.chatDevice.materials.join(', ')}
+                </Text>
+                <Box>
+                  <Text color={['primary', 'background']} fontSize={[1, 2]}>
+                    Dimensions: {data.data.chatDevice.dimensions.height}/
+                    {data.data.chatDevice.dimensions.width}/{data.data.chatDevice.dimensions.depth}
+                  </Text>
                 </Box>
-                <Flex pl={3} flexDirection={'column'} justifyContent={'flex-end'}>
-                  <Text color={['primary', 'background']} fontSize={[1, 2]}>
-                    Type : {data.data.chatDevice.type}
-                  </Text>
-                  <Text color={['primary', 'background']} fontSize={[1, 2]}>
-                    Materials: {data.data.chatDevice.materials.join(', ')}
-                  </Text>
+                {data.data.chatDevice.uid === user.uid && (
                   <Box>
                     <Text color={['primary', 'background']} fontSize={[1, 2]}>
-                      Dimensions: {data.data.chatDevice.dimensions.height}/
-                      {data.data.chatDevice.dimensions.width}/
-                      {data.data.chatDevice.dimensions.depth}
+                      (This device is yours)
                     </Text>
                   </Box>
-                  {data.data.chatDevice.id === user.uid && (
-                    <Box>
-                      <Text color={['primary', 'background']} fontSize={[1, 2]}>
-                        (This device is yours)
-                      </Text>
-                    </Box>
-                  )}
-                </Flex>
+                )}
               </Flex>
-              <Box mt={2}>
-                <Flex
-                  alignItems={['center', 'center', 'flex-end']}
-                  height={'100%'}
-                  flexDirection={['row', 'column']}
-                  justifyContent={['space-between', 'space-evenly']}
+
+              <Box
+                sx={{
+                  borderRadius: '5px',
+                  overflow: 'hidden',
+                }}
+              >
+                <Map
+                  ref={mapRef}
+                  dragging={false}
+                  zoom={13}
+                  center={data.data.chatDevice.location}
+                  controls={false}
                 >
-                  <Box sx={{ position: 'relative' }}>
-                    <Heading
-                      color="primary"
-                      my={2}
-                      py={1}
-                      ref={headingRef}
-                      fontSize={[2, 3]}
-                      fontWeight={'body'}
-                    >
-                      Rating : {data.data.rating[user.uid as string]}
-                    </Heading>
-                  </Box>
-
-                  <Box>
-                    <Button
-                      mr={2}
-                      p={['2px 4px;', '6px 8px;']}
-                      disabled={!canVote}
-                      onClick={() => {
-                        if (!canVote) return;
-                        dispatch(
-                          actions.voteUserRequest({
-                            vote: Vote.Down,
-                            roomData: data,
-                          }),
-                        );
-
-                        (data.data.rating[user.uid as string] as number)--;
-                      }}
-                    >
-                      <Minus />
-                    </Button>
-                    <Button
-                      p={['2px 4px;', '6px 8px;']}
-                      disabled={!canVote}
-                      onClick={() => {
-                        if (!canVote) return;
-                        dispatch(
-                          actions.voteUserRequest({
-                            vote: Vote.Up,
-                            roomData: data,
-                          }),
-                        );
-
-                        (data.data.rating[user.uid as string] as number)++;
-                      }}
-                    >
-                      <Plus />
-                    </Button>
-                  </Box>
-                </Flex>
+                  <MapMarker position={data.data.chatDevice.location} icon={deviceIcon}></MapMarker>
+                </Map>
               </Box>
             </Box>
-          </Box>
-        ) : (
-          <ChatDetailsControls
-            device={data.data.chatDevice}
-            streched={stretched}
-            setStretched={setStretched}
-          />
-        ))}
+          </animated.div>
+        </Box>
+      )}
     </Flex>
   );
 };

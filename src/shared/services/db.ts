@@ -1,7 +1,7 @@
 import { RoomData, Device, Printer, PrintsUser, ChatData, Message, Coords } from '../../types';
 import { db, googleProvider, myFirebase, localPersistance, nonePersistance } from './firebase';
-import { FirebaseError, User } from 'firebase';
 import { Observable } from 'rxjs';
+import { cloneDeepWith } from 'lodash';
 
 import {
   uniqueNamesGenerator,
@@ -22,32 +22,35 @@ const customConfigNameGen: Config = {
 };
 
 export const registerWithEmail = async (email: string, password: string): Promise<PrintsUser> => {
-  const username: string = uniqueNamesGenerator(customConfigNameGen)
+  let displayName: string = uniqueNamesGenerator(customConfigNameGen)
     .replaceAll(' ', '-')
     .toLowerCase();
+  let photoURL = './assets/user-unknown-com.svg';
+  let user: any = null;
 
   return new Promise((resolve, reject) => {
-    const userToInsert: PrintsUser = {
-      email,
-      firstName: '',
-      lastName: '',
-      uid: '',
-      username,
-      rating: 100,
-      pic: './assets/user-unknown-com.svg',
-      devices: [],
-    };
-
     myFirebase
       .auth()
       .createUserWithEmailAndPassword(email, password)
       .then((res) => {
-        userToInsert.uid = res.user?.uid;
+        user = cloneDeepWith(res, (_val, key) => {
+          switch (key) {
+            case 'photoURL':
+              return photoURL;
+            case 'displayName':
+              return displayName;
+            default:
+              return undefined;
+          }
+        });
 
-        return saveUserToDb(userToInsert);
+        return res.user?.updateProfile({
+          displayName: displayName,
+          photoURL: photoURL,
+        });
       })
-      .then((res) => {
-        if (res) resolve(userToInsert);
+      .then(() => {
+        resolve(remapUser(user));
       })
       .catch((e) => reject(fbErrorMessages(e)));
   });
@@ -66,19 +69,9 @@ export const loginWithSsoFinish = (): Promise<PrintsUser> => {
       .auth()
       .getRedirectResult()
       .then((res) => {
-        const username: string = uniqueNamesGenerator(customConfigNameGen)
-          .replace(' ', '-')
-          .toLowerCase();
-
-        const userToInsert = remapUser(res, username);
-
-        if (res.additionalUserInfo?.isNewUser) {
-          return saveUserToDb(userToInsert);
-        } else {
-          return getUserFromDb(res.user?.uid as string);
-        }
+        resolve(remapUser(res));
       })
-      .then((user) => resolve(user as PrintsUser))
+
       .catch((e) => reject(fbErrorMessages(e)));
   });
 };
@@ -94,12 +87,7 @@ export const loginWithEmail = (
       .setPersistence(remember ? localPersistance : nonePersistance)
       .then(() => myFirebase.auth().signInWithEmailAndPassword(email, password))
       .then((res) => {
-        const uid = (res.user as User).uid;
-
-        return getUserFromDb(uid);
-      })
-      .then((res) => {
-        resolve(res);
+        resolve(remapUser(res));
       })
       .catch((e) => reject(fbErrorMessages(e)));
   });
@@ -129,7 +117,61 @@ export const logoutUser = (): Promise<boolean> => {
   });
 };
 
-export const getDevicesService = ({
+export const updateUser = (newData: any): Promise<PrintsUser> => {
+  return new Promise((resolve, reject) => {
+    const currUser = myFirebase.auth().currentUser;
+
+    if (newData.email === currUser?.email) {
+      const updatedUser = cloneDeepWith(currUser, (_val, key) => {
+        if (key === 'displayName') return newData.displayName;
+
+        return undefined;
+      });
+
+      currUser
+        ?.updateProfile({ displayName: newData.displayName })
+        .then(() => resolve(updatedUser))
+        .catch((e) => reject(fbErrorMessages(e)));
+    } else {
+      const updatedUser = cloneDeepWith(currUser, (_val, key) => {
+        if (key === 'displayName') return newData.displayName;
+
+        if (key === 'email') return newData.email;
+
+        return undefined;
+      });
+
+      currUser
+        ?.updateProfile({ displayName: newData.displayName })
+        .then(() => currUser.updateEmail(newData.email))
+        .then(() => resolve(updatedUser))
+        .catch((e) => reject(fbErrorMessages(e)));
+    }
+  });
+};
+
+export const loadUserDevicesService = (user: PrintsUser): Promise<Device[]> => {
+  return new Promise<Device[]>((resolve, reject) => {
+    db.collection('devices')
+      .where('uid', '==', user.uid)
+      .get()
+      .then((devices) => {
+        const userDevices: Device[] = [];
+
+        devices.forEach((device) => {
+          const uDevice: Device = device.data() as Device;
+
+          uDevice.id = device.id;
+
+          userDevices.push(uDevice);
+        });
+        resolve(userDevices as Device[]);
+      })
+      .catch((e) => reject(e));
+  });
+};
+
+export const loadDevicesService = ({
   northBound,
   southBound,
 }: {
@@ -137,27 +179,45 @@ export const getDevicesService = ({
   southBound: Coords;
 }): Promise<Device[]> => {
   return new Promise<Device[]>((resolve, reject) => {
-    db.collection('users')
+    db.collection('devices')
+      .where('location', '<=', northBound)
+      .where('location', '>=', southBound)
+      .limit(100)
       .get()
-      .then((asyncSnapshot) => {
-        let devicesList: Device[] = [];
+      .then((devices) => {
+        const viewDevices: Device[] = [];
 
-        for (let i = 0; asyncSnapshot.docs.length > i; i++) {
-          const currUserDevices: Device[] = asyncSnapshot.docs[i].data().devices;
+        devices.forEach((device) => {
+          const uDevice: Device = device.data() as Device;
 
-          if (currUserDevices.length < 1) continue;
+          uDevice.id = device.id;
 
-          for (let d = 0; currUserDevices.length > d; d++) {
-            currUserDevices[d].id = asyncSnapshot.docs[i].data().uid;
-            currUserDevices[d].rating = asyncSnapshot.docs[i].data().rating;
-            currUserDevices[d].username = asyncSnapshot.docs[i].data().username;
-          }
+          viewDevices.push(uDevice);
+        });
 
-          devicesList = [...devicesList, ...currUserDevices];
-        }
-
-        resolve(devicesList);
+        resolve(viewDevices as Device[]);
       })
+      .catch((e) => reject(e));
+  });
+};
+
+export const addDevice = (device: Device): Promise<Device> => {
+  return new Promise((resolve, reject) => {
+    console.log(device);
+    db.collection('devices')
+      .add(device)
+      .then(() => resolve(device))
+      .catch((e) => reject(e));
+  });
+};
+
+export const removeDevice = (device: Device): Promise<Device> => {
+  return new Promise((resolve, reject) => {
+    console.log(device);
+    db.collection('devices')
+      .doc(device.id)
+      .delete()
+      .then(() => resolve(device))
       .catch((e) => reject(e));
   });
 };
@@ -175,93 +235,40 @@ export const getPrinters = (): Promise<Printer[]> => {
   });
 };
 
-export const saveUserToDb = (user: PrintsUser): Promise<PrintsUser | FirebaseError> => {
+export const getUserRooms = (user: PrintsUser): Promise<RoomData[]> => {
   return new Promise((resolve, reject) => {
-    db.collection('users')
-      .add(user)
-      .then((_snapshot) => {
-        resolve(user);
-      })
-      .catch((e) => {
-        reject(e);
-      });
-  });
-};
+    db.collection('chats')
+      .where('users', 'array-contains', user.uid)
 
-export const getUserFromDb = (uid: string): Promise<PrintsUser> => {
-  return new Promise((resolve) => {
-    db.collection('users')
-      .where('uid', '==', uid)
       .get()
-      .then((docs) => {
-        docs.forEach((doc) => {
-          resolve(doc.data() as PrintsUser);
-        });
-      })
-      .catch((e) => {
-        throw e;
-      });
-  });
-};
-
-export const updatePrintsUserDB = (user: PrintsUser): Promise<PrintsUser> => {
-  return new Promise((resolve, reject) => {
-    db.collection('users')
-      .where('uid', '==', user.uid)
-      .get()
-      .then((docs) => {
-        const [doc] = docs.docs;
-
-        return doc.ref.update({
-          firstName: user.firstName,
-          lastName: user.lastName,
-          email: user.email,
-          pic: user.pic,
-          username: user.username,
-          devices: user.devices,
-        });
-      })
-      .then(() => {
-        resolve(user);
-      })
-      .catch((e) => {
-        reject(e);
-      });
-  });
-};
-
-export const updateUser = (user: PrintsUser, newData: any): Promise<PrintsUser> => {
-  const updatedUser = {
-    ...user,
-    email: newData.email,
-    firstName: newData.firstName,
-    lastName: newData.lastName,
-    username: newData.username,
-  };
-
-  if (newData.email === user.email) return updatePrintsUserDB(updatedUser);
-
-  return new Promise((resolve, reject) => {
-    updateEmail(newData.email)
-      .then(() => {
-        return updatePrintsUserDB(user);
-      })
-      .then(() => resolve(user))
-      .catch((e) => reject(fbErrorMessages(e)));
-  });
-};
-
-export const updateEmail = (email: string): Promise<any> => {
-  return new Promise((resolve, reject) => {
-    myFirebase
-      .auth()
-      .currentUser?.updateEmail(email)
       .then((res) => {
-        resolve(res);
+        debugger;
+        const docs: RoomData[] = [];
+        res.forEach((doc) => docs.push({ roomId: doc.id, data: doc.data() as ChatData }));
+
+        resolve(docs);
       })
-      .catch((e) => {
-        reject(e);
-      });
+      .catch((e) => reject(e));
+  });
+};
+
+export const updateUserRoom = (room: RoomData): Promise<boolean> => {
+  return new Promise((resolve, reject) => {
+    db.collection('chats')
+      .doc(room.roomId)
+      .update(room.data)
+      .then((res) => resolve(true))
+      .catch((err) => reject(err));
+  });
+};
+
+export const createNewChat = (newChat: RoomData): Promise<boolean> => {
+  return new Promise((resolve, reject) => {
+    db.collection('chats')
+      .doc(newChat.roomId)
+      .set(newChat.data)
+      .then((res) => resolve(true))
+      .catch((e) => reject(e));
   });
 };
 
@@ -335,56 +342,5 @@ export const addMessage = (message: Message, selected: string): Promise<boolean>
       .add(message)
       .then(() => resolve(true))
       .catch((err) => reject(err));
-  });
-};
-
-export const voteUser = (uid: string, rating: number): Promise<boolean> => {
-  return new Promise((resolve, rejects) => {
-    db.collection('users')
-      .where('uid', '==', uid)
-      .get()
-      .then((docs) => {
-        const [doc] = docs.docs;
-
-        return doc.ref.update({ rating });
-      })
-      .then(() => resolve(true))
-      .catch((err) => rejects(fbErrorMessages(err)));
-  });
-};
-
-export const getUserRooms = (user: PrintsUser): Promise<RoomData[]> => {
-  return new Promise((resolve, reject) => {
-    db.collection('chats')
-      .where('users', 'array-contains', user.uid)
-
-      .get()
-      .then((querySnapshot) => {
-        const docs: RoomData[] = [];
-        querySnapshot.forEach((doc) => docs.push({ roomId: doc.id, data: doc.data() as ChatData }));
-
-        resolve(docs);
-      })
-      .catch((e) => reject(e));
-  });
-};
-
-export const updateUserRoom = (room: RoomData): Promise<boolean> => {
-  return new Promise((resolve, reject) => {
-    db.collection('chats')
-      .doc(room.roomId)
-      .update(room.data)
-      .then((res) => resolve(true))
-      .catch((err) => reject(err));
-  });
-};
-
-export const createNewChat = (newChat: RoomData): Promise<boolean> => {
-  return new Promise((resolve, reject) => {
-    db.collection('chats')
-      .doc(newChat.roomId)
-      .set(newChat.data)
-      .then((res) => resolve(true))
-      .catch((e) => reject(e));
   });
 };
