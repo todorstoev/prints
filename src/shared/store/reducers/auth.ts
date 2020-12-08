@@ -16,6 +16,7 @@ const initialState: AuthState = {
     photoURL: '',
     refreshToken: '',
     displayName: '',
+    emailVerified: false,
   },
 };
 
@@ -75,6 +76,7 @@ export const authReducer = createReducer<AuthState, RootAction>(initialState)
       photoURL: '',
       refreshToken: '',
       displayName: '',
+      emailVerified: false,
     },
   }))
   .handleAction(actions.verifyUserRequest, (state) => ({
@@ -97,6 +99,7 @@ export const authReducer = createReducer<AuthState, RootAction>(initialState)
       photoURL: '',
       refreshToken: '',
       displayName: '',
+      emailVerified: false,
     },
   }))
   .handleAction(actions.updateUserRequest, (state) => ({
@@ -122,5 +125,6 @@ export const authReducer = createReducer<AuthState, RootAction>(initialState)
       photoURL: '',
       refreshToken: '',
       displayName: '',
+      emailVerified: false,
     },
   }));

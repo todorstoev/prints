@@ -1,7 +1,7 @@
 import React, { useState, useRef, RefObject, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { Flex, Box, Text, Card, Image, Button, Heading } from 'rebass';
+import { Flex, Box, Text, Card, Image, Button, Heading, Link } from 'rebass';
 import { useTheme } from 'emotion-theming';
 import { useTransition, animated, useChain, ReactSpringHook, config } from 'react-spring';
 
@@ -15,6 +15,7 @@ import { Input } from '@rebass/forms';
 import { UserControl } from '../components/UserControl';
 import { actions } from '../shared/store';
 import Loader from 'react-loader-spinner';
+import { sendVerifyEmail } from '../shared/services';
 
 const Profile: React.FC = () => {
   const { user, userDevices, isLoading } = useSelector((state: RootState) => ({
@@ -84,6 +85,12 @@ const Profile: React.FC = () => {
   const onSubmit = (data: any) => {
     dispatch(actions.updateUserRequest(data));
     setEdit(false);
+  };
+
+  const sendVerifyMail = () => {
+    sendVerifyEmail()
+      .then(() => dispatch(actions.addNotification(`Verification email send to ${user.email}`)))
+      .catch((e) => actions.addNotification(e));
   };
 
   return (
@@ -197,6 +204,11 @@ const Profile: React.FC = () => {
                     <Text color={'gray'} py={1} textAlign={'center'}>
                       {user.email}
                     </Text>
+                    {!user.emailVerified && (
+                      <Box sx={{ textAlign: 'center', fontSize: 1 }}>
+                        <Link onClick={() => sendVerifyMail()}>(verify email)</Link>
+                      </Box>
+                    )}
                   </animated.div>
                 ),
               )}
@@ -227,7 +239,7 @@ const Profile: React.FC = () => {
                 </Flex>
               )}
               {userDevices.length <= 0 && !isLoading && <Text>You have no devices added</Text>}
-                
+
               {userDevices.length > 0 &&
                 !isLoading &&
                 devicesTrs.map(({ item, props, key }) => (

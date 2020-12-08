@@ -41,6 +41,7 @@ export type PrintsUser = {
   photoURL: string;
   uid: string;
   refreshToken?: strinig;
+  emailVerified: boolean;
 };
 
 export type RoomData = {

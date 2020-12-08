@@ -108,6 +108,7 @@ export const getCurrentUser = (): Observable<PrintsUser | null> => {
                 displayName: user?.displayName as string,
                 photoURL: user?.photoURL ?? '',
                 uid: user?.uid as string,
+                emailVerified: user.emailVerified,
               }
             : null,
         );
@@ -171,6 +172,16 @@ export const resetPasswordsRequest = (email: string): Promise<string> => {
       .sendPasswordResetEmail(email)
       .then(() => resolve(email))
       .catch((err: any) => reject(fbErrorMessages(err)));
+  });
+};
+
+export const sendVerifyEmail = (): Promise<any> => {
+  return new Promise((resolve, reject) => {
+    myFirebase
+      .auth()
+      .currentUser?.sendEmailVerification()
+      .then(() => resolve(true))
+      .catch((e) => reject(fbErrorMessages(e)));
   });
 };
 

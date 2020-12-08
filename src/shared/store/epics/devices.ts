@@ -67,7 +67,7 @@ export const remmoveDeviceEpic: Epic<RootAction, RootAction, RootState, typeof A
           return of(
             actions.recieveDeviceError(e),
             actions.cancelDeleteDevice(),
-            actions.addNotification(`Cant remove device now, please try again later`),
+            actions.addNotification(`Can't remove device now, please try again later`),
           );
         }),
       ),

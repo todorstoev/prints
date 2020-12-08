@@ -1,5 +1,5 @@
 import { from, of } from 'rxjs';
-import { catchError, exhaustMap, filter, mapTo, mergeMap } from 'rxjs/operators';
+import { catchError, exhaustMap, filter, mergeMap } from 'rxjs/operators';
 import { isActionOf } from 'typesafe-actions';
 import { Epic } from 'redux-observable';
 
@@ -7,7 +7,7 @@ import * as API from '../../services';
 
 import { actions, RootAction } from '..';
 
-import { PrintsUser, RootState } from '../../../types';
+import { RootState } from '../../../types';
 
 export const registerUserEpic: Epic<RootAction, RootAction, RootState, typeof API> = (
   action$,

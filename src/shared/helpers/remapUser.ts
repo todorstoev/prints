@@ -6,5 +6,6 @@ export const remapUser = (user: firebase.auth.UserCredential): PrintsUser => {
     displayName: user.user?.displayName as string,
     photoURL: user?.user?.photoURL ?? '',
     uid: user?.user?.uid as string,
+    emailVerified: user.user?.emailVerified as boolean,
   };
 };
