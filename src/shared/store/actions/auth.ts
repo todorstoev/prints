@@ -11,12 +11,15 @@ import {
   REGISTER_CANCEL,
   LOGOUT_REQUEST,
   LOGOUT_SUCCESS,
-  VERIFY_REQUEST,
-  VERIFY_SUCCESS,
+  VERIFY_USER_REQUEST,
+  VERIFY_USER_SUCCESS,
   UPDATE_USER_REQUEST,
   UPDATE_USER_SUCCESS,
   SSO_LOGIN_REQUEST,
   SSO_LOGIN_SUCCESS,
+  DELETE_USER_REQUEST,
+  DELETE_USER_SUCCESS,
+  VERIFY_USER_CANCEL,
 } from '../constants';
 
 export const requestLogin = createAction(LOGIN_REQUEST)<{
@@ -46,12 +49,18 @@ export const requestLogout = createAction(LOGOUT_REQUEST)();
 
 export const receiveLogout = createAction(LOGOUT_SUCCESS)();
 
-export const verifyRequest = createAction(VERIFY_REQUEST)();
+export const verifyUserRequest = createAction(VERIFY_USER_REQUEST)();
 
-export const verifySuccess = createAction(VERIFY_SUCCESS)();
+export const verifyUserSuccess = createAction(VERIFY_USER_SUCCESS)<PrintsUser>();
+
+export const verifyUserCancel = createAction(VERIFY_USER_CANCEL)();
 
 export const updateUserRequest = createAction(UPDATE_USER_REQUEST)<{
   data: any;
 }>();
 
 export const updateUserSuccess = createAction(UPDATE_USER_SUCCESS)<PrintsUser>();
+
+export const deleteUserRequest = createAction(DELETE_USER_REQUEST)();
+
+export const deleteUserSuccess = createAction(DELETE_USER_SUCCESS)();

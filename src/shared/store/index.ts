@@ -37,7 +37,7 @@ const configureStore = (initialState?: RootState) => {
     store.dispatch(actions.requestSsoLogin());
     sessionStorage.removeItem('3dreact:sso');
   } else {
-    store.dispatch(actions.verifyRequest());
+    store.dispatch(actions.verifyUserRequest());
   }
 
   return store;

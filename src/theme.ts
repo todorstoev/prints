@@ -3,7 +3,7 @@ export const theme: any = {
     background: '#fff',
     primary: '#037BB6',
     secondary: '#70c1e6',
-    error: 'red',
+    error: '#f58383',
     muted: 'rgb(204,204,204)',
     grayBg: '#fbfbfc',
     highlight: 'hsla(205, 100%, 40%, 0.125)',

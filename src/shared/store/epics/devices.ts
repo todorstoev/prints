@@ -19,7 +19,6 @@ export const loadUserDevices: Epic<RootAction, RootAction, RootState, typeof API
     mapTo(actions.clearDevices()),
 
     mergeMap((res) => {
-      debugger;
       const { auth } = state$.value;
 
       return from(loadUserDevicesService(auth.user)).pipe(
@@ -64,8 +63,13 @@ export const remmoveDeviceEpic: Epic<RootAction, RootAction, RootState, typeof A
             actions.addNotification(`Removed ${deletedDevice.brand} ${deletedDevice.model}`),
           );
         }),
+        catchError((e) => {
+          return of(
+            actions.recieveDeviceError(e),
+            actions.cancelDeleteDevice(),
+            actions.addNotification(`Cant remove device now, please try again later`),
+          );
+        }),
       ),
     ),
-
-    catchError((e) => of(actions.recieveDeviceError(e))),
   );

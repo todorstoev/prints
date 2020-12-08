@@ -227,7 +227,7 @@ const Profile: React.FC = () => {
                 </Flex>
               )}
               {userDevices.length <= 0 && !isLoading && <Text>You have no devices added</Text>}
-
+                
               {userDevices.length > 0 &&
                 !isLoading &&
                 devicesTrs.map(({ item, props, key }) => (

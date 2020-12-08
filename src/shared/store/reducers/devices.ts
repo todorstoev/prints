@@ -34,6 +34,10 @@ export const deviceReducer = createReducer<DeviceState, RootAction>(initialState
       userDevices: state.userDevices,
     };
   })
+  .handleAction(actions.cancelDeleteDevice, (state) => ({
+    ...state,
+    isLoading: false,
+  }))
   .handleAction(actions.requestLoadUserDevices, (state, action) => ({
     ...state,
     isLoading: true,

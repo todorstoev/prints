@@ -15,14 +15,19 @@ export const LOGOUT_SUCCESS = '@@auth/LOGOUT_SUCCESS';
 export const UPDATE_USER_REQUEST = '@@auth/UPDATE_USER_REQUEST';
 export const UPDATE_USER_SUCCESS = '@@auth/UPDATE_USER_SUCCESS';
 
-export const VERIFY_REQUEST = '@@auth/VERIFY_REQUEST';
-export const VERIFY_SUCCESS = '@@auth/VERIFY_SUCCESS';
+export const VERIFY_USER_REQUEST = '@@auth/VERIFY_REQUEST';
+export const VERIFY_USER_SUCCESS = '@@auth/VERIFY_SUCCESS';
+export const VERIFY_USER_CANCEL = '@@auth/VERIFY_CANCEL';
+
+export const DELETE_USER_REQUEST = '@@auth/DELETE_USER_REQUEST';
+export const DELETE_USER_SUCCESS = '@@auth/DELETE_USER_SUCCESS';
 
 export const REQUEST_DEVICE_ADD = '@@devices/REQUEST_DEVICE_ADD';
 export const SUCCESS_DEVICE_ADD = '@@devices/SUCCESS_DEVICE_ADD';
 
 export const REQUEST_DEVICE_REMOVE = '@@devices/REQUEST_DEVICE_REMOVE';
 export const SUCCESS_DEVICE_REMOVE = '@@devices/SUCCESS_DEVICE_REMOVE';
+export const CANCEL_DEVICE_REMOVE = '@@devices/CANCEL_DEVICE_REMOVE';
 
 export const REQUEST_LOAD_DEVICES = '@@devices/REQUEST_LOAD_DEVICES';
 export const SUCCESS_LOAD_DEVICES = '@@devices/SUCCESS_LOAD_DEVICES';

@@ -97,11 +97,20 @@ export const loginWithEmail = (
   });
 };
 
-export const getCurrentUser = (): Observable<firebase.User> => {
+export const getCurrentUser = (): Observable<PrintsUser | null> => {
   return new Observable((subscriber) => {
     myFirebase.auth().onAuthStateChanged({
       next: (user) => {
-        subscriber.next(user);
+        subscriber.next(
+          user
+            ? {
+                email: user?.email as string,
+                displayName: user?.displayName as string,
+                photoURL: user?.photoURL ?? '',
+                uid: user?.uid as string,
+              }
+            : null,
+        );
       },
       error: (error) => subscriber.error(error.message),
       complete: () => subscriber.complete(),
@@ -208,6 +217,20 @@ export const resetPassword = (actionCode: string, password: string): Promise<boo
   });
 };
 
+export const deleteUser = (): Promise<boolean> => {
+  return new Promise((resolve, reject) => {
+    const user = myFirebase.auth().currentUser as firebase.User;
+
+    user
+      .delete()
+      .then(() => {
+        return deleteUserDevices(user as PrintsUser);
+      })
+      .then((res) => resolve(res))
+      .catch((e) => reject(fbErrorMessages(e)));
+  });
+};
+
 export const loadUserDevicesService = (user: PrintsUser): Promise<Device[]> => {
   return new Promise<Device[]>((resolve, reject) => {
     db.collection('devices')
@@ -272,7 +295,6 @@ export const addDevice = (device: Device): Promise<Device> => {
 
 export const removeDevice = (device: Device): Promise<Device> => {
   return new Promise((resolve, reject) => {
-    console.log(device);
     db.collection('devices')
       .doc(device.id)
       .delete()
@@ -294,6 +316,25 @@ export const getPrinters = (): Promise<Printer[]> => {
   });
 };
 
+export const deleteUserDevices = (user: PrintsUser): Promise<boolean> => {
+  return new Promise((resolve, reject) => {
+    const writeBatch = db.batch();
+
+    db.collection('devices')
+      .where('uid', '==', user.uid)
+      .get()
+      .then((docs) => {
+        docs.forEach((doc) => {
+          writeBatch.delete(doc.ref);
+        });
+
+        return writeBatch.commit();
+      })
+      .then(() => resolve(true))
+      .catch((e) => reject(fbErrorMessages(e)));
+  });
+};
+
 export const getUserRooms = (user: PrintsUser): Promise<RoomData[]> => {
   return new Promise((resolve, reject) => {
     db.collection('chats')
@@ -301,7 +342,6 @@ export const getUserRooms = (user: PrintsUser): Promise<RoomData[]> => {
 
       .get()
       .then((res) => {
-        debugger;
         const docs: RoomData[] = [];
         res.forEach((doc) => docs.push({ roomId: doc.id, data: doc.data() as ChatData }));
 

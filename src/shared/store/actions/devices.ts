@@ -1,8 +1,10 @@
+import { create } from 'lodash';
 import { createAction } from 'typesafe-actions';
 
 import { Device } from '../../../types';
 
 import {
+  CANCEL_DEVICE_REMOVE,
   CLEAR_DEVICES,
   REQUEST_DEVICE_ADD,
   REQUEST_DEVICE_REMOVE,
@@ -19,6 +21,8 @@ export const successAddDevice = createAction(SUCCESS_DEVICE_ADD)<Device>();
 export const requestDeleteDevice = createAction(REQUEST_DEVICE_REMOVE)<Device>();
 
 export const successDeleteDevice = createAction(SUCCESS_DEVICE_REMOVE)<Device>();
+
+export const cancelDeleteDevice = createAction(CANCEL_DEVICE_REMOVE)();
 
 export const requestLoadUserDevices = createAction(REQUEST_LOAD_DEVICES)();
 

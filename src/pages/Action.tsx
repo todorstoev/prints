@@ -79,7 +79,6 @@ const VerifyEmail: React.FC<Props> = ({ actionCode }) => {
       {verified && (
         <>
           <Heading>Your email has been verified</Heading>
-          <Text>You can now sign in with your new account</Text>
         </>
       )}
       {verified === false && (
@@ -159,7 +158,7 @@ const ResetPassword: React.FC<Props> = ({ actionCode }) => {
               />
               <Box>
                 <Button mx={1} type={'submit'}>
-                  Send
+                  Change
                 </Button>
               </Box>
             </Flex>

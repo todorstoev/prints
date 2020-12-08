@@ -1,5 +1,5 @@
-import { from, of, zip } from 'rxjs';
-import { catchError, exhaustMap, filter, mergeMap } from 'rxjs/operators';
+import { from, of } from 'rxjs';
+import { catchError, exhaustMap, filter, mapTo, mergeMap } from 'rxjs/operators';
 import { isActionOf } from 'typesafe-actions';
 import { Epic } from 'redux-observable';
 
@@ -12,7 +12,7 @@ import { PrintsUser, RootState } from '../../../types';
 export const registerUserEpic: Epic<RootAction, RootAction, RootState, typeof API> = (
   action$,
   _state$,
-  { registerWithEmail, localStorageSet },
+  { registerWithEmail },
 ) =>
   action$.pipe(
     filter(isActionOf(actions.requestRegister)),
@@ -21,12 +21,7 @@ export const registerUserEpic: Epic<RootAction, RootAction, RootState, typeof AP
       const { email, password } = action.payload;
 
       return from(registerWithEmail(email, password)).pipe(
-        mergeMap((user) =>
-          zip(
-            localStorageSet<PrintsUser>('user', user),
-            localStorageSet<string>('persistance', 'local'),
-          ).pipe(mergeMap(() => of(actions.recieveRegister(user), actions.clearAuthErrors()))),
-        ),
+        mergeMap((user) => of(actions.recieveRegister(user), actions.clearAuthErrors())),
         catchError((error: string) =>
           of(
             actions.recieveAuthError({
@@ -43,7 +38,7 @@ export const registerUserEpic: Epic<RootAction, RootAction, RootState, typeof AP
 export const loginUserEpic: Epic<RootAction, RootAction, RootState, typeof API> = (
   action$,
   _state$,
-  { loginWithEmail, localStorageSet },
+  { loginWithEmail },
 ) =>
   action$.pipe(
     filter(isActionOf(actions.requestLogin)),
@@ -51,12 +46,7 @@ export const loginUserEpic: Epic<RootAction, RootAction, RootState, typeof API> 
       const { email, password, remember } = action.payload;
 
       return from(loginWithEmail(email, password, remember)).pipe(
-        mergeMap((user) => {
-          return zip(
-            localStorageSet<PrintsUser>('user', user),
-            localStorageSet<string>('persistance', remember ? 'local' : 'none'),
-          ).pipe(exhaustMap(() => of(actions.receiveLogin(user), actions.clearAuthErrors())));
-        }),
+        mergeMap((user) => of(actions.receiveLogin(user), actions.clearAuthErrors())),
         catchError((error: string) =>
           of(
             actions.recieveAuthError({
@@ -73,7 +63,7 @@ export const loginUserEpic: Epic<RootAction, RootAction, RootState, typeof API> 
 export const updateUserEpic: Epic<RootAction, RootAction, RootState, typeof API> = (
   action$,
   _state$,
-  { updateUser, localStorageSet },
+  { updateUser },
 ) =>
   action$.pipe(
     filter(isActionOf(actions.updateUserRequest)),
@@ -82,11 +72,7 @@ export const updateUserEpic: Epic<RootAction, RootAction, RootState, typeof API>
 
       return from(updateUser(data)).pipe(
         mergeMap((res) =>
-          localStorageSet('user', res).pipe(
-            exhaustMap(() =>
-              of(actions.updateUserSuccess(res), actions.addNotification('User Updated')),
-            ),
-          ),
+          of(actions.updateUserSuccess(res), actions.addNotification('User Updated')),
         ),
         catchError((e) => {
           return of(actions.recieveAuthError(e), actions.addNotification(e));
@@ -98,18 +84,13 @@ export const updateUserEpic: Epic<RootAction, RootAction, RootState, typeof API>
 export const loginSSOEpic: Epic<RootAction, RootAction, RootState, typeof API> = (
   action$,
   _state$,
-  { loginWithSsoFinish, localStorageSet },
+  { loginWithSsoFinish },
 ) =>
   action$.pipe(
     filter(isActionOf(actions.requestSsoLogin)),
     exhaustMap(() => {
       return from(loginWithSsoFinish()).pipe(
-        mergeMap((user) =>
-          zip(
-            localStorageSet<PrintsUser>('user', user),
-            localStorageSet('persistance', 'local'),
-          ).pipe(exhaustMap(() => of(actions.recieveSsoLogin(user), actions.clearAuthErrors()))),
-        ),
+        mergeMap((user) => of(actions.recieveSsoLogin(user), actions.clearAuthErrors())),
       );
     }),
   );
@@ -117,12 +98,12 @@ export const loginSSOEpic: Epic<RootAction, RootAction, RootState, typeof API> =
 export const logoutUserEpic: Epic<RootAction, RootAction, RootState, typeof API> = (
   action$,
   _state$,
-  { logoutUser, localStorageRemove },
+  { logoutUser },
 ) =>
   action$.pipe(
     filter(isActionOf(actions.requestLogout)),
     mergeMap(() =>
-      zip(from(logoutUser()), localStorageRemove('user'), localStorageRemove('persistance')).pipe(
+      from(logoutUser()).pipe(
         mergeMap(() =>
           of(
             actions.receiveLogout(),
@@ -142,23 +123,38 @@ export const logoutUserEpic: Epic<RootAction, RootAction, RootState, typeof API>
     ),
   );
 
-export const verifyRequestEpic: Epic<RootAction, RootAction, RootState, typeof API> = (
+export const deleteUserEpic: Epic<RootAction, RootAction, RootState, typeof API> = (
   action$,
   _state$,
-  { localStorageGet },
+  { deleteUser },
 ) =>
   action$.pipe(
-    filter(isActionOf(actions.verifyRequest)),
+    filter(isActionOf(actions.deleteUserRequest)),
     mergeMap(() =>
-      localStorageGet<PrintsUser>('user').pipe(
-        mergeMap((user) =>
-          of(
-            actions.receiveLogin(user),
-            // actions.getDevicesFromLogin(user.devices as Device[]),
-            actions.verifySuccess(),
-          ),
+      from(deleteUser()).pipe(
+        mergeMap((res) =>
+          of(actions.deleteUserSuccess(), actions.addNotification('User deleted!')),
         ),
       ),
     ),
-    catchError((e) => of(actions.verifySuccess(), actions.receiveLogout())),
+    catchError((e) => of(actions.addNotification(e))),
+  );
+
+export const verifyUserEpic: Epic<RootAction, RootAction, RootState, typeof API> = (
+  action$,
+  _state$,
+  { getCurrentUser },
+) =>
+  action$.pipe(
+    filter(isActionOf(actions.verifyUserRequest)),
+    mergeMap(() =>
+      getCurrentUser().pipe(
+        mergeMap((user) => {
+          if (user) return of(actions.verifyUserSuccess(user));
+
+          return of(actions.verifyUserCancel());
+        }),
+      ),
+    ),
+    catchError((e) => of(actions.receiveLogout(), actions.addNotification(e))),
   );
