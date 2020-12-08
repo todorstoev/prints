@@ -15,7 +15,11 @@ export const loadUserDevices: Epic<RootAction, RootAction, RootState, typeof API
 ) =>
   action$.pipe(
     filter(isActionOf(actions.requestLoadUserDevices)),
-    mergeMap(() => {
+
+    mapTo(actions.clearDevices()),
+
+    mergeMap((res) => {
+      debugger;
       const { auth } = state$.value;
 
       return from(loadUserDevicesService(auth.user)).pipe(

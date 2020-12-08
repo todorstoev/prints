@@ -7,7 +7,7 @@ import { useTransition, animated, useChain, ReactSpringHook, config } from 'reac
 
 import { useForm } from 'react-hook-form';
 
-import { RootState, Device } from '../types';
+import { RootState } from '../types';
 
 import AddPrinter from '../components/AddPrinter';
 import Modal from '../components/Modal';
@@ -227,6 +227,7 @@ const Profile: React.FC = () => {
                 </Flex>
               )}
               {userDevices.length <= 0 && !isLoading && <Text>You have no devices added</Text>}
+
               {userDevices.length > 0 &&
                 !isLoading &&
                 devicesTrs.map(({ item, props, key }) => (

@@ -26,6 +26,7 @@ export const SUCCESS_DEVICE_REMOVE = '@@devices/SUCCESS_DEVICE_REMOVE';
 
 export const REQUEST_LOAD_DEVICES = '@@devices/REQUEST_LOAD_DEVICES';
 export const SUCCESS_LOAD_DEVICES = '@@devices/SUCCESS_LOAD_DEVICES';
+export const CLEAR_DEVICES = '@devices/CLEAR_DEVICES';
 
 export const AUTH_ERROR = '@@errors/LOGIN_ERROR';
 export const CLEAR_AUTH_ERRORS = '@@errors/CLEAR_AUTH_ERRORS';

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Map, MessageCircle } from 'react-feather';
+import { Map, MessageCircle, RefreshCcw } from 'react-feather';
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { Box, Image } from 'rebass';
@@ -11,11 +11,11 @@ type Props = {
 };
 
 const Navigation: React.FC<Props> = ({ location }) => {
-  const { user, isAuthenticated } = useSelector<RootState, AuthState>(state => state.auth);
+  const { user, isAuthenticated } = useSelector<RootState, AuthState>((state) => state.auth);
 
   return (
     <>
-      {isAuthenticated && (
+      {location.pathname !== '/login' && (
         <Box
           m={'auto'}
           my={3}
@@ -102,6 +102,37 @@ const Navigation: React.FC<Props> = ({ location }) => {
               <MessageCircle size={42}></MessageCircle>
             </Box>
           </Link>
+        </Box>
+      )}
+      {isAuthenticated && (
+        <Box
+          variant={'navAvatar'}
+          m={'auto'}
+          my={3}
+          sx={{
+            position: 'fixed',
+            bottom: 0,
+            left: '0em',
+            zIndex: 10,
+            bg: 'transperent',
+          }}
+        >
+          <Box
+            bg="#fff"
+            color="primary"
+            variant={'navAvatar'}
+            sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              boxShadow: 'small',
+              ':active': {
+                transform: 'scale(0.9)',
+              },
+            }}
+          >
+            <RefreshCcw size={42}></RefreshCcw>
+          </Box>
         </Box>
       )}
     </>

@@ -27,12 +27,15 @@ export const registerWithEmail = async (email: string, password: string): Promis
     .toLowerCase();
   let photoURL = './assets/user-unknown-com.svg';
   let user: any = null;
+  let fbUser: firebase.User;
 
   return new Promise((resolve, reject) => {
     myFirebase
       .auth()
       .createUserWithEmailAndPassword(email, password)
       .then((res) => {
+        fbUser = res.user as firebase.User;
+
         user = cloneDeepWith(res, (_val, key) => {
           switch (key) {
             case 'photoURL':
@@ -44,14 +47,15 @@ export const registerWithEmail = async (email: string, password: string): Promis
           }
         });
 
-        return res.user?.updateProfile({
+        return fbUser?.updateProfile({
           displayName: displayName,
           photoURL: photoURL,
         });
       })
       .then(() => {
-        resolve(remapUser(user));
+        return fbUser.sendEmailVerification();
       })
+      .then(() => resolve(remapUser(user)))
       .catch((e) => reject(fbErrorMessages(e)));
   });
 };
@@ -150,6 +154,60 @@ export const updateUser = (newData: any): Promise<PrintsUser> => {
   });
 };
 
+export const resetPasswordsRequest = (email: string): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const auth = myFirebase.auth();
+
+    auth
+      .sendPasswordResetEmail(email)
+      .then(() => resolve(email))
+      .catch((err: any) => reject(fbErrorMessages(err)));
+  });
+};
+
+export const verifyEmail = (actionCode: string): Promise<boolean> => {
+  return new Promise((resolve, reject) => {
+    const auth = myFirebase.auth();
+
+    auth
+      .applyActionCode(actionCode)
+      .then(() => resolve(true))
+      .catch((error) => reject(error));
+  });
+};
+
+export const checkActionCodeRecoverEmail = (actionCode: string): Promise<boolean> => {
+  return new Promise((resolve, reject) => {
+    const auth = myFirebase.auth();
+
+    auth
+      .checkActionCode(actionCode)
+      .then(() => resolve(true))
+      .catch(() => reject(false));
+  });
+};
+
+export const verifyCodeResetPassword = (actionCode: string): Promise<boolean> => {
+  return new Promise((resolve, reject) => {
+    const auth = myFirebase.auth();
+
+    auth
+      .verifyPasswordResetCode(actionCode)
+      .then(() => resolve(true))
+      .catch(() => reject(false));
+  });
+};
+
+export const resetPassword = (actionCode: string, password: string): Promise<boolean> => {
+  return new Promise((resolve, reject) => {
+    const auth = myFirebase.auth();
+    auth
+      .confirmPasswordReset(actionCode, password)
+      .then(() => resolve(true))
+      .catch((e) => reject(fbErrorMessages(e)));
+  });
+};
+
 export const loadUserDevicesService = (user: PrintsUser): Promise<Device[]> => {
   return new Promise<Device[]>((resolve, reject) => {
     db.collection('devices')
@@ -165,6 +223,7 @@ export const loadUserDevicesService = (user: PrintsUser): Promise<Device[]> => {
 
           userDevices.push(uDevice);
         });
+
         resolve(userDevices as Device[]);
       })
       .catch((e) => reject(e));

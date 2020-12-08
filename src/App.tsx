@@ -4,24 +4,28 @@ import { useSelector } from 'react-redux';
 import { Box } from 'rebass';
 
 import { useTransition, animated } from 'react-spring';
+
 import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css';
 
 import ProtectedRoute from './components/ProtectedRoute';
+
 import Navigation from './components/Navigation';
 
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Profile from './pages/Profile';
 import ChatRoom from './pages/ChatRoom';
+import Action from './pages/Action';
 
 import { RootState } from './types';
 import { NoMatch } from './pages/404';
 import { NotificationsHub } from './components/NotificationsHub';
+import RequestResetPassword from './pages/RequestPasswordReset';
 
 const App: React.FC = () => {
   const location = useLocation();
 
-  const transitions = useTransition(location, location => location.pathname, {
+  const transitions = useTransition(location, (location) => location.pathname, {
     from: { opacity: 0, transform: 'translate3d(2%,0,0)' },
     enter: { opacity: 1, transform: 'translate3d(0%,0,0)' },
     leave: { opacity: 0, transform: 'translate3d(-2%,0,0)' },
@@ -45,6 +49,8 @@ const App: React.FC = () => {
           }}
         >
           <Switch location={location}>
+            <Route exact path="/action" component={Action} />
+            <Route exact path="/reset" component={RequestResetPassword} />
             <ProtectedRoute
               exact
               path="/"

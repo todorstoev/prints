@@ -42,4 +42,8 @@ export const deviceReducer = createReducer<DeviceState, RootAction>(initialState
     ...state,
     isLoading: false,
     userDevices: action.payload,
+  }))
+  .handleAction(actions.clearDevices, (state, action) => ({
+    ...state,
+    userDevices: [],
   }));
