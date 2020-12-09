@@ -125,7 +125,7 @@ const AddPrinter: React.FC<Props> = ({ toggleModal }) => {
                         };
                       },
                     }}
-                    onChange={(selected: ValueType<any>) => {
+                    onChange={(selected: ValueType<any, any>) => {
                       if (selected === null) {
                         setSelectedBrand('');
                         setSelectedModel('');
