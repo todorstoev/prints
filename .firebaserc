@@ -1,5 +1,6 @@
 {
   "projects": {
-    "default": "prints-9537b"
+    "default": "prints-9537b",
+    "prod": "dreact-4188b"
   }
 }

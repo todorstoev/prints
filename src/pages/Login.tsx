@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Redirect } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { Box } from 'rebass';
+import { Box, Flex, Image } from 'rebass';
 import { useSpring, animated as a } from 'react-spring';
 
 import { RootState } from '../types';
@@ -18,36 +18,45 @@ const Login: React.FC = () => {
     config: { mass: 5, tension: 500, friction: 80 },
   });
 
-  const { isAuthenticated } = useSelector((state: RootState) => state.auth);
+  const { isAuthenticated, isLoggingIn } = useSelector((state: RootState) => state.auth);
 
   if (isAuthenticated) return <Redirect to="/" />;
 
   return (
-    <Box
-      height={'100%'}
-      sx={{
-        overflow: 'hidden',
-      }}
-    >
-      {isLogin ? (
-        <a.div
-          style={{
-            opacity: opacity.interpolate((o: any) => 1 - o),
-            transform,
-          }}
-        >
-          <SignIn {...{ setIsLogin }} />
-        </a.div>
-      ) : (
-        <a.div
-          style={{
-            opacity,
-            transform: transform.interpolate((t) => `${t} rotateX(180deg)`),
-          }}
-        >
-          <SignUp {...{ setIsLogin }} />
-        </a.div>
+    <Box>
+      {!isLoggingIn && (
+        <Box mt={5} sx={{ textAlign: 'center' }}>
+          <Image width={'15em'} src="./assets/orb-hq.png" />
+        </Box>
       )}
+      <Flex
+        flexDirection="column"
+        justifyContent="center"
+        alignItems="center"
+        sx={{
+          overflow: 'hidden',
+        }}
+      >
+        {isLogin ? (
+          <a.div
+            style={{
+              opacity: opacity.interpolate((o: any) => 1 - o),
+              transform,
+            }}
+          >
+            <SignIn {...{ setIsLogin }} />
+          </a.div>
+        ) : (
+          <a.div
+            style={{
+              opacity,
+              transform: transform.interpolate((t) => `${t} rotateX(180deg)`),
+            }}
+          >
+            <SignUp {...{ setIsLogin }} />
+          </a.div>
+        )}
+      </Flex>
     </Box>
   );
 };

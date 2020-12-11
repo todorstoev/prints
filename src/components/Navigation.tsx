@@ -104,7 +104,7 @@ const Navigation: React.FC<Props> = ({ location }) => {
           </Link>
         </Box>
       )}
-      {isAuthenticated && (
+      {isAuthenticated && location.pathname === '/' && (
         <Box
           variant={'navAvatar'}
           m={'auto'}

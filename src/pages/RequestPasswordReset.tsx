@@ -1,6 +1,9 @@
 import React, { useEffect } from 'react';
+
+import { Redirect, useHistory } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { useForm } from 'react-hook-form';
+
 import { Input } from '@rebass/forms';
 import { Box, Button, Flex, Text } from 'rebass';
 
@@ -9,8 +12,6 @@ import { actions } from '../shared/store';
 import { resetPasswordsRequest } from '../shared/services';
 
 import { AuthState, RootState } from '../types';
-
-import { Redirect } from 'react-router-dom';
 
 type FormData = {
   email: string;
@@ -23,6 +24,8 @@ const RequestResetPassword: React.FC = () => {
 
   const { register, handleSubmit, errors, reset } = useForm<FormData>();
 
+  const history = useHistory();
+
   useEffect(() => {
     if (errors.email) {
       dispatch(actions.addNotification(errors.email.message as string));
@@ -34,6 +37,7 @@ const RequestResetPassword: React.FC = () => {
       .then((res: string) => {
         dispatch(actions.addNotification(`Confirmation email send to ${res}`));
         reset();
+        history.goBack();
       })
       .catch((e: string) => {
         dispatch(actions.addNotification(e));

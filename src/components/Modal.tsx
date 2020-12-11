@@ -13,9 +13,9 @@ const Modal: React.FC<Props> = ({ children, showModal, setShowModal }) => {
 
   const transitions = useTransition(showModal, null, {
     config: config.default,
-    from: { opacity: 0, transform: 'scale(0) translate3d(0,-540px,0)' },
+    from: { opacity: 0, transform: 'scale(0.8) translate3d(0,-540px,0)' },
     enter: { opacity: 1, transform: 'scale(1) translate3d(0,0px,0)' },
-    leave: { opacity: 0, transform: 'scale(0) translate3d(0,-540px,0)' },
+    leave: { opacity: 0, transform: 'scale(1.5) translate3d(0,-540px,0)' },
   });
 
   return ReactDOM.createPortal(

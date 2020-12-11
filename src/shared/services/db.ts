@@ -1,5 +1,13 @@
 import { RoomData, Device, Printer, PrintsUser, ChatData, Message, Coords } from '../../types';
-import { db, googleProvider, myFirebase, localPersistance, nonePersistance } from './firebase';
+
+import {
+  db,
+  googleProvider,
+  facebookProvider,
+  myFirebase,
+  localPersistance,
+  nonePersistance,
+} from './firebase';
 import { Observable } from 'rxjs';
 import { cloneDeepWith } from 'lodash';
 
@@ -12,6 +20,11 @@ import {
 } from 'unique-names-generator';
 
 import { fbErrorMessages, remapUser } from '../helpers';
+
+export enum ProviderSSO {
+  GOOGLE = 'GOOGLE',
+  FACEBOOK = 'FACEBOOK',
+}
 
 const numberDictionary = NumberDictionary.generate({ min: 0, max: 9999 });
 
@@ -60,9 +73,16 @@ export const registerWithEmail = async (email: string, password: string): Promis
   });
 };
 
-export const loginWithGoogleStart = (): boolean => {
+export const loginWithSSOStart = (provider: ProviderSSO): boolean => {
   sessionStorage.setItem('3dreact:sso', 'logging');
-  myFirebase.auth().signInWithRedirect(googleProvider);
+
+  if (provider === ProviderSSO.FACEBOOK) {
+    myFirebase.auth().signInWithRedirect(facebookProvider);
+  }
+
+  if (provider === ProviderSSO.GOOGLE) {
+    myFirebase.auth().signInWithRedirect(googleProvider);
+  }
 
   return true;
 };

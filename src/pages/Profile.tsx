@@ -12,10 +12,14 @@ import { RootState } from '../types';
 import AddPrinter from '../components/AddPrinter';
 import Modal from '../components/Modal';
 import { Input } from '@rebass/forms';
-import { UserControl } from '../components/UserControl';
-import { actions } from '../shared/store';
+
 import Loader from 'react-loader-spinner';
+
+import { actions } from '../shared/store';
 import { sendVerifyEmail } from '../shared/services';
+import { useConfirm } from '../shared/hooks/useConfirm';
+
+import { UserControl } from '../components/UserControl';
 
 const Profile: React.FC = () => {
   const { user, userDevices, isLoading } = useSelector((state: RootState) => ({
@@ -26,6 +30,8 @@ const Profile: React.FC = () => {
   const [showAddModal, setShowAddModal] = useState<boolean>(false);
 
   const [edit, setEdit] = useState<boolean>(false);
+
+  const [deleteDevice, setDeleteDevice] = useState<any>();
 
   const dispatch = useDispatch();
 
@@ -38,6 +44,11 @@ const Profile: React.FC = () => {
   const emailTrsRef = useRef() as RefObject<ReactSpringHook>;
 
   const sbmBtnTrRef = useRef() as RefObject<ReactSpringHook>;
+
+  const { isOpen, setIsOpen, Confirm } = useConfirm(
+    () => setTimeout(() => dispatch(actions.requestDeleteDevice(deleteDevice)), 500),
+    'Delete this device ?',
+  );
 
   const unameTrs = useTransition(edit, null, {
     initial: null,
@@ -94,7 +105,7 @@ const Profile: React.FC = () => {
   };
 
   return (
-    <React.Fragment>
+    <>
       <Flex p={'1rem'} pt={'5rem'} justifyContent={'center'} overflow={'auto'} height={'100%'}>
         <Box width={[1 / 1, 1 / 2, 1 / 2, 1 / 4]}>
           <form onSubmit={handleSubmit(onSubmit)}>
@@ -280,7 +291,8 @@ const Profile: React.FC = () => {
                         <Box
                           onClick={(e) => {
                             e.preventDefault();
-                            dispatch(actions.requestDeleteDevice(item));
+                            setDeleteDevice(item);
+                            setIsOpen(true);
                           }}
                         >
                           <Text
@@ -312,7 +324,11 @@ const Profile: React.FC = () => {
           }}
         />
       </Modal>
-    </React.Fragment>
+
+      <Modal {...{ showModal: isOpen, setShowModal: setIsOpen }}>
+        <Confirm></Confirm>
+      </Modal>
+    </>
   );
 };
 

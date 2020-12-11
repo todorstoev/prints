@@ -1,7 +1,7 @@
 export const theme: any = {
   colors: {
     background: '#fff',
-    primary: '#037BB6',
+    primary: '#073f6c',
     secondary: '#70c1e6',
     error: '#f58383',
     muted: 'rgb(204,204,204)',
@@ -187,7 +187,7 @@ export const theme: any = {
     },
     input: {
       bg: '#fff',
-      borderColor: 'secondary',
+      borderColor: '#063e6b14',
       transition: 'all 0.2s linear',
       outline: 'none',
       ':focus': {

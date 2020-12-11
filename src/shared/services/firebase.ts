@@ -17,6 +17,7 @@ export default firebase;
 
 export const myFirebase = firebase.initializeApp(firebaseConfig);
 export const googleProvider = new firebase.auth.GoogleAuthProvider();
+export const facebookProvider = new firebase.auth.FacebookAuthProvider();
 
 export const localPersistance = firebase.auth.Auth.Persistence.LOCAL;
 export const nonePersistance = firebase.auth.Auth.Persistence.SESSION;

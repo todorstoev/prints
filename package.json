@@ -45,6 +45,7 @@
     "eject": "react-scripts eject",
     "start:prod": "rimraf ./build && react-scripts build && firebase serve",
     "deploy": "firebase deploy"
+    
   },
   "eslintConfig": {
     "extends": "react-app"
