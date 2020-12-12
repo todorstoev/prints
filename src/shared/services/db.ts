@@ -77,6 +77,9 @@ export const loginWithSSOStart = (provider: ProviderSSO): boolean => {
   sessionStorage.setItem('3dreact:sso', 'logging');
 
   if (provider === ProviderSSO.FACEBOOK) {
+    facebookProvider.addScope('public_profile');
+    facebookProvider.addScope('email');
+
     myFirebase.auth().signInWithRedirect(facebookProvider);
   }
 
@@ -88,14 +91,21 @@ export const loginWithSSOStart = (provider: ProviderSSO): boolean => {
 };
 
 export const loginWithSsoFinish = (): Promise<PrintsUser> => {
+  let fbUser: any;
   return new Promise((resolve, reject) => {
     myFirebase
       .auth()
       .getRedirectResult()
       .then((res) => {
-        resolve(remapUser(res));
-      })
+        fbUser = res;
 
+        return res.user?.updateProfile({
+          photoURL:
+            (res.additionalUserInfo?.profile as any)?.picture?.data?.url ??
+            (res.additionalUserInfo?.profile as any).picture,
+        });
+      })
+      .then(() => resolve(remapUser(fbUser)))
       .catch((e) => reject(fbErrorMessages(e)));
   });
 };
