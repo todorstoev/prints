@@ -39,7 +39,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "rimraf ./build && brunch build -p",
+    "build": "rimraf ./build && react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "start:prod": "rimraf ./build && react-scripts build && firebase serve",
@@ -74,6 +74,7 @@
     "@types/redux-logger": "^3.0.7",
     "firebase-tools": "^8.14.1",
     "prettier": "2.1.2",
-    "rimraf": "^3.0.0"
+    "rimraf": "^3.0.0",
+    "terser-brunch": "^4.0.0"
   }
 }
