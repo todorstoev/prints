@@ -26,7 +26,7 @@ const Login: React.FC = () => {
     <Box>
       {!isLoggingIn && (
         <Box mt={5} sx={{ textAlign: 'center' }}>
-          <Image width={'15em'} src="./assets/orb-hq.png" />
+          <Image src="./assets/orb-hq.png" />
         </Box>
       )}
       <Flex

@@ -16,6 +16,7 @@ import { MessagesList } from '../components/MessagesList';
 import { ChatRoomDetails } from '../components/ChatRoomDetails';
 import { Loader } from '../components/Loader';
 import { animated, useTransition } from 'react-spring';
+import { actions } from '../shared/store';
 
 const doesChatExists = (chats: RoomData[], deviceFromLocation: Device) =>
   chats.find((chat) => {
@@ -58,6 +59,7 @@ const ChatRoom: React.FC<RouteComponentProps<any, any, Device>> = ({ location })
 
     if (shoudStartNew) {
       await createNewChat(newChat as RoomData);
+      dispatch(actions.startWriting(true));
     }
 
     await addMessage(newMessage, selectedChat);
@@ -77,10 +79,12 @@ const ChatRoom: React.FC<RouteComponentProps<any, any, Device>> = ({ location })
             data: {
               recieverHasRed: false,
               users: [user.uid as string, messagedDevice.uid as string],
+              titles: [user.displayName, messagedDevice.uname],
               chatDevice: messagedDevice,
             },
             roomId: `${user.email}:${messagedDevice.uemail}`,
           };
+
           setNewChat(startingNewChat);
 
           setSelectedChat(startingNewChat.roomId);
@@ -215,7 +219,6 @@ const ChatRoom: React.FC<RouteComponentProps<any, any, Device>> = ({ location })
                         variant={newChat.roomId === selectedChat ? 'chatItemActive' : 'chatItem'}
                         mr={2}
                         mt={[0, 2]}
-                        pl={0}
                         width={['auto', 'auto', '100%']}
                         sx={{ textAlign: 'left' }}
                         onClick={() => {
@@ -228,7 +231,7 @@ const ChatRoom: React.FC<RouteComponentProps<any, any, Device>> = ({ location })
                           setSelectedChat(newChat.roomId);
                         }}
                       >
-                        {newChat.data.users.filter((devUser) => devUser !== user.email)[0]}
+                        {newChat.data.titles.filter((devUser) => devUser !== user.displayName)[0]}
                       </Button>
                     )}
                     {(userRooms as RoomData[]).map((room) => {
@@ -249,7 +252,7 @@ const ChatRoom: React.FC<RouteComponentProps<any, any, Device>> = ({ location })
                             setSelectedChat(room.roomId);
                           }}
                         >
-                          {room.data.users.filter((devUser) => devUser !== user.email)[0]}
+                          {room.data.titles.filter((devUser) => devUser !== user.displayName)[0]}
                         </Button>
                       );
                     })}

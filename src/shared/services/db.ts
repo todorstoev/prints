@@ -324,9 +324,27 @@ export const loadDevicesService = ({
   });
 };
 
+export const loadAllDevicesService = (): Promise<Device[]> => {
+  return new Promise((resolve, reject) => {
+    db.collection('devices')
+      .get()
+      .then((devices) => {
+        const viewDevices: Device[] = [];
+        devices.forEach((device) => {
+          const uDevice: Device = device.data() as Device;
+
+          uDevice.id = device.id;
+
+          viewDevices.push(uDevice);
+        });
+
+        resolve(viewDevices as Device[]);
+      });
+  });
+};
+
 export const addDevice = (device: Device): Promise<Device> => {
   return new Promise((resolve, reject) => {
-    console.log(device);
     db.collection('devices')
       .add(device)
       .then(() => resolve(device))

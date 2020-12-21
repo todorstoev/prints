@@ -1,19 +1,23 @@
-import React, { useRef } from 'react';
+import React from 'react';
 
 import { Icon, LeafletMouseEvent } from 'leaflet';
-import { Marker } from 'react-leaflet';
+
+import { Marker, useMapEvents } from 'react-leaflet';
 
 import { Coords } from '../types';
 
 type MapMarkerProps = {
   position: Coords;
   icon?: Icon;
+  onClick?: (e: LeafletMouseEvent) => void | undefined;
 };
 
-const MapMarker: React.FC<MapMarkerProps> = (props) => {
-  const { position, icon, children } = props;
-
-  const markerRef = useRef<Marker>(null);
+const MapMarker: React.FC<MapMarkerProps> = ({ position, icon, children, onClick }) => {
+  useMapEvents({
+    click: (e) => {
+      onClick && onClick(e);
+    },
+  });
 
   const defaultIcon = new Icon({
     iconUrl: './assets/default-location-pin-icon.svg',
@@ -24,14 +28,9 @@ const MapMarker: React.FC<MapMarkerProps> = (props) => {
 
   return (
     <Marker
-      ref={markerRef}
       position={{ lat: position.latitude, lng: position.longitude }}
       icon={icon || defaultIcon}
       zIndexOffset={9999}
-      onclick={(e: LeafletMouseEvent) => {
-        e.originalEvent.stopPropagation();
-        markerRef.current?.leafletElement.openPopup();
-      }}
     >
       {children}
     </Marker>

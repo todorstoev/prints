@@ -1,8 +1,9 @@
 import React from 'react';
-import { Map, MessageCircle, RefreshCcw } from 'react-feather';
-import { useSelector } from 'react-redux';
+import { Map, MessageCircle, RefreshCcw, LogIn } from 'react-feather';
+import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { Box, Image } from 'rebass';
+import { actions } from '../shared/store';
 
 import { AuthState, RootState } from '../types';
 
@@ -13,6 +14,12 @@ type Props = {
 const Navigation: React.FC<Props> = ({ location }) => {
   const { user, isAuthenticated } = useSelector<RootState, AuthState>((state) => state.auth);
 
+  const dispatch = useDispatch();
+
+  const searchHandler = (e: any) => {
+    dispatch(actions.requestMapBounds());
+  };
+
   return (
     <>
       {location.pathname !== '/login' && (
@@ -20,6 +27,7 @@ const Navigation: React.FC<Props> = ({ location }) => {
           m={'auto'}
           my={3}
           sx={{
+            userSelect: 'none',
             position: 'fixed',
             left: '1.2em',
             top: '-0.4em',
@@ -27,7 +35,7 @@ const Navigation: React.FC<Props> = ({ location }) => {
             zIndex: 10,
           }}
         >
-          <Link to={'/'}>
+          <Link to={isAuthenticated ? '/' : '/login'}>
             <Image backgroundColor={'transparent'} src={'./assets/orb.png'} size={50} />
           </Link>
         </Box>
@@ -37,6 +45,7 @@ const Navigation: React.FC<Props> = ({ location }) => {
         m={'auto'}
         my={3}
         sx={{
+          userSelect: 'none',
           position: 'fixed',
           top: '-20px',
           right: '0em',
@@ -47,19 +56,20 @@ const Navigation: React.FC<Props> = ({ location }) => {
           },
         }}
       >
-        {location.pathname === '/' && (
+        {location.pathname === '/' && isAuthenticated && (
           <Link to={'/profile'}>
             <Image backgroundColor={'#fff'} src={user.photoURL} variant={'navAvatar'} />
           </Link>
         )}
 
-        {location.pathname !== '/' && isAuthenticated && (
+        {location.pathname !== '/' && (
           <Link to={'/'}>
             <Box
               bg="#fff"
               color="primary"
               variant={'navAvatar'}
               sx={{
+                userSelect: 'none',
                 display: 'flex',
                 justifyContent: 'center',
                 alignItems: 'center',
@@ -70,6 +80,25 @@ const Navigation: React.FC<Props> = ({ location }) => {
             </Box>
           </Link>
         )}
+
+        {location.pathname === '/' && !isAuthenticated && (
+          <Link to={'/login'}>
+            <Box
+              bg="#fff"
+              color="primary"
+              variant={'navAvatar'}
+              sx={{
+                userSelect: 'none',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                boxShadow: 'small',
+              }}
+            >
+              <LogIn size={42}></LogIn>
+            </Box>
+          </Link>
+        )}
       </Box>
       {isAuthenticated && location.pathname !== '/messages' && (
         <Box
@@ -77,6 +106,7 @@ const Navigation: React.FC<Props> = ({ location }) => {
           m={'auto'}
           my={3}
           sx={{
+            userSelect: 'none',
             position: 'fixed',
             bottom: 0,
             right: '0em',
@@ -104,12 +134,13 @@ const Navigation: React.FC<Props> = ({ location }) => {
           </Link>
         </Box>
       )}
-      {isAuthenticated && location.pathname === '/' && (
+      {location.pathname === '/' && (
         <Box
           variant={'navAvatar'}
           m={'auto'}
           my={3}
           sx={{
+            userSelect: 'none',
             position: 'fixed',
             bottom: 0,
             left: '0em',
@@ -130,6 +161,7 @@ const Navigation: React.FC<Props> = ({ location }) => {
                 transform: 'scale(0.9)',
               },
             }}
+            onClick={searchHandler}
           >
             <RefreshCcw size={42}></RefreshCcw>
           </Box>

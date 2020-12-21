@@ -44,3 +44,8 @@ export const ADD_PREV_MESSAGES = '@chat/ADD_PREV_MESSAGES';
 export const SET_MESSAGES = '@chat/SET_MESSAGES';
 export const ADD_MESSAGE = '@chat/ADD_MESSAGE';
 export const START_WRITING = `@chat/START_TYPING`;
+
+export const CHANGE_MAP_BOUNDS = '@map/CHANGE_MAP_BOUNDS';
+export const CHANGE_USER_LOC = '@map/CHANGE_USER_LOC';
+export const REQUEST_MAP_BOUNDS = '@map/REQUEST_MAP_BOUNDS';
+export const SUCCESS_MAP_BOUNDS = '@map/SUCCESS_MAP_BOUNDS';

@@ -4,6 +4,7 @@ import { errorReducer } from './errors';
 import { deviceReducer } from './devices';
 import { notificationsReducer } from './notifications';
 import { chatReducer } from './chat';
+import { mapReducer } from './map';
 
 export default combineReducers({
   auth: authReducer,
@@ -11,4 +12,5 @@ export default combineReducers({
   devices: deviceReducer,
   notifications: notificationsReducer,
   chat: chatReducer,
+  map: mapReducer,
 });

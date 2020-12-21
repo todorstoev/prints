@@ -1,47 +1,92 @@
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useEffect } from 'react';
+import { useDispatch, useSelector, batch } from 'react-redux';
+import { useLocation } from 'react-router-dom';
+import { MapContainer, TileLayer, useMap } from 'react-leaflet';
 
-import { LeafletMouseEvent } from 'leaflet';
-import { Map as LeafletMap, TileLayer } from 'react-leaflet';
 import MarkerClusterGroup from 'react-leaflet-markercluster';
 
-import { Coords } from '../types';
+import { Coords, MapState, RootState } from '../types';
+import { actions } from '../shared/store';
+import { convertGeopoint } from '../shared/helpers';
 
 type MapProps = {
   controls: boolean;
   center: Coords;
   zoom: number;
   dragging: boolean;
-  onClick?: (e: LeafletMouseEvent) => void;
 };
 
 type PropsWithChildren<P> = P & { children?: ReactNode };
 
-const Map = React.forwardRef<any, PropsWithChildren<MapProps>>((props, ref) => {
-  const { center, zoom, onClick, dragging, children } = props;
+const MapUser: React.FC = () => {
+  const map = useMap();
 
+  const dispatch = useDispatch();
+
+  const location = useLocation();
+
+  const { isLoading } = useSelector<RootState, MapState>((state) => state.map);
+
+  useEffect(() => {
+    if (location.pathname === '/messages') return;
+
+    map.whenReady(() => {
+      const NORTH = convertGeopoint(map.getBounds().getNorth(), 0);
+
+      const SOUTH = convertGeopoint(map.getBounds().getSouth(), 0);
+
+      const bounds = { north: NORTH, south: SOUTH };
+
+      dispatch(actions.changeMapBounds(bounds));
+    });
+  }, [map, dispatch, location.pathname]);
+
+  useEffect(() => {
+    if (location.pathname === '/messages') return;
+
+    if (isLoading === true) {
+      const NORTH = convertGeopoint(map.getBounds().getNorth(), 0);
+
+      const SOUTH = convertGeopoint(map.getBounds().getSouth(), 0);
+
+      const bounds = { north: NORTH, south: SOUTH };
+
+      const zoom = map.getZoom();
+
+      if (zoom < 10) {
+        dispatch(actions.addNotification('In order to scan zoom in'));
+      } else {
+        batch(() => {
+          dispatch(actions.changeMapBounds(bounds));
+          dispatch(actions.addNotification('Scanned'));
+        });
+      }
+    }
+  }, [isLoading, map, dispatch, location.pathname]);
+
+  return null;
+};
+
+const Map: React.FC<PropsWithChildren<MapProps>> = ({ center, zoom, dragging, children }) => {
   return (
-    <LeafletMap
+    <MapContainer
       style={{ height: '100%' }}
       center={{ lat: center.latitude, lng: center.longitude }}
       zoom={zoom}
-      onclick={onClick}
       zoomControl={false}
       dragging={dragging}
-      ref={ref}
-      // {...(onChangeBounds
-      //   ? { onmoveend: throttle(onChangeBounds, 3000, { leading: true, trailing: true }) }
-      //   : {})}
     >
+      <MapUser />
       <TileLayer
+        attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        attribution="&amp;copy <a href='http://osm.org/copyright'>OpenStreetMap</a> contributors"
       />
 
       <MarkerClusterGroup>{children}</MarkerClusterGroup>
 
       {/* {controls && <ZoomControl position={'bottomleft'} />} */}
-    </LeafletMap>
+    </MapContainer>
   );
-});
+};
 
 export default Map;

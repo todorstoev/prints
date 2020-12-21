@@ -1,32 +1,32 @@
 {
-    "theme_color": "#f69435",
-    "background_color": "#c8d4da",
-    "display": "browser",
-    "scope": "#073f6c",
-    "start_url": "https://3dreact.com/",
-    "app_name": "3dreact",
-    "short_name": "3dreact",
-    "description": "Find 3d printers around you",
-    "icons": [
-        {
-            "src": "/icon-192x192.png",
-            "sizes": "192x192",
-            "type": "image/png"
-        },
-        {
-            "src": "/icon-256x256.png",
-            "sizes": "256x256",
-            "type": "image/png"
-        },
-        {
-            "src": "/icon-384x384.png",
-            "sizes": "384x384",
-            "type": "image/png"
-        },
-        {
-            "src": "/icon-512x512.png",
-            "sizes": "512x512",
-            "type": "image/png"
-        }
-    ]
+  "theme_color": "#f69435",
+  "background_color": "#c8d4da",
+  "display": "browser",
+  "scope": "./",
+  "start_url": "https://3dreact.com/",
+  "app_name": "3dreact",
+  "short_name": "3dreact",
+  "description": "Find 3d printers around you",
+  "icons": [
+    {
+      "src": "/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-256x256.png",
+      "sizes": "256x256",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-384x384.png",
+      "sizes": "384x384",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
 }

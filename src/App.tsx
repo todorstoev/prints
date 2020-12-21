@@ -51,13 +51,7 @@ const App: React.FC = () => {
           <Switch location={location}>
             <Route exact path="/action" component={Action} />
             <Route exact path="/reset" component={RequestResetPassword} />
-            <ProtectedRoute
-              exact
-              path="/"
-              component={Home}
-              isAuthenticated={isAuthenticated}
-              isVerifying={isVerifying}
-            />
+            <Route exact path="/" component={Home} />
             <Route path="/login" component={Login} />
             <ProtectedRoute
               exact

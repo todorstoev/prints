@@ -2,6 +2,7 @@ export type RootState = {
   auth: AuthState;
   errors: ErrorsState;
   devices: DeviceState;
+  map: MapState;
   notifications: NotificationState;
   chat: ChatState;
 };
@@ -13,6 +14,15 @@ export type AuthState = {
   isAuthenticated: boolean;
   isLoading: boolean;
   user: PrintsUser;
+};
+
+export type MapState = {
+  bounds: {
+    north: firebase.firestore.GeoPoint;
+    south: firebase.firestore.GeoPoint;
+  };
+  userLoc: firebase.firestore.GeoPoint;
+  isLoading: boolean;
 };
 
 export interface ErrorsState {
@@ -51,6 +61,7 @@ export type RoomData = {
 
 export type ChatData = {
   users: string[];
+  titles: string[];
   recieverHasRed: boolean;
   chatDevice: Device;
 };
@@ -80,6 +91,7 @@ export interface Device extends Printer {
   materials: string[];
   type: string;
   uemail: string;
+  uname: string;
   uid: string; // device users id
   id?: string; // device id
 }

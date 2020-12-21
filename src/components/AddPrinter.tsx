@@ -1,5 +1,6 @@
 import React, { useState, ChangeEvent, CSSProperties, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+
 import { useForm, Controller } from 'react-hook-form';
 import { Flex, Box, Heading, Button, Text } from 'rebass';
 import { useTheme } from 'emotion-theming';
@@ -14,11 +15,11 @@ import { Coords, Device, DeviceState, Printer, PrintsUser, RootState } from '../
 import { convertGeopoint, getUserLocation } from '../shared/helpers';
 import { getPrinters } from '../shared/services';
 
-import MapMarker from '../components/MapMarker';
 import Map from '../components/Map';
 
 import { Loader } from './Loader';
 import { actions } from '../shared/store';
+import MapMarker from './MapMarker';
 
 type Props = {
   toggleModal: any;
@@ -29,12 +30,15 @@ const AddPrinter: React.FC<Props> = ({ toggleModal }) => {
 
   const [pickerCords, setPickerCords] = useState<Coords>(convertGeopoint(0, 0));
 
-  const { isLoading, userDevices, uid, email } = useSelector<RootState, PrintsUser & DeviceState>(
-    (state) => ({
-      ...state.auth.user,
-      ...state.devices,
-    }),
-  );
+  const [uLocationRetrieved, setULocationRetrieved] = useState<boolean>(false);
+
+  const { isLoading, userDevices, uid, email, displayName } = useSelector<
+    RootState,
+    PrintsUser & DeviceState
+  >((state) => ({
+    ...state.auth.user,
+    ...state.devices,
+  }));
 
   const [lastestDevicesNum] = useState<number>(userDevices.length);
 
@@ -57,7 +61,10 @@ const AddPrinter: React.FC<Props> = ({ toggleModal }) => {
   // Printer State
 
   useEffect(() => {
-    getUserLocation().then(setUserLocation);
+    getUserLocation().then((res) => {
+      setUserLocation(res);
+      setULocationRetrieved(true);
+    });
 
     getPrinters().then((printers) => {
       const printerOptions = printers.map((printer) => ({
@@ -97,6 +104,7 @@ const AddPrinter: React.FC<Props> = ({ toggleModal }) => {
       type: data.type.label,
       model: data.model,
       uemail: email,
+      uname: displayName,
       uid,
     };
 
@@ -368,15 +376,20 @@ const AddPrinter: React.FC<Props> = ({ toggleModal }) => {
                     overflow: 'hidden',
                   }}
                 >
-                  <Map
-                    dragging={true}
-                    controls={true}
-                    zoom={13}
-                    center={userLocation}
-                    onClick={(e) => setPickerCords(convertGeopoint(e.latlng.lat, e.latlng.lng))}
-                  >
-                    <MapMarker position={pickerCords}></MapMarker>
-                  </Map>
+                  {uLocationRetrieved && (
+                    <Map
+                      dragging={true}
+                      controls={true}
+                      zoom={13}
+                      center={userLocation}
+                      // onClick={(e) => setPickerCords(convertGeopoint(e.latlng.lat, e.latlng.lng))}
+                    >
+                      <MapMarker
+                        position={pickerCords}
+                        onClick={(e) => setPickerCords(convertGeopoint(e.latlng.lat, e.latlng.lng))}
+                      ></MapMarker>
+                    </Map>
+                  )}
                 </Box>
               </Box>
             </Flex>

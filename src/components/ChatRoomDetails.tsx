@@ -1,5 +1,5 @@
 import { useTheme } from 'emotion-theming';
-import React, { useRef, useState } from 'react';
+import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Box, Flex, Heading, Text } from 'rebass';
 import { Icon } from 'leaflet';
@@ -9,7 +9,8 @@ import { AuthState, RoomData, RootState } from '../types';
 
 import { ChatDetailsControls } from '../components/ChatDetailsControls';
 import MapMarker from '../components/MapMarker';
-import Map from '../components/Map';
+import { MapContainer, TileLayer } from 'react-leaflet';
+import firebase from 'firebase';
 
 type Props = {
   data: RoomData;
@@ -17,8 +18,6 @@ type Props = {
 
 export const ChatRoomDetails: React.FC<Props> = ({ data }) => {
   const mainTheme = useTheme<any>();
-
-  const mapRef = useRef<any>(null);
 
   const [stretched, setStretched] = useState<boolean>(true);
 
@@ -102,15 +101,30 @@ export const ChatRoomDetails: React.FC<Props> = ({ data }) => {
                   overflow: 'hidden',
                 }}
               >
-                <Map
-                  ref={mapRef}
-                  dragging={false}
-                  zoom={13}
-                  center={data.data.chatDevice.location}
-                  controls={false}
-                >
-                  <MapMarker position={data.data.chatDevice.location} icon={deviceIcon}></MapMarker>
-                </Map>
+                {data.data.chatDevice.location instanceof firebase.firestore.GeoPoint && (
+                  <MapContainer
+                    style={{ height: '100%' }}
+                    center={{
+                      lat: data.data.chatDevice.location.latitude,
+                      lng: data.data.chatDevice.location.longitude,
+                    }}
+                    zoom={13}
+                    zoomControl={false}
+                    dragging={false}
+                  >
+                    <TileLayer
+                      attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+                      url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                    />
+
+                    <MapMarker
+                      position={data.data.chatDevice.location}
+                      icon={deviceIcon}
+                    ></MapMarker>
+
+                    {/* {controls && <ZoomControl position={'bottomleft'} />} */}
+                  </MapContainer>
+                )}
               </Box>
             </Box>
           </animated.div>
