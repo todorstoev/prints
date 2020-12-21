@@ -2,6 +2,7 @@ import React, { ReactNode, useEffect } from 'react';
 import { useDispatch, useSelector, batch } from 'react-redux';
 import { useLocation } from 'react-router-dom';
 import { MapContainer, TileLayer, useMap } from 'react-leaflet';
+import L from 'leaflet';
 
 import MarkerClusterGroup from 'react-leaflet-markercluster';
 
@@ -67,6 +68,13 @@ const MapUser: React.FC = () => {
   return null;
 };
 
+const createClusterCustomIcon = (cluster: any) =>
+  L.divIcon({
+    html: `<div>${cluster.getChildCount()}<div>`,
+    className: 'marker-cluster-custom',
+    iconSize: L.point(35, 35, true),
+  });
+
 const Map: React.FC<PropsWithChildren<MapProps>> = ({ center, zoom, dragging, children }) => {
   return (
     <MapContainer
@@ -82,7 +90,14 @@ const Map: React.FC<PropsWithChildren<MapProps>> = ({ center, zoom, dragging, ch
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
 
-      <MarkerClusterGroup>{children}</MarkerClusterGroup>
+      <MarkerClusterGroup
+        spiderfyDistanceMultiplier={4}
+        removeOutsideVisibleBounds={true}
+        zoomToBoundsOnClick={true}
+        iconCreateFunction={createClusterCustomIcon}
+      >
+        {children}
+      </MarkerClusterGroup>
 
       {/* {controls && <ZoomControl position={'bottomleft'} />} */}
     </MapContainer>
