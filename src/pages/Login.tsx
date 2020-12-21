@@ -25,7 +25,7 @@ const Login: React.FC = () => {
   return (
     <Box>
       {!isLoggingIn && (
-        <Box mt={5} sx={{ textAlign: 'center' }} height={192} width={240}>
+        <Box mt={5} mx={'auto'} sx={{ textAlign: 'center' }} height={192} width={240}>
           <Image src="./assets/orb-hq.png" />
         </Box>
       )}
