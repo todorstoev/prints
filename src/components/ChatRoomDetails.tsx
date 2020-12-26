@@ -21,7 +21,7 @@ export const ChatRoomDetails: React.FC<Props> = ({ data }) => {
 
   const [stretched, setStretched] = useState<boolean>(true);
 
-  const props = useSpring({ height: stretched ? '80px' : '0px', config: config.default });
+  const props = useSpring({ height: stretched ? '100px' : '0px', config: config.default });
 
   const { user } = useSelector<RootState, AuthState>((state) => ({
     ...state.auth,
@@ -68,7 +68,7 @@ export const ChatRoomDetails: React.FC<Props> = ({ data }) => {
                 overflow: 'hidden',
                 gridTemplateColumns: 'auto minmax(auto,250px)',
                 '@media screen and (max-width:56em)': {
-                  gridTemplateColumns: ' repeat(1, 1fr)',
+                  gridTemplateColumns: 'calc(100% - 100px) repeat(auto-fill,100px)',
                   gridGap: 0,
                 },
               }}

@@ -139,7 +139,7 @@ const ChatRoom: React.FC<RouteComponentProps<any, any, Device>> = ({ location })
                 position: 'relative',
                 display: 'grid',
                 gridTemplateColumns: '1fr 3fr',
-                gridGap: '1em',
+                gridGap: ['1em 0', '1em 0', '1em'],
                 gridTemplateRows: 'auto 1fr auto',
                 gridTemplateAreas: `
                       "details details"
@@ -231,7 +231,8 @@ const ChatRoom: React.FC<RouteComponentProps<any, any, Device>> = ({ location })
                           setSelectedChat(newChat.roomId);
                         }}
                       >
-                        {newChat.data.titles.filter((devUser) => devUser !== user.displayName)[0]}
+                        {newChat.data.titles.filter((devUser) => devUser !== user.displayName)[0] ??
+                          newChat.data.titles[0]}
                       </Button>
                     )}
                     {(userRooms as RoomData[]).map((room) => {
@@ -252,7 +253,8 @@ const ChatRoom: React.FC<RouteComponentProps<any, any, Device>> = ({ location })
                             setSelectedChat(room.roomId);
                           }}
                         >
-                          {room.data.titles.filter((devUser) => devUser !== user.displayName)[0]}
+                          {room.data.titles.filter((devUser) => devUser !== user.displayName)[0] ??
+                            room.data.titles[0]}
                         </Button>
                       );
                     })}

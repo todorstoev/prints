@@ -12,7 +12,9 @@ type Props = {
 };
 
 const Navigation: React.FC<Props> = ({ location }) => {
-  const { user, isAuthenticated } = useSelector<RootState, AuthState>((state) => state.auth);
+  const { user, isAuthenticated, isVerifying } = useSelector<RootState, AuthState>(
+    (state) => state.auth,
+  );
 
   const dispatch = useDispatch();
 
@@ -95,7 +97,7 @@ const Navigation: React.FC<Props> = ({ location }) => {
                 boxShadow: 'small',
               }}
             >
-              <LogIn size={42}></LogIn>
+              {!isVerifying && <LogIn size={42}></LogIn>}
             </Box>
           </Link>
         )}
