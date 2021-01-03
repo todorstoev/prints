@@ -85,10 +85,11 @@ const AddPrinter: React.FC<Props> = ({ toggleModal }) => {
   const types: Array<any> = [
     { value: 'FDM', label: 'FDM' },
     { value: 'SLS', label: 'SLS' },
-    { value: 'Resin', label: 'Resin' },
+    { value: 'SLA', label: 'SLA' },
   ];
 
   const onSubmit = async (data: any, e: any) => {
+    debugger;
     const device: Device = {
       dimensions: {
         width: Number(data.width),
@@ -100,7 +101,7 @@ const AddPrinter: React.FC<Props> = ({ toggleModal }) => {
         pickerCords ? pickerCords.longitude : userLocation.longitude,
       ),
       brand: data.brand,
-      materials: data.materials.map((mat: any) => mat.label),
+      materials: data.materials ? data.materials.map((mat: any) => mat.label) : null,
       type: data.type.label,
       model: data.model,
       uemail: email,
@@ -331,7 +332,7 @@ const AddPrinter: React.FC<Props> = ({ toggleModal }) => {
                   </Label>
                   <Controller
                     control={control}
-                    rules={{ required: true }}
+                    rules={{ required: false }}
                     name={'materials'}
                     as={
                       <Select

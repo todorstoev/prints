@@ -32,7 +32,7 @@ const DeviceMarkerPopup: React.FC<Device> = (device) => {
         </Heading>
         <Box variant={'hr'} my={1}></Box>
         <Text>Type: {type}</Text>
-        <Text>Materials: {materials.join(', ')}</Text>
+        {materials && <Text>Materials: {materials.join(', ')}</Text>}
         {isAuthenticated && user.uid !== device.uid && (
           <Link to={{ pathname: '/messages', state: device }}>Message</Link>
         )}

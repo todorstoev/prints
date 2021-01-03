@@ -2,6 +2,8 @@ import { createReducer } from 'typesafe-actions';
 
 import { AuthState } from '../../../types';
 
+import { getCookieConsentValue } from 'react-cookie-consent';
+
 import { actions, RootAction } from '..';
 
 const initialState: AuthState = {
@@ -10,6 +12,7 @@ const initialState: AuthState = {
   isVerifying: false,
   isLoading: false,
   isAuthenticated: false,
+  cookieConsent: getCookieConsentValue() === 'true',
   user: {
     email: '',
     uid: '',
@@ -127,4 +130,8 @@ export const authReducer = createReducer<AuthState, RootAction>(initialState)
       displayName: '',
       emailVerified: false,
     },
+  }))
+  .handleAction(actions.setCookieConsent, (state, action) => ({
+    ...state,
+    cookieConsent: action.payload,
   }));

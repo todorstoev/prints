@@ -242,9 +242,8 @@ const ChatRoom: React.FC<RouteComponentProps<any, any, Device>> = ({ location })
                           sx={{ textAlign: 'left' }}
                           variant={room.roomId === selectedChat ? 'chatItemActive' : 'chatItem'}
                           key={room.roomId}
-                          pl={1}
-                          mt={[0, 2]}
                           mr={2}
+                          mt={[0, 2]}
                           onClick={() => {
                             const chatExists = (userRooms as RoomData[]).find(
                               (chat) => room === chat,

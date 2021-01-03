@@ -77,9 +77,11 @@ export const ChatRoomDetails: React.FC<Props> = ({ data }) => {
                 <Text color={['primary', 'background']} fontSize={[1, 2]}>
                   Type : {data.data.chatDevice.type}
                 </Text>
-                <Text color={['primary', 'background']} fontSize={[1, 2]}>
-                  Materials: {data.data.chatDevice.materials.join(', ')}
-                </Text>
+                {data.data.chatDevice.materials && (
+                  <Text color={['primary', 'background']} fontSize={[1, 2]}>
+                    Materials: {data.data.chatDevice.materials.join(', ')}
+                  </Text>
+                )}
                 <Box>
                   <Text color={['primary', 'background']} fontSize={[1, 2]}>
                     Dimensions: {data.data.chatDevice.dimensions.height}/

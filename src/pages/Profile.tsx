@@ -274,11 +274,12 @@ const Profile: React.FC = () => {
                       </Flex>
                       <Text>Type</Text>
                       <Text variant={'heading'}>{item.type}</Text>
-                      <Text>Materials</Text>
+                      {item.materials && <Text>Materials</Text>}
                       <Text variant={'heading'}>
-                        {item.materials.map((material, i) =>
-                          i === 0 ? material : `, ${material} `,
-                        )}
+                        {item.materials &&
+                          item.materials.map((material, i) =>
+                            i === 0 ? material : `, ${material} `,
+                          )}
                       </Text>
                       <Text>Dimensions</Text>
                       <Flex justifyContent={'space-between'} alignItems={'center'}>

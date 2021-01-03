@@ -43,6 +43,9 @@ export const theme: any = {
   // rebass variants
 
   variants: {
+    list: {
+      display: 'list-item',
+    },
     hr: {
       height: 0,
       borderWidth: 1,

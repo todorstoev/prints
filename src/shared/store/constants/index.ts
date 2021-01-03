@@ -9,6 +9,8 @@ export const REGISTER_REQUEST = '@@auth/REGISTER_REQUEST';
 export const REGISTER_SUCCESS = '@@auth/REGISTER_SUCCESS';
 export const REGISTER_CANCEL = '@@auth/REGISTER_CANCEL';
 
+export const SET_COOKIE_CONSENT = '@@auth/SET_SET_COOKIE_CONSENT';
+
 export const LOGOUT_REQUEST = '@@auth/LOGOUT_REQUEST';
 export const LOGOUT_SUCCESS = '@@auth/LOGOUT_SUCCESS';
 

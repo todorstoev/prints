@@ -1,4 +1,5 @@
-import React from 'react';
+import { useTheme } from 'emotion-theming';
+import React, { useLayoutEffect, useState } from 'react';
 import { Map, MessageCircle, RefreshCcw, LogIn } from 'react-feather';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
@@ -18,9 +19,40 @@ const Navigation: React.FC<Props> = ({ location }) => {
 
   const dispatch = useDispatch();
 
+  const mainTheme = useTheme<any>();
+
+  const [bottomBarHeight, setBottomBarHeight] = useState<number | null>(null);
+
   const searchHandler = (e: any) => {
     dispatch(actions.requestMapBounds());
   };
+
+  useLayoutEffect(() => {
+    const config = { attributes: true, childList: true, subtree: true };
+
+    const observer = new MutationObserver((mutationsList, observer) => {
+      for (const mutation of mutationsList) {
+        if (mutation.type === 'childList') {
+          if (
+            mutation.addedNodes[0] !== undefined &&
+            mutation.addedNodes[0].classList !== undefined &&
+            mutation.addedNodes[0].classList.contains('CookieConsent')
+          ) {
+            setBottomBarHeight((mutation.addedNodes[0] as Element).getBoundingClientRect().height);
+          }
+          if (
+            mutation.removedNodes[0] !== undefined &&
+            mutation.removedNodes[0].classList !== undefined &&
+            mutation.removedNodes[0].classList.contains('CookieConsent')
+          ) {
+            setBottomBarHeight(null);
+          }
+        }
+      }
+    });
+
+    observer.observe(document.body, config);
+  }, []);
 
   return (
     <>
@@ -102,7 +134,7 @@ const Navigation: React.FC<Props> = ({ location }) => {
           </Link>
         )}
       </Box>
-      {isAuthenticated && location.pathname !== '/messages' && (
+      {(location.pathname === '/' || location.pathname === '/profile') && (
         <Box
           variant={'navAvatar'}
           m={'auto'}
@@ -110,7 +142,7 @@ const Navigation: React.FC<Props> = ({ location }) => {
           sx={{
             userSelect: 'none',
             position: 'fixed',
-            bottom: 0,
+            bottom: bottomBarHeight ? bottomBarHeight : 0,
             right: '0em',
             zIndex: 10,
             bg: 'transperent',
@@ -144,12 +176,29 @@ const Navigation: React.FC<Props> = ({ location }) => {
           sx={{
             userSelect: 'none',
             position: 'fixed',
-            bottom: 0,
+            bottom: bottomBarHeight ? bottomBarHeight : 0,
             left: '0em',
             zIndex: 10,
             bg: 'transperent',
+            ':hover': {
+              transform: 'scale(0.80)',
+            },
           }}
         >
+          <Box sx={{ position: 'absolute', right: '-7em', bottom: 20 }}>
+            <Link
+              to="/privacy-policy"
+              style={{
+                textDecoration: 'none',
+                color: mainTheme.colors.background,
+                background: 'rgba(0, 0, 0, 0.55)',
+                padding: 6,
+                borderRadius: 5,
+              }}
+            >
+              Privacy Policy
+            </Link>
+          </Box>
           <Box
             bg="#fff"
             color="primary"

@@ -100,7 +100,7 @@ export const Message = styled(animated.div)`
 
 export const Content = styled('div')`
   color: white;
-  background: #445159;
+  background: #445159ad;
   opacity: 0.9;
   padding: 12px 22px;
   font-size: 1em;

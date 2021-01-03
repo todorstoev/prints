@@ -13,6 +13,7 @@ export type AuthState = {
   isVerifying: boolean;
   isAuthenticated: boolean;
   isLoading: boolean;
+  cookieConsent: boolean;
   user: PrintsUser;
 };
 

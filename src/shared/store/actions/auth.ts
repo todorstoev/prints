@@ -20,6 +20,7 @@ import {
   DELETE_USER_REQUEST,
   DELETE_USER_SUCCESS,
   VERIFY_USER_CANCEL,
+  SET_COOKIE_CONSENT,
 } from '../constants';
 
 export const requestLogin = createAction(LOGIN_REQUEST)<{
@@ -64,3 +65,5 @@ export const updateUserSuccess = createAction(UPDATE_USER_SUCCESS)<PrintsUser>()
 export const deleteUserRequest = createAction(DELETE_USER_REQUEST)();
 
 export const deleteUserSuccess = createAction(DELETE_USER_SUCCESS)();
+
+export const setCookieConsent = createAction(SET_COOKIE_CONSENT)<boolean>();
