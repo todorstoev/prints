@@ -1,18 +1,23 @@
 import { useTheme } from 'emotion-theming';
 import React, { useLayoutEffect, useState } from 'react';
-import { Map, MessageCircle, RefreshCcw, LogIn } from 'react-feather';
+import { Map, MessageCircle, RefreshCcw, LogIn, Search } from 'react-feather';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { Box, Image } from 'rebass';
 import { actions } from '../shared/store';
 
 import { AuthState, RootState } from '../types';
+import { MapFilter } from './MapFilter';
 
 type Props = {
   location: any;
 };
 
 const Navigation: React.FC<Props> = ({ location }) => {
+  const [bottomBarHeight, setBottomBarHeight] = useState<number | null>(null);
+
+  const [showFilter, setShowFilter] = useState<boolean>(false);
+
   const { user, isAuthenticated, isVerifying } = useSelector<RootState, AuthState>(
     (state) => state.auth,
   );
@@ -21,9 +26,7 @@ const Navigation: React.FC<Props> = ({ location }) => {
 
   const mainTheme = useTheme<any>();
 
-  const [bottomBarHeight, setBottomBarHeight] = useState<number | null>(null);
-
-  const searchHandler = (e: any) => {
+  const searchHandler = (_e: any): void => {
     dispatch(actions.requestMapBounds());
   };
 
@@ -185,7 +188,7 @@ const Navigation: React.FC<Props> = ({ location }) => {
             },
           }}
         >
-          <Box sx={{ position: 'absolute', right: '-7em', bottom: 20 }}>
+          <Box sx={{ position: 'absolute', right: '-10em', bottom: 20 }}>
             <Link
               to="/privacy-policy"
               style={{
@@ -215,6 +218,47 @@ const Navigation: React.FC<Props> = ({ location }) => {
             onClick={searchHandler}
           >
             <RefreshCcw size={42}></RefreshCcw>
+          </Box>
+        </Box>
+      )}
+      {location.pathname === '/' && (
+        <Box
+          variant={'navAvatar'}
+          m={'auto'}
+          my={3}
+          sx={{
+            userSelect: 'none',
+            position: 'fixed',
+            bottom: bottomBarHeight ? bottomBarHeight + 60 : 0 + 60,
+            left: '0em',
+            zIndex: 10,
+            bg: 'transperent',
+            ':hover': {
+              transform: 'scale(0.80)',
+            },
+          }}
+        >
+          <Box sx={{ position: 'absolute', left: 100, bottom: 20 }}>
+            <MapFilter {...{ showFilter }}></MapFilter>
+          </Box>
+          <Box
+            bg="#fff"
+            color="primary"
+            variant={'navAvatar'}
+            sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              boxShadow: 'small',
+              border: '3px solid',
+              borderColor: showFilter ? 'primary' : 'transparent',
+              ':active': {
+                transform: 'scale(0.9)',
+              },
+            }}
+            onClick={() => setShowFilter(!showFilter)}
+          >
+            <Search size={42}></Search>
           </Box>
         </Box>
       )}

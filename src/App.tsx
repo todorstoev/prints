@@ -8,12 +8,17 @@ import { Box, Button, Flex, Heading, Text } from 'rebass';
 import { useTransition, animated } from 'react-spring';
 import CookieConsent from 'react-cookie-consent';
 import { Shield } from 'react-feather';
+
 import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css';
+
+import CookiesPolicy from './pages/CookiesPolicy';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import NoMatch from './pages/404';
 
 import { NotificationsHub } from './components/NotificationsHub';
 import ProtectedRoute from './components/ProtectedRoute';
 import Navigation from './components/Navigation';
-import { Loader } from './components/Loader';
+import Loader from 'react-loader-spinner';
 
 import { actions } from './shared/store';
 
@@ -24,10 +29,8 @@ const Login = lazy(() => import('./pages/Login'));
 const Profile = lazy(() => import('./pages/Profile'));
 const ChatRoom = lazy(() => import('./pages/ChatRoom'));
 const Action = lazy(() => import('./pages/Action'));
-const NoMatch = lazy(() => import('./pages/404'));
+
 const RequestResetPassword = lazy(() => import('./pages/RequestPasswordReset'));
-const CookiesPolicy = lazy(() => import('./pages/CookiesPolicy'));
-const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
 
 const CookieConsentComponent: React.FC = () => {
   const mainTheme = useTheme<any>();
@@ -93,7 +96,13 @@ const App: React.FC = () => {
             width: '100%',
           }}
         >
-          <Suspense fallback={<Loader></Loader>}>
+          <Suspense
+            fallback={
+              <Flex justifyContent={'center'} alignItems={'center'} height={'100%'} width={'100%'}>
+                <Loader type="BallTriangle" color="#00BFFF" height={15} width={15}></Loader>
+              </Flex>
+            }
+          >
             <Switch location={location}>
               <Route exact path="/action" component={Action} />
               <Route exact path="/cookies-policy" component={CookiesPolicy} />

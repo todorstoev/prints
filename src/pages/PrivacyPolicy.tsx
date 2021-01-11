@@ -3,7 +3,7 @@ import { Link as RouterLink } from 'react-router-dom';
 import { Box, Heading, Text, Link } from 'rebass';
 
 const PrivacyPolicy: React.FC<any> = () => (
-  <Box pt={['5.5rem', '5rem']} p={5}>
+  <Box p={['3rem', '9rem']} overflow={'auto'} height={'100%'}>
     <Heading my={3} as={'h1'} fontSize={6}>
       Privacy Policy
     </Heading>

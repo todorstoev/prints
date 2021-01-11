@@ -24,6 +24,7 @@ export type MapState = {
   };
   userLoc: firebase.firestore.GeoPoint;
   isLoading: boolean;
+  filter: IMapFilter | null;
 };
 
 export interface ErrorsState {
@@ -95,6 +96,12 @@ export interface Device extends Printer {
   uname: string;
   uid: string; // device users id
   id?: string; // device id
+}
+
+export interface IMapFilter {
+  brand: string;
+  model: string;
+  type: any;
 }
 
 export type PrintsGenericError = {

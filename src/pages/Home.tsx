@@ -1,14 +1,18 @@
-import React, { useEffect, useState } from 'react';
+import React, { Dispatch, useEffect, useState } from 'react';
+
+import { Link } from 'react-router-dom';
+
 import { useDispatch, useSelector } from 'react-redux';
+
 import { Box, Heading, Text } from 'rebass';
 
 import { Icon } from 'leaflet';
 
 import { Popup } from 'react-leaflet';
 
-import { Link } from 'react-router-dom';
+import { filter as filterArray, isEmpty } from 'lodash';
 
-import { AuthState, Device, MapState, RootState } from '../types';
+import { AuthState, Device, IMapFilter, MapState, RootState } from '../types';
 import { convertGeopoint, getUserLocation } from '../shared/helpers';
 
 import Map from '../components/Map';
@@ -18,6 +22,26 @@ import { actions } from '../shared/store';
 import { loadDevicesService } from '../shared/services';
 
 type HomeProps = {};
+
+const filterDevices = async (filter: IMapFilter, mapMarkers: Device[], dispatch: any) => {
+  let mappedFilter: any = {};
+
+  if (filter && filter.brand.length > 0) mappedFilter.brand = filter.brand;
+
+  if (filter && filter.model.length > 0) mappedFilter.model = filter.model;
+
+  if (filter && typeof filter.type !== 'undefined' && typeof filter.type !== 'string')
+    mappedFilter.type = filter.type;
+
+  if (isEmpty(mappedFilter)) {
+    dispatch(actions.addNotification(`No filters selected`));
+    return;
+  }
+
+  const filtered: Device[] = filterArray(mapMarkers, mappedFilter);
+
+  return filtered;
+};
 
 const DeviceMarkerPopup: React.FC<Device> = (device) => {
   const { user, isAuthenticated } = useSelector<RootState, AuthState>((state) => state.auth);
@@ -49,10 +73,12 @@ const DeviceMarkerPopup: React.FC<Device> = (device) => {
 
 export const Home: React.FC<HomeProps> = () => {
   const [uLocationRetrieved, setULocationRetrieved] = useState<boolean>(false);
+
   const [mapZoom] = useState<number>(13);
+
   const [mapMarkers, setMapMarkers] = useState<Device[]>([]);
 
-  const { userLoc, bounds } = useSelector<RootState, MapState>((state) => state.map);
+  const { userLoc, bounds, filter } = useSelector<RootState, MapState>((state) => state.map);
 
   const dispatch = useDispatch();
 
@@ -64,15 +90,35 @@ export const Home: React.FC<HomeProps> = () => {
   }, [dispatch]);
 
   useEffect(() => {
+    let devices: Device[] = [];
     if (
       JSON.stringify(bounds.north) !== JSON.stringify(convertGeopoint(0, 0)) &&
       JSON.stringify(bounds.south) !== JSON.stringify(convertGeopoint(0, 0))
     ) {
-      loadDevicesService({ northBound: bounds.north, southBound: bounds.south }).then((devices) => {
-        setMapMarkers(devices);
-      });
+      loadDevicesService({ northBound: bounds.north, southBound: bounds.south })
+        .then((res) => {
+          return res;
+        })
+        .then((res) => {
+          if (!filter) {
+            setMapMarkers(res);
+
+            throw 'set';
+          } else {
+            return filterDevices(filter, mapMarkers, dispatch);
+          }
+        })
+        .then((res) => {
+          if (res) {
+            setMapMarkers(res);
+            dispatch(
+              actions.addNotification(`${res.length} device${res.length === 1 ? '' : 's'} found`),
+            );
+          }
+        })
+        .catch((e) => {});
     }
-  }, [bounds]);
+  }, [filter, bounds]);
 
   const deviceIcon = new Icon({
     iconUrl: './assets/device-location-pin-icon.svg',

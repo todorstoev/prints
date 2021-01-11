@@ -51,3 +51,5 @@ export const CHANGE_MAP_BOUNDS = '@map/CHANGE_MAP_BOUNDS';
 export const CHANGE_USER_LOC = '@map/CHANGE_USER_LOC';
 export const REQUEST_MAP_BOUNDS = '@map/REQUEST_MAP_BOUNDS';
 export const SUCCESS_MAP_BOUNDS = '@map/SUCCESS_MAP_BOUNDS';
+export const SET_SEARCH_FILTER = '@map/SET_SEARCH_FILTER';
+export const CLEAR_FILTERS = '@map/CLEAR_FILTERS';
