@@ -1,4 +1,4 @@
-import React, { Dispatch, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { Link } from 'react-router-dom';
 
@@ -90,7 +90,6 @@ export const Home: React.FC<HomeProps> = () => {
   }, [dispatch]);
 
   useEffect(() => {
-    let devices: Device[] = [];
     if (
       JSON.stringify(bounds.north) !== JSON.stringify(convertGeopoint(0, 0)) &&
       JSON.stringify(bounds.south) !== JSON.stringify(convertGeopoint(0, 0))
@@ -102,10 +101,9 @@ export const Home: React.FC<HomeProps> = () => {
         .then((res) => {
           if (!filter) {
             setMapMarkers(res);
-
-            throw 'set';
+            throw new Error('set');
           } else {
-            return filterDevices(filter, mapMarkers, dispatch);
+            return filterDevices(filter, res, dispatch);
           }
         })
         .then((res) => {
@@ -118,7 +116,7 @@ export const Home: React.FC<HomeProps> = () => {
         })
         .catch((e) => {});
     }
-  }, [filter, bounds]);
+  }, [filter, bounds, dispatch]);
 
   const deviceIcon = new Icon({
     iconUrl: './assets/device-location-pin-icon.svg',

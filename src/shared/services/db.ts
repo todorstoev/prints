@@ -1,13 +1,4 @@
-import {
-  RoomData,
-  Device,
-  Printer,
-  PrintsUser,
-  ChatData,
-  Message,
-  Coords,
-  IMapFilter,
-} from '../../types';
+import { RoomData, Device, Printer, PrintsUser, ChatData, Message, Coords } from '../../types';
 
 import {
   db,
