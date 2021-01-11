@@ -31,7 +31,7 @@ const filterDevices = async (filter: IMapFilter, mapMarkers: Device[], dispatch:
   if (filter && filter.model.length > 0) mappedFilter.model = filter.model;
 
   if (filter && typeof filter.type !== 'undefined' && typeof filter.type !== 'string')
-    mappedFilter.type = filter.type;
+    mappedFilter.type = filter.type.value;
 
   if (isEmpty(mappedFilter)) {
     dispatch(actions.addNotification(`No filters selected`));
