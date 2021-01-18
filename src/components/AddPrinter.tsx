@@ -6,11 +6,11 @@ import { Flex, Box, Heading, Button, Text } from 'rebass';
 import { useTheme } from 'emotion-theming';
 
 import { Label, Input } from '@rebass/forms';
-import Select, { ValueType } from 'react-select';
+import Select from 'react-select';
 
 import makeAnimated from 'react-select/animated';
 
-import { Coords, Device, DeviceState, Printer, PrintsUser, RootState } from '../types';
+import { Coords, Device, DeviceState, MapState, Printer, PrintsUser, RootState } from '../types';
 
 import { convertGeopoint, getUserLocation } from '../shared/helpers';
 import { getPrinters } from '../shared/services';
@@ -28,17 +28,18 @@ type Props = {
 const AddPrinter: React.FC<Props> = ({ toggleModal }) => {
   const [userLocation, setUserLocation] = useState<Coords>(convertGeopoint(0, 0));
 
-  const [pickerCords, setPickerCords] = useState<Coords>(convertGeopoint(0, 0));
-
   const [uLocationRetrieved, setULocationRetrieved] = useState<boolean>(false);
 
-  const { isLoading, userDevices, uid, email, displayName } = useSelector<
+  const { isLoading, userDevices, uid, email, displayName, userLoc } = useSelector<
     RootState,
-    PrintsUser & DeviceState
+    PrintsUser & DeviceState & MapState
   >((state) => ({
     ...state.auth.user,
     ...state.devices,
+    ...state.map,
   }));
+
+  const [pickerCords, setPickerCords] = useState<Coords>(userLoc);
 
   const [lastestDevicesNum] = useState<number>(userDevices.length);
 
@@ -133,7 +134,7 @@ const AddPrinter: React.FC<Props> = ({ toggleModal }) => {
                         };
                       },
                     }}
-                    onChange={(selected: ValueType<any, any>) => {
+                    onChange={(selected: any) => {
                       if (selected === null) {
                         setSelectedBrand('');
                         setSelectedModel('');
@@ -141,7 +142,7 @@ const AddPrinter: React.FC<Props> = ({ toggleModal }) => {
                         setSelectedHeight(0);
                         setSelectedDepth(0);
                       } else {
-                        const { value } = selected as {
+                        const { value } = (selected as unknown) as {
                           value: Printer;
                         };
 
@@ -153,14 +154,14 @@ const AddPrinter: React.FC<Props> = ({ toggleModal }) => {
 
                         clearError('brand');
 
-                        if (selected.value.model) {
+                        if ((selected.value as any).model) {
                           clearError('model');
                         }
                       }
                     }}
                     placeholder={'Search for printer ...'}
                     options={printerOptions}
-                    theme={(theme) => ({
+                    theme={(theme: any) => ({
                       ...theme,
 
                       colors: {
@@ -311,7 +312,7 @@ const AddPrinter: React.FC<Props> = ({ toggleModal }) => {
                           },
                         }}
                         menuPortalTarget={document.body}
-                        theme={(theme) => ({
+                        theme={(theme: any) => ({
                           ...theme,
 
                           colors: {
@@ -346,7 +347,7 @@ const AddPrinter: React.FC<Props> = ({ toggleModal }) => {
                             };
                           },
                         }}
-                        theme={(theme) => ({
+                        theme={(theme: any) => ({
                           ...theme,
 
                           colors: {
