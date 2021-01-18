@@ -1,4 +1,4 @@
-import { RoomData, Device, Printer, PrintsUser, ChatData, Message, Coords } from '../../types';
+import { RoomData, Device, Printer, PrintsUser, ChatData, Message } from '../../types';
 
 import {
   db,
@@ -7,6 +7,7 @@ import {
   myFirebase,
   localPersistance,
   nonePersistance,
+  GeoFirestore,
 } from './firebase';
 import { Observable } from 'rxjs';
 import { cloneDeepWith } from 'lodash';
@@ -294,23 +295,18 @@ export const loadUserDevicesService = (user: PrintsUser): Promise<Device[]> => {
   });
 };
 
-export const loadDevicesService = ({
-  northBound,
-  southBound,
-}: {
-  northBound: Coords;
-  southBound: Coords;
-}): Promise<Device[]> => {
+export const loadDevicesService = (center: firebase.firestore.GeoPoint): Promise<Device[]> => {
   return new Promise<Device[]>((resolve, reject) => {
-    db.collection('devices')
-      .where('location', '<=', northBound)
-      .where('location', '>=', southBound)
-      .limit(100)
+    const geocollection = GeoFirestore.collection('devices');
+
+    const query = geocollection.near({ center, radius: 8 });
+
+    query
       .get()
-      .then((devices) => {
+      .then((devices: any) => {
         const viewDevices: Device[] = [];
 
-        devices.forEach((device) => {
+        devices.forEach((device: any) => {
           const uDevice: Device = device.data() as Device;
 
           uDevice.id = device.id;
@@ -345,7 +341,9 @@ export const loadAllDevicesService = (): Promise<Device[]> => {
 
 export const addDevice = (device: Device): Promise<Device> => {
   return new Promise((resolve, reject) => {
-    db.collection('devices')
+    const geocollection = GeoFirestore.collection('devices');
+
+    geocollection
       .add(device)
       .then(() => resolve(device))
       .catch((e) => reject(e));

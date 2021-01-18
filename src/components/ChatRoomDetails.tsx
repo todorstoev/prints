@@ -103,12 +103,12 @@ export const ChatRoomDetails: React.FC<Props> = ({ data }) => {
                   overflow: 'hidden',
                 }}
               >
-                {data.data.chatDevice.location instanceof firebase.firestore.GeoPoint && (
+                {data.data.chatDevice.coordinates instanceof firebase.firestore.GeoPoint && (
                   <MapContainer
                     style={{ height: '100%' }}
                     center={{
-                      lat: data.data.chatDevice.location.latitude,
-                      lng: data.data.chatDevice.location.longitude,
+                      lat: data.data.chatDevice.coordinates.latitude,
+                      lng: data.data.chatDevice.coordinates.longitude,
                     }}
                     zoom={13}
                     zoomControl={false}
@@ -120,7 +120,7 @@ export const ChatRoomDetails: React.FC<Props> = ({ data }) => {
                     />
 
                     <MapMarker
-                      position={data.data.chatDevice.location}
+                      position={data.data.chatDevice.coordinates}
                       icon={deviceIcon}
                     ></MapMarker>
 

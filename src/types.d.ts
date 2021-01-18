@@ -18,13 +18,9 @@ export type AuthState = {
 };
 
 export type MapState = {
-  bounds: {
-    north: firebase.firestore.GeoPoint;
-    south: firebase.firestore.GeoPoint;
-  };
+  center: firebase.firestore.GeoPoint;
   userLoc: firebase.firestore.GeoPoint;
   isLoading: boolean;
-  filter: IMapFilter | null;
 };
 
 export interface ErrorsState {
@@ -33,6 +29,7 @@ export interface ErrorsState {
 }
 
 export interface DeviceState {
+  filteredDevices: Device[] | null;
   userDevices: Device[];
   allDevices: Device[];
   isLoading: boolean;
@@ -89,7 +86,7 @@ export interface Printer {
 }
 
 export interface Device extends Printer {
-  location: Coords;
+  coordinates: Coords;
   materials: string[];
   type: string;
   uemail: string;
@@ -99,10 +96,12 @@ export interface Device extends Printer {
 }
 
 export interface IMapFilter {
-  brand: string;
-  model: string;
-  type: any;
+  brand?: string;
+  model?: string;
+  type?: any;
 }
+
+export type Bounds = { north: firebase.firestore.GeoPoint; south: firebase.firestore.GeoPoint };
 
 export type PrintsGenericError = {
   message: string;

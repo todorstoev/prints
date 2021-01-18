@@ -1,14 +1,15 @@
-import React, { ReactNode, useEffect } from 'react';
-import { useDispatch, useSelector, batch } from 'react-redux';
+import React, { ReactNode, useCallback, useEffect } from 'react';
+import { useDispatch } from 'react-redux';
 import { useLocation } from 'react-router-dom';
 import { MapContainer, TileLayer, useMap } from 'react-leaflet';
+import { throttle } from 'lodash';
 import L from 'leaflet';
 
 import MarkerClusterGroup from 'react-leaflet-markercluster';
 
-import { Coords, MapState, RootState } from '../types';
-import { actions } from '../shared/store';
+import { Coords } from '../types';
 import { convertGeopoint } from '../shared/helpers';
+import { actions } from '../shared/store';
 
 type MapProps = {
   controls: boolean;
@@ -26,44 +27,34 @@ const MapUser: React.FC = () => {
 
   const location = useLocation();
 
-  const { isLoading } = useSelector<RootState, MapState>((state) => state.map);
+  // eslint-disable-next-line
+  const dragHandler = useCallback(
+    throttle(
+      (e: L.DragEndEvent) => {
+        const { target } = e;
+        console.log(e.distance);
+        if (e.distance > 200)
+          dispatch(
+            actions.setCenter(convertGeopoint(target.getCenter().lat, target.getCenter().lng)),
+          );
+      },
+      1000,
+      {
+        trailing: false,
+      },
+    ),
+    [dispatch],
+  );
 
   useEffect(() => {
-    if (location.pathname === '/messages') return;
+    if (location.pathname !== '/') return;
 
-    map.whenReady(() => {
-      const NORTH = convertGeopoint(map.getBounds().getNorth(), 0);
+    map.on('dragend', dragHandler);
 
-      const SOUTH = convertGeopoint(map.getBounds().getSouth(), 0);
-
-      const bounds = { north: NORTH, south: SOUTH };
-
-      dispatch(actions.changeMapBounds(bounds));
-    });
-  }, [map, dispatch, location.pathname]);
-
-  useEffect(() => {
-    if (location.pathname === '/messages') return;
-
-    if (isLoading === true) {
-      const NORTH = convertGeopoint(map.getBounds().getNorth(), 0);
-
-      const SOUTH = convertGeopoint(map.getBounds().getSouth(), 0);
-
-      const bounds = { north: NORTH, south: SOUTH };
-
-      const zoom = map.getZoom();
-
-      if (zoom < 10) {
-        dispatch(actions.addNotification('In order to scan zoom in'));
-      } else {
-        batch(() => {
-          dispatch(actions.changeMapBounds(bounds));
-          dispatch(actions.addNotification('Scanned'));
-        });
-      }
-    }
-  }, [isLoading, map, dispatch, location.pathname]);
+    return () => {
+      map.off('dragend', dragHandler);
+    };
+  }, [map, dispatch, location.pathname, dragHandler]);
 
   return null;
 };

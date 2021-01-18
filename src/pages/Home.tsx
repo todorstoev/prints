@@ -10,38 +10,39 @@ import { Icon } from 'leaflet';
 
 import { Popup } from 'react-leaflet';
 
-import { filter as filterArray, isEmpty } from 'lodash';
+// import { filter as filterArray, isEmpty } from 'lodash';
 
-import { AuthState, Device, IMapFilter, MapState, RootState } from '../types';
-import { convertGeopoint, getUserLocation } from '../shared/helpers';
+import { AuthState, Device, DeviceState, MapState, RootState } from '../types';
+
+import { getUserLocation } from '../shared/helpers';
 
 import Map from '../components/Map';
 
 import MapMarker from '../components/MapMarker';
+
 import { actions } from '../shared/store';
-import { loadDevicesService } from '../shared/services';
 
 type HomeProps = {};
 
-const filterDevices = async (filter: IMapFilter, mapMarkers: Device[], dispatch: any) => {
-  let mappedFilter: any = {};
+// const filterDevices = async (filter: IMapFilter, mapMarkers: Device[], dispatch: any) => {
+//   let mappedFilter: any = {};
 
-  if (filter && filter.brand.length > 0) mappedFilter.brand = filter.brand;
+//   if (filter && filter.brand.length > 0) mappedFilter.brand = filter.brand;
 
-  if (filter && filter.model.length > 0) mappedFilter.model = filter.model;
+//   if (filter && filter.model.length > 0) mappedFilter.model = filter.model;
 
-  if (filter && typeof filter.type !== 'undefined' && typeof filter.type !== 'string')
-    mappedFilter.type = filter.type.value;
+//   if (filter && typeof filter.type !== 'undefined' && typeof filter.type !== 'string')
+//     mappedFilter.type = filter.type.value;
 
-  if (isEmpty(mappedFilter)) {
-    dispatch(actions.addNotification(`No filters selected`));
-    return;
-  }
+//   if (isEmpty(mappedFilter)) {
+//     dispatch(actions.addNotification(`No filters selected`));
+//     return;
+//   }
 
-  const filtered: Device[] = filterArray(mapMarkers, mappedFilter);
+//   const filtered: Device[] = filterArray(mapMarkers, mappedFilter);
 
-  return filtered;
-};
+//   return filtered;
+// };
 
 const DeviceMarkerPopup: React.FC<Device> = (device) => {
   const { user, isAuthenticated } = useSelector<RootState, AuthState>((state) => state.auth);
@@ -76,11 +77,33 @@ export const Home: React.FC<HomeProps> = () => {
 
   const [mapZoom] = useState<number>(13);
 
-  const [mapMarkers, setMapMarkers] = useState<Device[]>([]);
+  const [dispalayDevices, setDisplayDevices] = useState<Device[] | null>(null);
 
-  const { userLoc, bounds, filter } = useSelector<RootState, MapState>((state) => state.map);
+  const { userLoc, allDevices, filteredDevices } = useSelector<RootState, MapState & DeviceState>(
+    (state) => ({
+      ...state.map,
+      ...state.devices,
+    }),
+  );
 
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (filteredDevices instanceof Array) {
+      setDisplayDevices(filteredDevices);
+    } else {
+      setDisplayDevices(allDevices);
+    }
+  }, [allDevices, filteredDevices]);
+
+  useEffect(() => {
+    if (!dispalayDevices) return;
+    dispatch(
+      actions.addNotification(
+        `Found ${dispalayDevices.length} device${dispalayDevices.length === 1 ? '' : 's'}`,
+      ),
+    );
+  }, [dispalayDevices, dispatch]);
 
   useEffect(() => {
     getUserLocation().then((location) => {
@@ -88,35 +111,6 @@ export const Home: React.FC<HomeProps> = () => {
       setULocationRetrieved(true);
     });
   }, [dispatch]);
-
-  useEffect(() => {
-    if (
-      JSON.stringify(bounds.north) !== JSON.stringify(convertGeopoint(0, 0)) &&
-      JSON.stringify(bounds.south) !== JSON.stringify(convertGeopoint(0, 0))
-    ) {
-      loadDevicesService({ northBound: bounds.north, southBound: bounds.south })
-        .then((res) => {
-          return res;
-        })
-        .then((res) => {
-          if (!filter) {
-            setMapMarkers(res);
-            throw new Error('set');
-          } else {
-            return filterDevices(filter, res, dispatch);
-          }
-        })
-        .then((res) => {
-          if (res) {
-            setMapMarkers(res);
-            dispatch(
-              actions.addNotification(`${res.length} device${res.length === 1 ? '' : 's'} found`),
-            );
-          }
-        })
-        .catch((e) => {});
-    }
-  }, [filter, bounds, dispatch]);
 
   const deviceIcon = new Icon({
     iconUrl: './assets/device-location-pin-icon.svg',
@@ -129,13 +123,14 @@ export const Home: React.FC<HomeProps> = () => {
     <Box height={'100%'}>
       {uLocationRetrieved && (
         <Map center={userLoc} zoom={mapZoom} controls={true} dragging={true}>
-          {mapMarkers.map((marker, index) => {
-            return (
-              <MapMarker key={index} position={marker.location} icon={deviceIcon}>
-                {marker && <DeviceMarkerPopup {...marker} />}
-              </MapMarker>
-            );
-          })}
+          {dispalayDevices &&
+            dispalayDevices.map((marker, index) => {
+              return (
+                <MapMarker key={index} position={marker.coordinates} icon={deviceIcon}>
+                  {marker && <DeviceMarkerPopup {...marker} />}
+                </MapMarker>
+              );
+            })}
         </Map>
       )}
     </Box>

@@ -1,12 +1,11 @@
 import { useTheme } from 'emotion-theming';
 import React, { useLayoutEffect, useState } from 'react';
-import { Map, MessageCircle, RefreshCcw, LogIn, Search } from 'react-feather';
-import { useDispatch, useSelector } from 'react-redux';
+import { Map, MessageCircle, LogIn, Search } from 'react-feather';
+import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { Box, Image } from 'rebass';
-import { actions } from '../shared/store';
 
-import { AuthState, RootState } from '../types';
+import { AuthState, MapState, RootState } from '../types';
 import { MapFilter } from './MapFilter';
 
 type Props = {
@@ -18,17 +17,11 @@ const Navigation: React.FC<Props> = ({ location }) => {
 
   const [showFilter, setShowFilter] = useState<boolean>(false);
 
-  const { user, isAuthenticated, isVerifying } = useSelector<RootState, AuthState>(
-    (state) => state.auth,
+  const { user, isAuthenticated, isVerifying } = useSelector<RootState, AuthState & MapState>(
+    (state) => ({ ...state.auth, ...state.map }),
   );
 
-  const dispatch = useDispatch();
-
   const mainTheme = useTheme<any>();
-
-  const searchHandler = (_e: any): void => {
-    dispatch(actions.requestMapBounds());
-  };
 
   useLayoutEffect(() => {
     const config = { attributes: true, childList: true, subtree: true };
@@ -38,15 +31,15 @@ const Navigation: React.FC<Props> = ({ location }) => {
         if (mutation.type === 'childList') {
           if (
             mutation.addedNodes[0] !== undefined &&
-            mutation.addedNodes[0].classList !== undefined &&
-            mutation.addedNodes[0].classList.contains('CookieConsent')
+            (mutation.addedNodes[0] as HTMLElement).classList !== undefined &&
+            (mutation.addedNodes[0] as HTMLElement).classList.contains('CookieConsent')
           ) {
             setBottomBarHeight((mutation.addedNodes[0] as Element).getBoundingClientRect().height);
           }
           if (
             mutation.removedNodes[0] !== undefined &&
-            mutation.removedNodes[0].classList !== undefined &&
-            mutation.removedNodes[0].classList.contains('CookieConsent')
+            (mutation.removedNodes[0] as HTMLElement).classList !== undefined &&
+            (mutation.removedNodes[0] as HTMLElement).classList.contains('CookieConsent')
           ) {
             setBottomBarHeight(null);
           }
@@ -188,57 +181,7 @@ const Navigation: React.FC<Props> = ({ location }) => {
             },
           }}
         >
-          <Box sx={{ position: 'absolute', right: '-10em', bottom: 20 }}>
-            <Link
-              to="/privacy-policy"
-              style={{
-                textDecoration: 'none',
-                color: mainTheme.colors.background,
-                background: 'rgba(0, 0, 0, 0.55)',
-                padding: 6,
-                borderRadius: 5,
-              }}
-            >
-              Privacy Policy
-            </Link>
-          </Box>
-          <Box
-            bg="#fff"
-            color="primary"
-            variant={'navAvatar'}
-            sx={{
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              boxShadow: 'small',
-              ':active': {
-                transform: 'scale(0.9)',
-              },
-            }}
-            onClick={searchHandler}
-          >
-            <RefreshCcw size={42}></RefreshCcw>
-          </Box>
-        </Box>
-      )}
-      {location.pathname === '/' && (
-        <Box
-          variant={'navAvatar'}
-          m={'auto'}
-          my={3}
-          sx={{
-            userSelect: 'none',
-            position: 'fixed',
-            bottom: bottomBarHeight ? bottomBarHeight + 60 : 0 + 60,
-            left: '0em',
-            zIndex: 10,
-            bg: 'transperent',
-            ':hover': {
-              transform: 'scale(0.80)',
-            },
-          }}
-        >
-          <Box sx={{ position: 'absolute', left: 100, bottom: 20 }}>
+          <Box sx={{ position: 'absolute', left: 100, bottom: 10, zIndex: 30 }}>
             <MapFilter {...{ showFilter }}></MapFilter>
           </Box>
           <Box
@@ -260,7 +203,39 @@ const Navigation: React.FC<Props> = ({ location }) => {
           >
             <Search size={42}></Search>
           </Box>
+          <Box sx={{ position: 'absolute', right: '-10em', bottom: 20 }}>
+            <Link
+              to="/privacy-policy"
+              style={{
+                textDecoration: 'none',
+                color: mainTheme.colors.background,
+                background: 'rgba(0, 0, 0, 0.55)',
+                padding: 6,
+                borderRadius: 5,
+              }}
+            >
+              Privacy Policy
+            </Link>
+          </Box>
         </Box>
+      )}
+      {location.pathname === '/' && (
+        <Box
+          variant={'navAvatar'}
+          m={'auto'}
+          my={3}
+          sx={{
+            userSelect: 'none',
+            position: 'fixed',
+            bottom: bottomBarHeight ? bottomBarHeight + 60 : 0 + 60,
+            left: '0em',
+            zIndex: 10,
+            bg: 'transperent',
+            ':hover': {
+              transform: 'scale(0.80)',
+            },
+          }}
+        ></Box>
       )}
     </>
   );

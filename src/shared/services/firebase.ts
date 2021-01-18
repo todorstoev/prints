@@ -1,6 +1,7 @@
 import firebase from 'firebase/app';
 import 'firebase/auth';
 import 'firebase/firestore';
+import * as geofirestore from 'geofirestore';
 
 const firebaseConfig = {
   apiKey: process.env.REACT_APP_APIKEY,
@@ -23,4 +24,7 @@ export const localPersistance = firebase.auth.Auth.Persistence.LOCAL;
 export const nonePersistance = firebase.auth.Auth.Persistence.SESSION;
 
 const baseDb = myFirebase.firestore();
+
+export const GeoFirestore = geofirestore.initializeApp(baseDb as any);
+
 export const db = baseDb;

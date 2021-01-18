@@ -34,6 +34,8 @@ export const CANCEL_DEVICE_REMOVE = '@@devices/CANCEL_DEVICE_REMOVE';
 export const REQUEST_LOAD_DEVICES = '@@devices/REQUEST_LOAD_DEVICES';
 export const SUCCESS_LOAD_DEVICES = '@@devices/SUCCESS_LOAD_DEVICES';
 export const CLEAR_DEVICES = '@devices/CLEAR_DEVICES';
+export const SET_DEVICES_AROUND = '@devices/SET_DEVICES_AROUND';
+export const FILTER_DEVICES = '@devices/FILTER_DEVICES';
 
 export const AUTH_ERROR = '@@errors/LOGIN_ERROR';
 export const CLEAR_AUTH_ERRORS = '@@errors/CLEAR_AUTH_ERRORS';
@@ -47,9 +49,7 @@ export const SET_MESSAGES = '@chat/SET_MESSAGES';
 export const ADD_MESSAGE = '@chat/ADD_MESSAGE';
 export const START_WRITING = `@chat/START_TYPING`;
 
-export const CHANGE_MAP_BOUNDS = '@map/CHANGE_MAP_BOUNDS';
 export const CHANGE_USER_LOC = '@map/CHANGE_USER_LOC';
-export const REQUEST_MAP_BOUNDS = '@map/REQUEST_MAP_BOUNDS';
-export const SUCCESS_MAP_BOUNDS = '@map/SUCCESS_MAP_BOUNDS';
+export const SET_CENTER = '@map/SET_CENTER';
 export const SET_SEARCH_FILTER = '@map/SET_SEARCH_FILTER';
 export const CLEAR_FILTERS = '@map/CLEAR_FILTERS';

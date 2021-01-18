@@ -89,14 +89,13 @@ const AddPrinter: React.FC<Props> = ({ toggleModal }) => {
   ];
 
   const onSubmit = async (data: any, e: any) => {
-    debugger;
     const device: Device = {
       dimensions: {
         width: Number(data.width),
         height: Number(data.height),
         depth: Number(data.depth),
       },
-      location: convertGeopoint(
+      coordinates: convertGeopoint(
         pickerCords ? pickerCords.latitude : userLocation.latitude,
         pickerCords ? pickerCords.longitude : userLocation.longitude,
       ),
