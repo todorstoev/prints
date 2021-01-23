@@ -24,26 +24,6 @@ import { actions } from '../shared/store';
 
 type HomeProps = {};
 
-// const filterDevices = async (filter: IMapFilter, mapMarkers: Device[], dispatch: any) => {
-//   let mappedFilter: any = {};
-
-//   if (filter && filter.brand.length > 0) mappedFilter.brand = filter.brand;
-
-//   if (filter && filter.model.length > 0) mappedFilter.model = filter.model;
-
-//   if (filter && typeof filter.type !== 'undefined' && typeof filter.type !== 'string')
-//     mappedFilter.type = filter.type.value;
-
-//   if (isEmpty(mappedFilter)) {
-//     dispatch(actions.addNotification(`No filters selected`));
-//     return;
-//   }
-
-//   const filtered: Device[] = filterArray(mapMarkers, mappedFilter);
-
-//   return filtered;
-// };
-
 const DeviceMarkerPopup: React.FC<Device> = (device) => {
   const { user, isAuthenticated } = useSelector<RootState, AuthState>((state) => state.auth);
 
@@ -89,15 +69,8 @@ export const Home: React.FC<HomeProps> = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (filteredDevices instanceof Array) {
-      setDisplayDevices(filteredDevices);
-    } else {
-      setDisplayDevices(allDevices);
-    }
-  }, [allDevices, filteredDevices]);
-
-  useEffect(() => {
     if (!dispalayDevices) return;
+
     dispatch(
       actions.addNotification(
         `Found ${dispalayDevices.length} device${dispalayDevices.length === 1 ? '' : 's'}`,
@@ -111,6 +84,16 @@ export const Home: React.FC<HomeProps> = () => {
       setULocationRetrieved(true);
     });
   }, [dispatch]);
+
+  useEffect(() => {
+    if (!uLocationRetrieved) return;
+
+    if (filteredDevices instanceof Array) {
+      setDisplayDevices(filteredDevices);
+    } else if (allDevices instanceof Array) {
+      setDisplayDevices(allDevices);
+    }
+  }, [allDevices, filteredDevices, uLocationRetrieved]);
 
   const deviceIcon = new Icon({
     iconUrl: './assets/device-location-pin-icon.svg',

@@ -73,8 +73,11 @@ export const Container = styled('div')`
   position: fixed;
   z-index: 1000;
   width: 0 auto;
-  top: ${(props: any) => (props.top ? '30px' : 'unset')};
-  bottom: ${(props: any) => (props.top ? 'unset' : '30px')};
+  top: ${(props: any) => (props.top ? props.top : 'unset')};
+  bottom: 100px;
+  @media (max-width: 680px) {
+    bottom: 2%;
+  }
   margin: 0 auto;
   left: 30px;
   right: 30px;
@@ -94,7 +97,7 @@ export const Message = styled(animated.div)`
   overflow: hidden;
   width: 40ch;
   @media (max-width: 680px) {
-    width: 100%;
+    width: 70%;
   }
 `;
 
@@ -110,8 +113,7 @@ export const Content = styled('div')`
   overflow: hidden;
   height: auto;
   border-radius: 3px;
-  margin-top: ${(props) => (props.top ? '0' : '10px')};
-  margin-bottom: ${(props) => (props.top ? '10px' : '0')};
+  margin: 5px 0;
 `;
 
 export const Button = styled('button')`

@@ -31,7 +31,7 @@ export interface ErrorsState {
 export interface DeviceState {
   filteredDevices: Device[] | null;
   userDevices: Device[];
-  allDevices: Device[];
+  allDevices: Device[] | null;
   isLoading: boolean;
 }
 

@@ -108,7 +108,7 @@ const AddPrinter: React.FC<Props> = ({ toggleModal }) => {
       uname: displayName,
       uid,
     };
-
+    debugger;
     dispatch(actions.requestAddDevice(device));
   };
 
@@ -401,7 +401,7 @@ const AddPrinter: React.FC<Props> = ({ toggleModal }) => {
               <Button variant="primary" mr={2} type={'submit'}>
                 Add Device
               </Button>
-              <Button variant="secondary" onClick={() => toggleModal(false)}>
+              <Button variant="secondary" type={'reset'} onClick={() => toggleModal(false)}>
                 Cancel
               </Button>
             </Box>

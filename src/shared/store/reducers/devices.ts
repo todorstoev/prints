@@ -8,7 +8,7 @@ import { remove, filter } from 'lodash';
 const initialState: DeviceState = {
   userDevices: [],
   filteredDevices: null,
-  allDevices: [],
+  allDevices: null,
   isLoading: false,
 };
 
