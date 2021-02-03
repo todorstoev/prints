@@ -166,7 +166,7 @@ const Navigation: React.FC<Props> = ({ location }) => {
                     sx={{
                       color: 'background',
                       textDecoration: 'none',
-                      bg: 'error',
+                      bg: 'red',
                       borderRadius: '180px',
                       padding: '0.2rem 0.6rem',
                       position: 'absolute',

@@ -110,7 +110,7 @@ const ChatRoom: React.FC<RouteComponentProps<any, any, Device>> = ({ location })
     if (!selectedUserRoom.data.recieverHasRed && selectedUserRoom.data.reciever === user.uid) {
       updateMessageStatus(selectedUserRoom, true);
     }
-  }, [selectedUserRoom]);
+  }, [selectedUserRoom, user.uid]);
 
   return (
     <Box p={'1rem'} pt={['5.5rem', '5rem']} height={'100%'} overflow={'hidden'}>
