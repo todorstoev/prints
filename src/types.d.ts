@@ -42,6 +42,9 @@ export interface NotificationState {
 export interface ChatState {
   messages: Message[];
   writing: boolean;
+  rooms: RoomData[];
+  unred: number;
+  loadingRooms: boolean;
 }
 
 export type PrintsUser = {
@@ -62,6 +65,7 @@ export type ChatData = {
   users: string[];
   titles: string[];
   recieverHasRed: boolean;
+  reciever: string;
   chatDevice: Device;
 };
 

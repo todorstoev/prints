@@ -5,7 +5,7 @@ import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { Box, Image } from 'rebass';
 
-import { AuthState, MapState, RootState } from '../types';
+import { AuthState, ChatState, MapState, RootState } from '../types';
 import { MapFilter } from './MapFilter';
 
 type Props = {
@@ -17,9 +17,10 @@ const Navigation: React.FC<Props> = ({ location }) => {
 
   const [showFilter, setShowFilter] = useState<boolean>(false);
 
-  const { user, isAuthenticated, isVerifying } = useSelector<RootState, AuthState & MapState>(
-    (state) => ({ ...state.auth, ...state.map }),
-  );
+  const { user, isAuthenticated, isVerifying, unred } = useSelector<
+    RootState,
+    AuthState & MapState & ChatState
+  >((state) => ({ ...state.auth, ...state.map, ...state.chat }));
 
   const mainTheme = useTheme<any>();
 
@@ -130,40 +131,57 @@ const Navigation: React.FC<Props> = ({ location }) => {
           </Link>
         )}
       </Box>
-      {(location.pathname === '/' || location.pathname === '/profile') && (
-        <Box
-          variant={'navAvatar'}
-          m={'auto'}
-          my={3}
-          sx={{
-            userSelect: 'none',
-            position: 'fixed',
-            bottom: bottomBarHeight ? bottomBarHeight : 0,
-            right: '0em',
-            zIndex: 10,
-            bg: 'transperent',
-          }}
-        >
-          <Link to={'/messages'}>
-            <Box
-              bg="#fff"
-              color="primary"
-              variant={'navAvatar'}
-              sx={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                boxShadow: 'small',
-                ':active': {
-                  transform: 'scale(0.9)',
-                },
-              }}
-            >
-              <MessageCircle size={42}></MessageCircle>
-            </Box>
-          </Link>
-        </Box>
-      )}
+      {(location.pathname === '/' || (location.pathname === '/profile' && isAuthenticated)) &&
+        isAuthenticated && (
+          <Box
+            variant={'navAvatar'}
+            m={'auto'}
+            my={3}
+            sx={{
+              userSelect: 'none',
+              position: 'fixed',
+              bottom: bottomBarHeight ? bottomBarHeight : 0,
+              right: '0em',
+              zIndex: 10,
+              bg: 'transperent',
+            }}
+          >
+            <Link to={'/messages'}>
+              <Box
+                bg="#fff"
+                color="primary"
+                variant={'navAvatar'}
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  boxShadow: 'small',
+                  ':active': {
+                    transform: 'scale(0.9)',
+                  },
+                }}
+              >
+                {unred > 0 && (
+                  <Box
+                    sx={{
+                      color: 'background',
+                      textDecoration: 'none',
+                      bg: 'error',
+                      borderRadius: '180px',
+                      padding: '0.2rem 0.6rem',
+                      position: 'absolute',
+                      top: '-10px',
+                      right: '-5px',
+                    }}
+                  >
+                    {unred}
+                  </Box>
+                )}
+                <MessageCircle size={42}></MessageCircle>
+              </Box>
+            </Link>
+          </Box>
+        )}
       {location.pathname === '/' && (
         <Box
           variant={'navAvatar'}

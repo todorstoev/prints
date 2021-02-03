@@ -8,8 +8,8 @@ import { Input } from '@rebass/forms';
 import { Box, Button, Flex, Heading, Text } from 'rebass';
 import { Send } from 'react-feather';
 
-import { AuthState, RoomData, Message, RootState, Device } from '../types';
-import { addMessage, createNewChat, getUserRooms } from '../shared/services';
+import { AuthState, RoomData, Message, RootState, Device, ChatState } from '../types';
+import { addMessage, createNewChat, updateMessageStatus } from '../shared/services';
 
 import firebase from '../shared/services/firebase';
 import { MessagesList } from '../components/MessagesList';
@@ -26,23 +26,22 @@ const doesChatExists = (chats: RoomData[], deviceFromLocation: Device) =>
 const ChatRoom: React.FC<RouteComponentProps<any, any, Device>> = ({ location }) => {
   const [selectedChat, setSelectedChat] = useState<string>('');
 
-  const [userRooms, setUserRooms] = useState<RoomData[] | undefined>(undefined);
-
   const [selectedUserRoom, setSelectedUserRoom] = useState<RoomData | undefined>();
 
   const [shoudStartNew, setShouldStartNew] = useState<boolean>(false);
 
   const [newChat, setNewChat] = useState<RoomData | undefined>();
 
-  const { user } = useSelector<RootState, AuthState>((state) => ({
+  const { user, rooms, loadingRooms } = useSelector<RootState, AuthState & ChatState>((state) => ({
     ...state.auth,
+    ...state.chat,
   }));
 
   const dispatch = useDispatch();
 
   const { handleSubmit, register, reset } = useForm();
 
-  const transitions = useTransition(typeof userRooms === 'undefined', null, {
+  const transitions = useTransition(loadingRooms, null, {
     from: { opacity: 0 },
     enter: { opacity: 1 },
     leave: { opacity: 0 },
@@ -62,46 +61,56 @@ const ChatRoom: React.FC<RouteComponentProps<any, any, Device>> = ({ location })
       dispatch(actions.startWriting(true));
     }
 
-    await addMessage(newMessage, selectedChat);
+    const reviever = ((selectedUserRoom ?? newChat) as RoomData).data.users.filter(
+      (u) => u !== user.uid,
+    )[0];
+
+    await addMessage(newMessage, selectedChat, reviever);
   };
 
   useEffect(() => {
-    getUserRooms(user).then((res) => {
-      const { state: messagedDevice } = location;
+    const { state: messagedDevice } = location;
 
-      setUserRooms(res);
-      if (messagedDevice !== undefined) {
-        const chatExist = doesChatExists(res, messagedDevice);
-        if (chatExist) {
-          setSelectedChat(chatExist.roomId);
-        } else {
-          const startingNewChat: RoomData = {
-            data: {
-              recieverHasRed: false,
-              users: [user.uid as string, messagedDevice.uid as string],
-              titles: [user.displayName, messagedDevice.uname],
-              chatDevice: messagedDevice,
-            },
-            roomId: `${user.email}:${messagedDevice.uemail}`,
-          };
-
-          setNewChat(startingNewChat);
-
-          setSelectedChat(startingNewChat.roomId);
-
-          setShouldStartNew(true);
-        }
+    if (messagedDevice !== undefined) {
+      const chatExist = doesChatExists(rooms as RoomData[], messagedDevice);
+      if (chatExist) {
+        setSelectedChat(chatExist.roomId);
       } else {
-        if (res[0]) setSelectedChat(res[0].roomId);
+        const startingNewChat: RoomData = {
+          data: {
+            recieverHasRed: false,
+            users: [user.uid as string, messagedDevice.uid as string],
+            titles: [user.displayName, messagedDevice.uname],
+            chatDevice: messagedDevice,
+            reciever: messagedDevice.uid,
+          },
+          roomId: `${user.email}:${messagedDevice.uemail}`,
+        };
+
+        setNewChat(startingNewChat);
+
+        setSelectedChat(startingNewChat.roomId);
+
+        setShouldStartNew(true);
       }
-    });
-  }, [user, location, dispatch]);
+    } else {
+      if (rooms[0] && !loadingRooms) setSelectedChat(rooms[0].roomId);
+    }
+  }, [user, location, dispatch.length, rooms, loadingRooms]);
 
   useEffect(() => {
-    if (userRooms) {
-      setSelectedUserRoom(userRooms.find((room) => room.roomId === selectedChat));
+    if (rooms) {
+      setSelectedUserRoom(rooms.find((room) => room.roomId === selectedChat));
     }
-  }, [userRooms, selectedChat]);
+  }, [selectedChat, rooms]);
+
+  useEffect(() => {
+    if (typeof selectedUserRoom === 'undefined') return;
+
+    if (!selectedUserRoom.data.recieverHasRed && selectedUserRoom.data.reciever === user.uid) {
+      updateMessageStatus(selectedUserRoom, true);
+    }
+  }, [selectedUserRoom]);
 
   return (
     <Box p={'1rem'} pt={['5.5rem', '5rem']} height={'100%'} overflow={'hidden'}>
@@ -123,7 +132,7 @@ const ChatRoom: React.FC<RouteComponentProps<any, any, Device>> = ({ location })
           </animated.div>
         ) : (
           <animated.div key={key} style={{ ...props, width: '100%', height: '100%' }}>
-            {(userRooms as RoomData[]).length <= 0 && !location.state && (
+            {(rooms as RoomData[]).length <= 0 && !location.state && (
               <>
                 <Heading as={'h2'} textAlign="center">
                   Nothing Here
@@ -178,7 +187,7 @@ const ChatRoom: React.FC<RouteComponentProps<any, any, Device>> = ({ location })
                   />
                 )}
               </Box>
-              {((userRooms as RoomData[]).length > 0 || location.state) && (
+              {((rooms as RoomData[]).length > 0 || location.state) && (
                 <Box
                   p={2}
                   overflow={'auto'}
@@ -222,9 +231,7 @@ const ChatRoom: React.FC<RouteComponentProps<any, any, Device>> = ({ location })
                         width={['auto', 'auto', '100%']}
                         sx={{ textAlign: 'left' }}
                         onClick={() => {
-                          const chatExists = (userRooms as RoomData[]).find(
-                            (chat) => newChat === chat,
-                          );
+                          const chatExists = (rooms as RoomData[]).find((chat) => newChat === chat);
 
                           if (!chatExists) setShouldStartNew(true);
 
@@ -235,7 +242,7 @@ const ChatRoom: React.FC<RouteComponentProps<any, any, Device>> = ({ location })
                           newChat.data.titles[0]}
                       </Button>
                     )}
-                    {(userRooms as RoomData[]).map((room) => {
+                    {(rooms as RoomData[]).map((room) => {
                       return (
                         <Button
                           width={['auto', 'auto', '100%']}
@@ -245,9 +252,7 @@ const ChatRoom: React.FC<RouteComponentProps<any, any, Device>> = ({ location })
                           mr={2}
                           mt={[0, 2]}
                           onClick={() => {
-                            const chatExists = (userRooms as RoomData[]).find(
-                              (chat) => room === chat,
-                            );
+                            const chatExists = (rooms as RoomData[]).find((chat) => room === chat);
                             if (chatExists) setShouldStartNew(false);
                             setSelectedChat(room.roomId);
                           }}
@@ -260,7 +265,7 @@ const ChatRoom: React.FC<RouteComponentProps<any, any, Device>> = ({ location })
                   </Box>
                 </Box>
               )}
-              {((userRooms as RoomData[]).length > 0 || location.state) && (
+              {((rooms as RoomData[]).length > 0 || location.state) && (
                 <>
                   <Box
                     bg={'grayBg'}

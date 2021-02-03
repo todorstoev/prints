@@ -168,15 +168,14 @@ export const theme: any = {
     chatItem: {
       variant: 'buttons.primary',
       fontFamily: 'heading',
-      fontWeight: 'heading',
       lineHeight: 'heading',
       bg: 'transparent',
-      color: 'secondary',
+      color: 'rgb(5, 5, 5)',
     },
     chatItemActive: {
       variant: 'buttons.chatItem',
-      bg: 'secondary',
-      color: 'background',
+      bg: 'rgb(112 193 230 / 22%)',
+      color: 'rgb(5, 5, 5)',
     },
   },
 

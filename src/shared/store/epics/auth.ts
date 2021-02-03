@@ -150,7 +150,7 @@ export const verifyUserEpic: Epic<RootAction, RootAction, RootState, typeof API>
     mergeMap(() =>
       getCurrentUser().pipe(
         mergeMap((user) => {
-          if (user) return of(actions.verifyUserSuccess(user));
+          if (user) return of(actions.verifyUserSuccess(user), actions.roomRequest(user));
 
           return of(actions.verifyUserCancel());
         }),

@@ -2,7 +2,13 @@ import { createReducer } from 'typesafe-actions';
 import { RootAction, actions } from '..';
 import { ChatState } from '../../../types';
 
-const initialState: ChatState = { messages: [], writing: false };
+const initialState: ChatState = {
+  messages: [],
+  writing: false,
+  rooms: [],
+  unred: 0,
+  loadingRooms: false,
+};
 
 export const chatReducer = createReducer<ChatState, RootAction>(initialState)
   .handleAction(actions.setMessages, (state, action) => {
@@ -29,5 +35,28 @@ export const chatReducer = createReducer<ChatState, RootAction>(initialState)
     return {
       ...state,
       writing: action.payload,
+    };
+  })
+  .handleAction(actions.roomRequest, (state) => {
+    return {
+      ...state,
+      loadingRooms: true,
+    };
+  })
+  .handleAction(actions.roomSuccess, (state, action) => {
+    const unred = action.payload.data.reduce((accumulator, currentValue) => {
+      if (
+        !currentValue.data.recieverHasRed &&
+        currentValue.data.reciever === action.payload.user.uid
+      )
+        accumulator++;
+      return accumulator;
+    }, 0);
+
+    return {
+      ...state,
+      loadingRooms: false,
+      rooms: action.payload.data,
+      unred,
     };
   });

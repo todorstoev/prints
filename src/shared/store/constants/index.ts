@@ -48,6 +48,9 @@ export const ADD_PREV_MESSAGES = '@chat/ADD_PREV_MESSAGES';
 export const SET_MESSAGES = '@chat/SET_MESSAGES';
 export const ADD_MESSAGE = '@chat/ADD_MESSAGE';
 export const START_WRITING = `@chat/START_TYPING`;
+export const ROOMS_REQUEST = '@@chat/ROOMS_REQUEST';
+export const ROOMS_SUCCESS = '@@chat/ROOMS_SUCCESS';
+export const ROOMS_CANCEL = '@@chat/ROOMS_CANCEL';
 
 export const CHANGE_USER_LOC = '@map/CHANGE_USER_LOC';
 export const SET_CENTER = '@map/SET_CENTER';

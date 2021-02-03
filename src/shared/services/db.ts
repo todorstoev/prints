@@ -490,13 +490,29 @@ export const getNewMessage = (
   return doc;
 };
 
-export const addMessage = (message: Message, selected: string): Promise<boolean> => {
+export const addMessage = (
+  message: Message,
+  selected: string,
+  reciever: string,
+): Promise<boolean> => {
   return new Promise((resolve, reject) => {
     db.collection('chats')
       .doc(selected)
-      .collection('messages')
-      .add(message)
+      .update({ recieverHasRed: false, reciever })
+      .then(() => {
+        return db.collection('chats').doc(selected).collection('messages').add(message);
+      })
       .then(() => resolve(true))
-      .catch((err) => reject(err));
+      .catch((e) => reject(e));
+  });
+};
+
+export const updateMessageStatus = (room: RoomData, recieverHasRed: boolean): Promise<boolean> => {
+  return new Promise((resolve, reject) => {
+    db.collection('chats')
+      .doc(room.roomId)
+      .update({ recieverHasRed })
+      .then(() => resolve(true))
+      .catch((e) => reject(e));
   });
 };
