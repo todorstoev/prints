@@ -9,4 +9,8 @@ import 'react-leaflet-markercluster/dist/styles.min.css';
 
 import './index.css';
 
+import * as serviceWorkerRegistration from './serviceWorkerRegistration';
+
 ReactDOM.render(<Root />, document.getElementById('root'));
+
+serviceWorkerRegistration.register();
