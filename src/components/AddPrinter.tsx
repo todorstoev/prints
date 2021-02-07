@@ -108,7 +108,7 @@ const AddPrinter: React.FC<Props> = ({ toggleModal }) => {
       uname: displayName,
       uid,
     };
-    debugger;
+
     dispatch(actions.requestAddDevice(device));
   };
 

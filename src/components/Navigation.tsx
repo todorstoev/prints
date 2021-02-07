@@ -1,9 +1,10 @@
 import { useTheme } from 'emotion-theming';
-import React, { useLayoutEffect, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
 import { Map, MessageCircle, LogIn, Search } from 'react-feather';
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { Box, Image } from 'rebass';
+import { animated, useTransition } from 'react-spring';
+import { Box, Flex, Image } from 'rebass';
 
 import { AuthState, ChatState, MapState, RootState } from '../types';
 import { MapFilter } from './MapFilter';
@@ -12,10 +13,18 @@ type Props = {
   location: any;
 };
 
+enum Network {
+  online = 'online',
+  offline = 'offline',
+  hidden = 'hidden',
+}
+
 const Navigation: React.FC<Props> = ({ location }) => {
   const [bottomBarHeight, setBottomBarHeight] = useState<number | null>(null);
 
   const [showFilter, setShowFilter] = useState<boolean>(false);
+
+  const [network, setNetwork] = useState<Network>(Network.hidden);
 
   const { user, isAuthenticated, isVerifying, unred } = useSelector<
     RootState,
@@ -27,7 +36,7 @@ const Navigation: React.FC<Props> = ({ location }) => {
   useLayoutEffect(() => {
     const config = { attributes: true, childList: true, subtree: true };
 
-    const observer = new MutationObserver((mutationsList, observer) => {
+    const observer = new MutationObserver((mutationsList) => {
       for (const mutation of mutationsList) {
         if (mutation.type === 'childList') {
           if (
@@ -50,6 +59,44 @@ const Navigation: React.FC<Props> = ({ location }) => {
 
     observer.observe(document.body, config);
   }, []);
+
+  const handleConnection = (e: Event) => {
+    if (navigator.onLine) {
+      setNetwork(Network.online);
+    } else {
+      setNetwork(Network.offline);
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener('online', handleConnection);
+    window.addEventListener('offline', handleConnection);
+  }, []);
+
+  const transitions = useTransition(network, null, {
+    from: {
+      zIndex: 100,
+      position: 'absolute',
+      opacity: 0,
+      color: '#fff',
+      left: '50%',
+      top: 10,
+      borderRadius: 5,
+      transform: 'translate(-50%, -100px)',
+      background: 'rgba(0, 0, 0, 0.55)',
+    },
+    enter: () => async (next: any) => {
+      return await next({ opacity: 1, transform: 'translate(-50%, 0%)' });
+    },
+    leave: () => async (next: any) => {
+      return await next({ opacity: 0, transform: 'translate(-50%, -100px)' });
+    },
+    onRest: (item: Network) => {
+      setTimeout(() => {
+        if (item === Network.online) setNetwork(Network.hidden);
+      }, 2000);
+    },
+  } as any);
 
   return (
     <>
@@ -255,6 +302,40 @@ const Navigation: React.FC<Props> = ({ location }) => {
           }}
         ></Box>
       )}
+      {transitions.map(({ item, key, props }) => {
+        if (item === Network.online)
+          return (
+            <animated.div key={key} style={props}>
+              <Flex p={2} alignItems={'center'} justifyContent={'center'}>
+                <Box
+                  mx={2}
+                  sx={{
+                    height: '10px',
+                    width: '10px',
+                    borderRadius: 180,
+                    background: 'lightgreen',
+                  }}
+                />
+                You are now online
+              </Flex>
+            </animated.div>
+          );
+
+        if (item === Network.offline)
+          return (
+            <animated.div key={key} style={props}>
+              <Flex p={2} alignItems={'center'} justifyContent={'center'}>
+                <Box
+                  mx={2}
+                  sx={{ height: '10px', width: '10px', borderRadius: 180, background: 'red' }}
+                />
+                You are now offline
+              </Flex>
+            </animated.div>
+          );
+
+        return <></>;
+      })}
     </>
   );
 };
