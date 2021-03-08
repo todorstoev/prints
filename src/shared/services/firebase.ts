@@ -26,25 +26,32 @@ export const nonePersistance = firebase.auth.Auth.Persistence.SESSION;
 
 const baseDb = myFirebase.firestore();
 
-export const messaging = firebase.messaging();
+if (firebase.messaging.isSupported()) {
+  const messaging = firebase.messaging();
 
-messaging
-  .getToken({ vapidKey: process.env.REACT_APP_WEBPUSH })
-  .then((currentToken) => {
-    if (currentToken) {
-      // Send the token to your server and update the UI if necessary
+  messaging
+    .getToken({ vapidKey: process.env.REACT_APP_WEBPUSH })
+    .then((currentToken) => {
+      if (currentToken) {
+        // Send the token to your server and update the UI if necessary
+        // ...
+        console.log('Token valid');
+      } else {
+        // Show permission request UI
+        console.log('No registration token available. Request permission to generate one.');
+        // ...
+      }
+    })
+    .catch((err) => {
+      console.log('An error occurred while retrieving token. ', err);
       // ...
-      console.log('Token valid');
-    } else {
-      // Show permission request UI
-      console.log('No registration token available. Request permission to generate one.');
-      // ...
-    }
-  })
-  .catch((err) => {
-    console.log('An error occurred while retrieving token. ', err);
+    });
+
+  messaging.onMessage((payload) => {
+    console.log('Message received. ', payload);
     // ...
   });
+}
 
 Notification.requestPermission().then((permission) => {
   if (permission === 'granted') {
@@ -54,11 +61,6 @@ Notification.requestPermission().then((permission) => {
   } else {
     console.log('Unable to get permission to notify.');
   }
-});
-
-messaging.onMessage((payload) => {
-  console.log('Message received. ', payload);
-  // ...
 });
 
 export const GeoFirestore = geofirestore.initializeApp(baseDb as any);

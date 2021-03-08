@@ -10,7 +10,6 @@ import 'react-leaflet-markercluster/dist/styles.min.css';
 import './index.css';
 
 import * as serviceWorkerRegistration from './serviceWorkerRegistration';
-import { messaging } from './shared/services/firebase';
 
 ReactDOM.render(<Root />, document.getElementById('root'));
 
