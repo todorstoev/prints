@@ -7,6 +7,7 @@
   "app_name": "3dreact",
   "short_name": "3dreact",
   "name": "3dreact",
+  "gcm_sender_id": "103953800507",
   "description": "Find 3d printers around you",
   "icons": [
     {

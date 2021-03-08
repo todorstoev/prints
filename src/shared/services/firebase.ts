@@ -1,6 +1,7 @@
 import firebase from 'firebase/app';
 import 'firebase/auth';
 import 'firebase/firestore';
+import 'firebase/messaging';
 import * as geofirestore from 'geofirestore';
 
 const firebaseConfig = {
@@ -24,6 +25,41 @@ export const localPersistance = firebase.auth.Auth.Persistence.LOCAL;
 export const nonePersistance = firebase.auth.Auth.Persistence.SESSION;
 
 const baseDb = myFirebase.firestore();
+
+export const messaging = firebase.messaging();
+
+messaging
+  .getToken({ vapidKey: process.env.REACT_APP_WEBPUSH })
+  .then((currentToken) => {
+    if (currentToken) {
+      // Send the token to your server and update the UI if necessary
+      // ...
+      console.log('Token valid');
+    } else {
+      // Show permission request UI
+      console.log('No registration token available. Request permission to generate one.');
+      // ...
+    }
+  })
+  .catch((err) => {
+    console.log('An error occurred while retrieving token. ', err);
+    // ...
+  });
+
+Notification.requestPermission().then((permission) => {
+  if (permission === 'granted') {
+    console.log('Notification permission granted.');
+    // TODO(developer): Retrieve a registration token for use with FCM.
+    // ...
+  } else {
+    console.log('Unable to get permission to notify.');
+  }
+});
+
+messaging.onMessage((payload) => {
+  console.log('Message received. ', payload);
+  // ...
+});
 
 export const GeoFirestore = geofirestore.initializeApp(baseDb as any);
 

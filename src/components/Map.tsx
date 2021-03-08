@@ -32,14 +32,14 @@ const MapUser: React.FC = () => {
     throttle(
       (e: L.DragEndEvent) => {
         const { target } = e;
-        debugger;
+
         if (e.target._size.x > 1000 && e.distance > 200) {
           dispatch(
             actions.setCenter(convertGeopoint(target.getCenter().lat, target.getCenter().lng)),
           );
         }
 
-        if (e.target._size.x < 1000 && e.distance > 50) {
+        if (e.target._size.x < 1000 && e.distance > 100) {
           dispatch(
             actions.setCenter(convertGeopoint(target.getCenter().lat, target.getCenter().lng)),
           );

@@ -334,7 +334,7 @@ const Navigation: React.FC<Props> = ({ location }) => {
             </animated.div>
           );
 
-        return <></>;
+        return <Box key={key}></Box>;
       })}
     </>
   );

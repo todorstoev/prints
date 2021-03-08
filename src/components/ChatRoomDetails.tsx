@@ -10,7 +10,8 @@ import { AuthState, RoomData, RootState } from '../types';
 import { ChatDetailsControls } from '../components/ChatDetailsControls';
 import MapMarker from '../components/MapMarker';
 import { MapContainer, TileLayer } from 'react-leaflet';
-import firebase from 'firebase';
+
+import firebase from '../shared/services/firebase';
 
 type Props = {
   data: RoomData;
