@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 import { animated, useTransition } from 'react-spring';
 import { Box, Flex, Image } from 'rebass';
 
-import { AuthState, ChatState, MapState, RootState } from '../types';
+import { AuthState, ChatState, Device, DeviceState, MapState, RootState } from '../types';
 import { MapFilter } from './MapFilter';
 
 type Props = {
@@ -25,6 +25,12 @@ const Navigation: React.FC<Props> = ({ location }) => {
   const [showFilter, setShowFilter] = useState<boolean>(false);
 
   const [network, setNetwork] = useState<Network>(Network.hidden);
+
+  const [dispalayDevices, setDisplayDevices] = useState<Device[] | null>(null);
+
+  const { allDevices, filteredDevices } = useSelector<RootState, DeviceState>((state) => ({
+    ...state.devices,
+  }));
 
   const { user, isAuthenticated, isVerifying, unred } = useSelector<
     RootState,
@@ -59,6 +65,14 @@ const Navigation: React.FC<Props> = ({ location }) => {
 
     observer.observe(document.body, config);
   }, []);
+
+  useEffect(() => {
+    if (filteredDevices instanceof Array) {
+      setDisplayDevices(filteredDevices);
+    } else if (allDevices instanceof Array) {
+      setDisplayDevices(allDevices);
+    }
+  }, [allDevices, filteredDevices]);
 
   const handleConnection = (e: Event) => {
     if (navigator.onLine) {
@@ -266,6 +280,22 @@ const Navigation: React.FC<Props> = ({ location }) => {
             }}
             onClick={() => setShowFilter(!showFilter)}
           >
+            {dispalayDevices && dispalayDevices?.length > 0 && (
+              <Box
+                sx={{
+                  color: 'background',
+                  textDecoration: 'none',
+                  bg: 'secondary',
+                  borderRadius: '180px',
+                  padding: '0.2rem 0.6rem',
+                  position: 'absolute',
+                  top: '-10px',
+                  right: '-5px',
+                }}
+              >
+                {dispalayDevices?.length}
+              </Box>
+            )}
             <Search size={42}></Search>
           </Box>
           <Box sx={{ position: 'absolute', right: '-10em', bottom: 20 }}>

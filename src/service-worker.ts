@@ -14,8 +14,6 @@ import { precacheAndRoute } from 'workbox-precaching';
 import { CacheableResponsePlugin } from 'workbox-cacheable-response';
 import { registerRoute } from 'workbox-routing';
 import { NetworkFirst, StaleWhileRevalidate, CacheFirst } from 'workbox-strategies';
-import firebase from 'firebase/app';
-import 'firebase/messaging';
 
 declare const self: ServiceWorkerGlobalScope;
 

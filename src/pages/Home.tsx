@@ -57,8 +57,6 @@ export const Home: React.FC<HomeProps> = () => {
 
   const [mapZoom] = useState<number>(13);
 
-  const [dispalayDevices, setDisplayDevices] = useState<Device[] | null>(null);
-
   const { userLoc, allDevices, filteredDevices } = useSelector<RootState, MapState & DeviceState>(
     (state) => ({
       ...state.map,
@@ -69,31 +67,11 @@ export const Home: React.FC<HomeProps> = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (!dispalayDevices) return;
-
-    dispatch(
-      actions.addNotification(
-        `Found ${dispalayDevices.length} device${dispalayDevices.length === 1 ? '' : 's'}`,
-      ),
-    );
-  }, [dispalayDevices, dispatch]);
-
-  useEffect(() => {
     getUserLocation().then((location) => {
       dispatch(actions.changeUserLoc(location));
       setULocationRetrieved(true);
     });
   }, [dispatch]);
-
-  useEffect(() => {
-    if (!uLocationRetrieved) return;
-
-    if (filteredDevices instanceof Array) {
-      setDisplayDevices(filteredDevices);
-    } else if (allDevices instanceof Array) {
-      setDisplayDevices(allDevices);
-    }
-  }, [allDevices, filteredDevices, uLocationRetrieved]);
 
   const deviceIcon = new Icon({
     iconUrl: './assets/device-location-pin-icon.svg',
@@ -106,8 +84,18 @@ export const Home: React.FC<HomeProps> = () => {
     <Box height={'100%'}>
       {uLocationRetrieved && (
         <Map center={userLoc} zoom={mapZoom} controls={true} dragging={true}>
-          {dispalayDevices &&
-            dispalayDevices.map((marker, index) => {
+          {!(filteredDevices instanceof Array) &&
+            allDevices &&
+            allDevices.map((marker, index) => {
+              return (
+                <MapMarker key={index} position={marker.coordinates} icon={deviceIcon}>
+                  {marker && <DeviceMarkerPopup {...marker} />}
+                </MapMarker>
+              );
+            })}
+          {filteredDevices instanceof Array &&
+            filteredDevices &&
+            filteredDevices.map((marker, index) => {
               return (
                 <MapMarker key={index} position={marker.coordinates} icon={deviceIcon}>
                   {marker && <DeviceMarkerPopup {...marker} />}
