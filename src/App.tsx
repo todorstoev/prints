@@ -20,11 +20,10 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Navigation from './components/Navigation';
 import Loader from 'react-loader-spinner';
 
-import firebase, { messaging } from './shared/services/firebase';
+import firebase from './shared/services/firebase';
 import { actions } from './shared/store';
 
 import { RootState } from './types';
-import { fbErrorMessages } from './shared/helpers';
 
 const Home = lazy(() => import('./pages/Home'));
 const Login = lazy(() => import('./pages/Login'));
@@ -69,8 +68,6 @@ const CookieConsentComponent: React.FC = () => {
 };
 
 const App: React.FC = () => {
-  const [norPermission, setNotPermission] = useState<boolean>(false);
-
   const location = useLocation();
 
   const transitions = useTransition(location, (location) => location.pathname, {
@@ -87,32 +84,6 @@ const App: React.FC = () => {
   const dispatch = useDispatch();
 
   const mainTheme = useTheme<any>();
-
-  useEffect(() => {
-    if (firebase.messaging.isSupported()) {
-      messaging
-        .getToken({ vapidKey: process.env.REACT_APP_WEBPUSH })
-        .then((currentToken) => {
-          if (currentToken) {
-            // Send the token to your server and update the UI if necessary
-            // ...
-            console.log('Token valid');
-          } else {
-            // Show permission request UI
-            console.log('No registration token available. Request permission to generate one.');
-            // ...
-          }
-        })
-        .catch((err) => {
-          dispatch(actions.addNotification(fbErrorMessages(err)));
-        });
-
-      messaging.onMessage((payload) => {
-        console.log('Message received. ', payload);
-        // ...
-      });
-    }
-  }, []);
 
   return (
     <Box className="App" height={'100vh'} width={'100%'} style={{ overflow: 'hidden' }}>

@@ -20,7 +20,14 @@ export default firebase;
 export const myFirebase = firebase.initializeApp(firebaseConfig);
 export const googleProvider = new firebase.auth.GoogleAuthProvider();
 export const facebookProvider = new firebase.auth.FacebookAuthProvider();
-export const messaging = firebase.messaging();
+
+let messaging: firebase.messaging.Messaging | null = null;
+
+export const messagingSuported = firebase.messaging.isSupported();
+
+if (messagingSuported) {
+  messaging = firebase.messaging();
+}
 
 export const localPersistance = firebase.auth.Auth.Persistence.LOCAL;
 export const nonePersistance = firebase.auth.Auth.Persistence.SESSION;
@@ -30,3 +37,5 @@ const baseDb = myFirebase.firestore();
 export const GeoFirestore = geofirestore.initializeApp(baseDb as any);
 
 export const db = baseDb;
+
+export const fbMessaging = messaging;
