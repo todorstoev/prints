@@ -2,6 +2,8 @@ import { applyMiddleware, createStore } from 'redux';
 
 import { createEpicMiddleware } from 'redux-observable';
 
+import { batch } from 'react-redux';
+
 import { logger } from 'redux-logger';
 
 import { ActionType } from 'typesafe-actions';
@@ -13,6 +15,8 @@ import * as actions from './actions';
 import rootReducer from './reducers';
 
 import * as API from '../services';
+
+import { fbMessaging } from '../services/firebase';
 
 import { rootEpics } from './epics';
 
@@ -30,15 +34,45 @@ if (process.env.REACT_APP_ENV === 'dev') {
 
 const configureStore = (initialState?: RootState) => {
   const store = createStore(rootReducer, initialState, applyMiddleware(...middlewares));
+  let shouldProceedSSO = sessionStorage.getItem('3dreact:sso');
 
   epicMiddleware.run(rootEpics);
 
-  if (sessionStorage.getItem('3dreact:sso')) {
-    store.dispatch(actions.requestSsoLogin());
-    sessionStorage.removeItem('3dreact:sso');
-  } else {
-    store.dispatch(actions.verifyUserRequest());
+  if (fbMessaging) {
+    fbMessaging
+      .getToken({ vapidKey: process.env.REACT_APP_WEBPUSH })
+      .then((currentToken) => {
+        if (currentToken) {
+          batch(() => {
+            store.dispatch(
+              shouldProceedSSO ? actions.requestSsoLogin() : actions.verifyUserRequest(),
+            );
+            store.dispatch(actions.setNotficationPermision(true));
+            store.dispatch(actions.setCloudMessageToken(currentToken));
+          });
+        } else {
+          batch(() => {
+            store.dispatch(
+              shouldProceedSSO ? actions.requestSsoLogin() : actions.verifyUserRequest(),
+            );
+            store.dispatch(actions.setCloudMessageToken(false));
+            store.dispatch(actions.setNotficationPermision(true));
+          });
+        }
+      })
+      .catch((err) => {
+        batch(() => {
+          console.log('An error occurred while retrieving token. ', err);
+          store.dispatch(
+            shouldProceedSSO ? actions.requestSsoLogin() : actions.verifyUserRequest(),
+          );
+          store.dispatch(actions.setNotficationPermision(false));
+          store.dispatch(actions.setCloudMessageToken(false));
+        });
+      });
   }
+
+  if (shouldProceedSSO) sessionStorage.removeItem('3dreact:sso');
 
   return store;
 };

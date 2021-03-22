@@ -4,3 +4,4 @@ export * from './errors';
 export * from './notifications';
 export * from './chat';
 export * from './map';
+export * from './options';

@@ -1,10 +1,16 @@
 export type RootState = {
+  options: OptionsState;
   auth: AuthState;
   errors: ErrorsState;
   devices: DeviceState;
   map: MapState;
   notifications: NotificationState;
   chat: ChatState;
+};
+
+export type OptionsState = {
+  cloudMessageTokenValid: boolean | string;
+  notificationsPermission: boolean;
 };
 
 export type AuthState = {

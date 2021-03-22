@@ -20,7 +20,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Navigation from './components/Navigation';
 import Loader from 'react-loader-spinner';
 
-import firebase from './shared/services/firebase';
+import { fbMessaging } from './shared/services/firebase';
 import { actions } from './shared/store';
 
 import { RootState } from './types';
@@ -79,11 +79,26 @@ const App: React.FC = () => {
   const { isAuthenticated, isVerifying } = useSelector((state: RootState) => ({
     isAuthenticated: state.auth.isAuthenticated,
     isVerifying: state.auth.isVerifying,
+    options: state.options,
   }));
 
   const dispatch = useDispatch();
 
   const mainTheme = useTheme<any>();
+
+  useEffect(() => {
+    fbMessaging?.onMessage({
+      next: (res) => {
+        debugger;
+      },
+      complete: () => {
+        debugger;
+      },
+      error: () => {
+        debugger;
+      },
+    });
+  });
 
   return (
     <Box className="App" height={'100vh'} width={'100%'} style={{ overflow: 'hidden' }}>

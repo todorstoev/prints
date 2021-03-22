@@ -5,6 +5,7 @@ import { deviceReducer } from './devices';
 import { notificationsReducer } from './notifications';
 import { chatReducer } from './chat';
 import { mapReducer } from './map';
+import { optionsReducer } from './options';
 
 export default combineReducers({
   auth: authReducer,
@@ -13,4 +14,5 @@ export default combineReducers({
   notifications: notificationsReducer,
   chat: chatReducer,
   map: mapReducer,
+  options: optionsReducer,
 });
