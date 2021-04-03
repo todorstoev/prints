@@ -2,5 +2,14 @@
   "projects": {
     "default": "prints-9537b",
     "prod": "dreact-4188b"
+  },
+  "targets": {
+    "prints-9537b": {
+      "hosting": {
+        "default": [
+          "build"
+        ]
+      }
+    }
   }
 }

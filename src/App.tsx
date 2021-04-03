@@ -86,20 +86,6 @@ const App: React.FC = () => {
 
   const mainTheme = useTheme<any>();
 
-  useEffect(() => {
-    fbMessaging?.onMessage({
-      next: (res) => {
-        debugger;
-      },
-      complete: () => {
-        debugger;
-      },
-      error: () => {
-        debugger;
-      },
-    });
-  });
-
   return (
     <Box className="App" height={'100vh'} width={'100%'} style={{ overflow: 'hidden' }}>
       {transitions.map(({ item: location, props, key }) => (

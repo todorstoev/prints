@@ -27,6 +27,18 @@ export const messagingSuported = firebase.messaging.isSupported();
 
 if (messagingSuported) {
   messaging = firebase.messaging();
+
+  messaging.onMessage({
+    next: (res) => {
+      debugger;
+    },
+    complete: () => {
+      debugger;
+    },
+    error: () => {
+      debugger;
+    },
+  });
 }
 
 export const localPersistance = firebase.auth.Auth.Persistence.LOCAL;
