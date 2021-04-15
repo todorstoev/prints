@@ -50,7 +50,7 @@ const configureStore = (initialState?: RootState) => {
               shouldProceedSSO ? actions.requestSsoLogin() : actions.verifyUserRequest(),
             );
             store.dispatch(actions.setNotficationPermision(true));
-            // store.dispatch(actions.setCloudMessageToken(currentToken));
+            store.dispatch(actions.setCloudMessageToken(true));
           });
         } else {
           batch(() => {
@@ -74,7 +74,7 @@ const configureStore = (initialState?: RootState) => {
       });
 
     fbMessaging.onMessage((payload) => {
-      console.log('Message received. ', payload);
+      store.dispatch(actions.addNotification(payload.data.notification.title));
     });
   }
 

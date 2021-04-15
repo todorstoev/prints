@@ -9,7 +9,7 @@ export type RootState = {
 };
 
 export type OptionsState = {
-  cloudMessageTokenValid: boolean | string;
+  cloudMessageTokenValid: boolean;
   notificationsPermission: boolean;
 };
 
