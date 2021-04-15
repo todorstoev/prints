@@ -34,6 +34,7 @@ if (process.env.REACT_APP_ENV === 'dev') {
 
 const configureStore = (initialState?: RootState) => {
   const store = createStore(rootReducer, initialState, applyMiddleware(...middlewares));
+
   let shouldProceedSSO = sessionStorage.getItem('3dreact:sso');
 
   epicMiddleware.run(rootEpics);
@@ -43,12 +44,13 @@ const configureStore = (initialState?: RootState) => {
       .getToken({ vapidKey: process.env.REACT_APP_WEBPUSH })
       .then((currentToken) => {
         if (currentToken) {
+          console.log(currentToken);
           batch(() => {
             store.dispatch(
               shouldProceedSSO ? actions.requestSsoLogin() : actions.verifyUserRequest(),
             );
             store.dispatch(actions.setNotficationPermision(true));
-            store.dispatch(actions.setCloudMessageToken(currentToken));
+            // store.dispatch(actions.setCloudMessageToken(currentToken));
           });
         } else {
           batch(() => {
@@ -70,6 +72,10 @@ const configureStore = (initialState?: RootState) => {
           store.dispatch(actions.setCloudMessageToken(false));
         });
       });
+
+    fbMessaging.onMessage((payload) => {
+      console.log('Message received. ', payload);
+    });
   }
 
   if (shouldProceedSSO) sessionStorage.removeItem('3dreact:sso');

@@ -1,4 +1,4 @@
-import React, { Suspense, lazy, useState, useEffect } from 'react';
+import React, { Suspense, lazy } from 'react';
 import { Route, Switch, useLocation, Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTheme } from 'emotion-theming';
@@ -20,7 +20,6 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Navigation from './components/Navigation';
 import Loader from 'react-loader-spinner';
 
-import { fbMessaging } from './shared/services/firebase';
 import { actions } from './shared/store';
 
 import { RootState } from './types';

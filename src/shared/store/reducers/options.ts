@@ -9,7 +9,6 @@ const initialState: OptionsState = {
   notificationsPermission: false,
 };
 
-let id: number = 0;
 
 export const optionsReducer = createReducer<OptionsState, RootAction>(initialState)
   .handleAction(actions.setCloudMessageToken, (state, action) => {
