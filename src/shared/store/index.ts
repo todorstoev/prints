@@ -44,7 +44,6 @@ const configureStore = (initialState?: RootState) => {
       .getToken({ vapidKey: process.env.REACT_APP_WEBPUSH })
       .then((currentToken) => {
         if (currentToken) {
-          console.log(currentToken);
           batch(() => {
             store.dispatch(
               shouldProceedSSO ? actions.requestSsoLogin() : actions.verifyUserRequest(),
@@ -74,7 +73,7 @@ const configureStore = (initialState?: RootState) => {
       });
 
     fbMessaging.onMessage((payload) => {
-      store.dispatch(actions.addNotification(payload.data.notification.title));
+      store.dispatch(actions.addNotification(payload.notification.title));
     });
   }
 
